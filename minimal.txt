@@ -1,6 +1,13 @@
-Folgende Echtzeit-Daten auf der Website(s) sind mindestens gefordert: Team-Namen, Position des 
-Fahrzeuges im Parcours, erkannte Pflanzenart, Reihen-Position der im Zielbereich gefundenen 
-gleichen Pflanzenart, Geräte-Status-Informationen wie Start/Stopp-, Fehlermeldungen. Es soll auf 
+Folgende Echtzeit-Daten auf der Website(s) sind mindestens gefordert: 
+
+Team-Namen, Position des 
+Fahrzeuges im Parcours,
+ erkannte Pflanzenart, 
+ Reihen-Position der im Zielbereich gefundenen 
+gleichen Pflanzenart, 
+Geräte-Status-Informationen wie Start/Stopp-, Fehlermeldungen. Es soll auf 
 der Website eine eigene Zeit-Messung dargestellt sein mit 1 Sekunde Genauigkeit.  
+
+
 
 
