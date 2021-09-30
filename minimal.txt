@@ -1,12 +1,20 @@
 Folgende Echtzeit-Daten auf der Website(s) sind mindestens gefordert: 
 
-Team-Namen, Position des 
-Fahrzeuges im Parcours,
- erkannte Pflanzenart, 
- Reihen-Position der im Zielbereich gefundenen 
-gleichen Pflanzenart, 
-Geräte-Status-Informationen wie Start/Stopp-, Fehlermeldungen. Es soll auf 
+static:
+Team-Namen
+Es soll auf 
 der Website eine eigene Zeit-Messung dargestellt sein mit 1 Sekunde Genauigkeit.  
+
+
+Position des 
+Fahrzeuges im Parcours: Http request von aussen. 
+
+erkannte Pflanzenart: Entweder auf Server oder von aussen
+Reihen-Position der im Zielbereich gefundenen: von aussen, kann man visualisieren [ ] [ ] [ ]
+gleichen Pflanzenart: Entweder auf Server oder von aussen
+
+Geräte-Status-Informationen wie Start/Stopp-, Fehlermeldungen.
+
 
 
 
