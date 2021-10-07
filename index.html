@@ -4,12 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
+    <script src="js/main.js"></script>
     <!--<link rel="stylesheet" href="main_black.css"> -->
 
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <!-- hamburger btn-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style type="text/css">
+    
         body {
             height: 100vh;
             margin: 0;
@@ -36,6 +38,22 @@
         footer {
             margin-top: auto;
         }
+
+
+        /* css flex Box (will support custom number of columns, depeding no the number of plants at the end)
+        
+        */
+        .flex-container {
+            display: flex;
+            background-color: DodgerBlue;
+        }
+
+        .flex-container>div {
+            background-color: #f1f1f1;
+            margin: 10px;
+            padding: 20px;
+            font-size: 30px;
+        }
     </style>
 
     <title>Rover</title>
@@ -47,17 +65,41 @@
     </header>
     <div class="w3-container">
         <h1>Regelmässige Statusupdates.</a></h1>
-   
-    <div class="w3-container">
-        <p>Rover gestartet. </p>
-    </div>
 
-    <div class="w3-container">
-        <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p>
-        <p>Pflanze erkannt: </p> <!-- Hier ein Symbol bild einfügen, -->
-    </div>
+        <div class="w3-container">
+            <p>Rover gestartet. </p>
+        </div>
 
-</div>
+        <div class="w3-container">
+            <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p>
+            <p>Pflanze erkannt: </p> <!-- Hier ein Symbol bild einfügen, -->
+        </div>
+
+
+        <div class="w3-container">
+            <p>Reihen-Position: </p>
+        </div>
+
+
+
+        <div class="flex-container">
+            <div class="w3-container">
+                <img class="w3-image" src="img/plant-icons/plant1.png" alt="">
+            </div>
+            <div class="w3-container">
+                <img class="w3-image" src="img/plant-icons/plant2.png" alt="">  
+            </div>
+            <div class="w3-container">
+                <img class="w3-image" src="img/plant-icons/plant3.png" alt="">
+            </div>
+            <div class="w3-container">
+                <img class="w3-image" src="img/plant-icons/plant4.png" alt="">
+            </div>
+            <div class="w3-container">
+                <img class="w3-image" src="img/plant-icons/plant5.png" alt="">
+            </div>
+        </div>
+    </div>
 </body>
 
 <footer>

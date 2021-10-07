@@ -1,0 +1,13 @@
+After some extensive research, I have come to the following conclusion:
+
+- gunicron vs uWSGI: Doesn't matter that much for first time, use gunicorn,
+it is easier to install.
+
+- Nginx for the webserver. 
+
+All of this inside a docker container.
+
+What it is:
+gunicorn/uwsgi: the thing executing the python code
+nginx (reverse proxy): the thing preparing incoming requests
+ for gunicorn/uwsgi
