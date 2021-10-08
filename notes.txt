@@ -11,3 +11,8 @@ What it is:
 gunicorn/uwsgi: the thing executing the python code
 nginx (reverse proxy): the thing preparing incoming requests
  for gunicorn/uwsgi
+
+meinheld gunicorn docker and flask was the first try. It kind of worked. 
+TODO:
+- change arrow to have arrow shape and not square around arrow. 
+- Integrate with flask
