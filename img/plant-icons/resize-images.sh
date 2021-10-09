@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#This script was written to normalize the file size of all images inside the folder it's being run.
+
 images=$(identify -format '%f\n' * 2>/dev/null)
 
 IFS=$'\n'
