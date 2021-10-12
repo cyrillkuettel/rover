@@ -16,7 +16,9 @@ meinheld gunicorn docker and flask was the first try. It kind of worked.
 
 
 TODO:
-- change arrow to have arrow shape and not square around arrow. 
+
 - Integrate with flask
 - move css to a real css file
+- Align detected image with card above
+-create more green colors, for example header
 
