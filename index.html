@@ -11,13 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style type="text/css">
         body {
-            height: 100vh;
-            margin: 0;
-        }
 
-        body {
             margin: 40px auto;
             max-width: 650px;
+            height: 100vh;
             line-height: 1.6;
             font-size: 18px;
             color: #444;
@@ -27,36 +24,69 @@
             flex-direction: column;
         }
 
+
         h1,
-        h2,
+        
         h3 {
-            line-height: 1.2
+
+            font-size: 8vh;
         }
 
-        footer {
-            margin-top: auto;
+        h2 { font-size: 6vh;}
+
+
+        ul>li {
+            /* css styles go here */
+            list-style-type: circle;
+            list-style-position: inside;
+            font-family: Consolas, monaco, monospace;
+            font-size: 14px;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: 400;
+            line-height: 20px;
+        }
+
+        .flex_container_main_Pot {
+            display: flex;
+        }
+
+
+
+        .detected-image {
+
+            max-width: 100%;
+            height: auto;
+
         }
 
 
         /* css flex Box (will support custom number of columns, depeding no the number of plants at the end)
         
         */
-        .flex-container {
+        .flex_container_pots {
             display: flex;
-            background-color: DodgerBlue;
+            background-color: burlywood;
         }
 
-        .flex-container>div {
+        .flex_container_pots>div {
             background-color: #f1f1f1;
-            margin: 4px;
+            margin: 3px;
             padding: 0px;
-            font-size: 30px;
+        }
+
+        .flex_container_arrow {
+            display: flex;
         }
 
         img {
             object-fit: cover;
             width: 100%;
             height: 100%;
+        }
+
+        footer {
+            margin-top: auto;
         }
     </style>
 
@@ -68,31 +98,33 @@
         <h1><a href="index.html"></a>Gruppe 38</href>
     </header>
     <div class="w3-container">
-
         <div class="w3-container">
-            <h1>Regelmässige Statusupdates.</a></h1>
+            <h2>Regelmässige Statusupdates.</a></h2>
         </div>
 
 
-        <ul class="w3-ul w3-card-4">
-            <li class="w3-padding-hor-16">
-                <span onclick="this.parentElement.style.display='none'"
-                    class="w3-closebtn w3-padding w3-margin-right w3-medium"></span>
-                <img src="img/start-button.png" class="w3-left w3-circle w3-margin-right" style="width:45px">
-                <span class="w3-xlarge">Rover gestartet.</span><br>
-            </li>
+        <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-hor-16 ">
 
+            <li>Rover Gestartet </li>
+            <li>Bilderkennung läuft</li>
+            <li>Bild wird erkannt</li>
+            <li>Fahre jetzt weiter</li>
         </ul>
 
 
         <div class="w3-container">
-            <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p>
-            <div class="w3-half w3-container w3-card-4">
-                <img src="img/potted-plant.png" alt="Symbolbild" class="w3-image">
-            </div>
-            <div class="w3-container w3-half">
-                <h2>Pflanze erkannt: </h2> <!-- Hier ein Symbol bild einfügen, -->
 
+            <!-- <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p> -->
+            <!-- w3.CSS buffering Symbol-->
+
+            <div class="flex_container_main_Pot">
+                <div class="w3-container w3-card-4">
+                    <img src="img/potted-plant.png" alt="Symbolbild" class="w3-image detected-image">
+                </div>
+                <div class="w3-container w3-card-4">
+                    <h2> Pfefferminze</h2> <!-- Hier ein Symbol bild einfügen, -->
+
+                </div>
             </div>
         </div>
 
@@ -101,7 +133,7 @@
         </div>
 
 
-        <div class="flex-container">
+        <div class="flex_container_pots">
             <div class="w3-container">
                 <img class="w3-image" src="img/plant-icons/plant1.png" alt="">
             </div>
@@ -118,14 +150,15 @@
                 <img class="w3-image" src="img/plant-icons/plant5.png" alt="">
             </div>
         </div>
+
         <br>
 
-        
-    <div class="flex-container">
-        <div class="w3-container">
-            <img class="w3-image" src="img/arrow.png" alt="">
+
+        <div class="flex_container_arrow">
+            <div class="w3-container">
+                <img class="w3-image" src="img/arrow_transparent.png" alt="">
+            </div>
         </div>
-    </div>
 
 
     </div>
@@ -138,4 +171,5 @@
         </div>
     </div>
 </footer>
+
 </html>

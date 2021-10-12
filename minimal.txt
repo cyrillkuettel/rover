@@ -14,8 +14,3 @@ Reihen-Position der im Zielbereich gefundenen: von aussen, kann man visualisiere
 gleichen Pflanzenart: Entweder auf Server oder von aussen
 
 Geräte-Status-Informationen wie Start/Stopp-, Fehlermeldungen.
-
-
-
-
-
