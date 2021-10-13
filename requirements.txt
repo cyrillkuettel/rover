@@ -3,5 +3,6 @@ pydantic>=1.8.0,<2.0.0
 uvicorn>=0.15.0,<0.16.0
 aiofiles>=0.7.0
 Jinja2>=3.0.2,<3.0.3
+uvicorn[standard]>=0.15,<0.16
 
 
