@@ -1,28 +1,14 @@
 After some extensive research, I have come to the following conclusion:
 
-- gunicron vs uWSGI: Doesn't matter that much for first time, use gunicorn,
-it is easier to install.
-
-- Nginx for the webserver. 
-
-All of this inside a docker container.
-
-What it is:
-gunicorn/uwsgi: the thing executing the python code
-nginx (reverse proxy): the thing preparing incoming requests
- for gunicorn/uwsgi
-
-meinheld gunicorn docker and flask was the first try. It kind of worked. 
+use nginx (reverse proxy): for simple website visits, to reduce load capacity. does it even matter? 
+nginx is the thing preparing incoming requests. It is a layer on top of the current architecture. 
+ 
 
 
 TODO:
 
-- Integrate with flask
-- implement timer functionality -> flask
-- animate the arrows -flask coordinate
-
-- move css to a real css file
--create more green colors, for example header
+- implement timer functionality -> take initial spark after the Websocket handstake (It is my impression that this is only the first time.)
+- animate the arrows -> Take position fro request
 
 roulette wheel idea: https://editor.p5js.org/D_Snyder/sketches/tLSpRB2Rp
 
