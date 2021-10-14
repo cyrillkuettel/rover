@@ -3,7 +3,10 @@ docker build -t myimage .
 
 docker run -d --name mycontainer -p 80:80 -v /home/cyrill/rover/app:/code/app myimage 
 
+ 
 
 docker exec -it <container-id> bash
 docker logs -f <container-id>
+
+/etc/init.d/apache2 stop
 
