@@ -7,7 +7,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-# Websockets are going to be a dependency
 app = FastAPI()
 app.mount(
     "/static",
@@ -48,7 +47,7 @@ html = """
         </form>
         <ul id='messages'>
         </ul>
-        <script>
+        <script>    
             var ws = new WebSocket("ws://localhost:80/ws");
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
