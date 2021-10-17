@@ -2,6 +2,7 @@ from fastapi import FastAPI, WebSocket, Request
 from typing import Optional
 
 from pathlib import Path
+import logging
 from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -15,6 +16,10 @@ app.mount(
     name="static",
 )
 
+logging.basicConfig(level=logging.INFO)
+Log = logging.getLogger(__name__)
+Log.setLevel(logging.INFO)
+
 current_file = Path(__file__)
 current_file_dir = current_file.parent  # /code/app
 project_root = current_file_dir.parent  # /code/
@@ -26,7 +31,6 @@ INDEX_HTML_PATH = static_root_absolute / "index.html"
 CSS_PATH = static_root_absolute / "css"  # find a way to reference this variable
 
 templates = Jinja2Templates(directory=TEMPLATES)
-
 
 """
 html = ""
@@ -87,7 +91,7 @@ async def root(request: Request):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    print('Accepting client connection...')
+    Log('Accepting client connection...')
     await websocket.accept()
     while True:
         try:
@@ -96,10 +100,9 @@ async def websocket_endpoint(websocket: WebSocket):
             # Send message to the client
             await websocket.send_text(f"Message text was: {data}")
         except Exception as e:
-            print('error:', e)
+            Log('websocket_endpoint: error:', e)
+            Log.exception("message")
             break
-    print('Bye..')
-
 
 
 def test_websocket():
@@ -107,6 +110,3 @@ def test_websocket():
     with client.websocket_connect("/ws") as websocket:
         data = websocket.receive_json()
         assert data == {"msg": "Hello WebSocket"}
-
-
-
