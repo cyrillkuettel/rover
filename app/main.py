@@ -58,7 +58,7 @@ html = """
             var ip = "192.168.188.38";
             
             var ws = new WebSocket("ws://0.0.0.0/ws");
-            Console.log("created Websocket endpoint");
+            console.log("created Websocket endpoint");
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -98,8 +98,9 @@ async def websocket_endpoint(websocket: WebSocket):
         try:
             # Wait for any message from the client
             data = await websocket.receive_text()
+            logging.info("received Text:" + data)
             # Send message to the client
-            await websocket.send_text(f"Message text was: {data}")
+            # await websocket.send_text(f"Message text was: {data}")
         except Exception as e:
             logging.error('websocket_endpoint: error:', e)
             logging.exception("message")
