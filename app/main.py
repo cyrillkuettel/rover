@@ -6,6 +6,7 @@ from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.testclient import TestClient
 
 app = FastAPI()
 app.mount(
@@ -25,6 +26,7 @@ INDEX_HTML_PATH = static_root_absolute / "index.html"
 CSS_PATH = static_root_absolute / "css"  # find a way to reference this variable
 
 templates = Jinja2Templates(directory=TEMPLATES)
+
 
 """
 html = ""
@@ -48,7 +50,10 @@ html = """
         <ul id='messages'>
         </ul>
         <script>    
-            var ws = new WebSocket("ws://localhost:80/ws");
+            var ip = "192.168.188.38";
+            var dockerip = "172.17.0.1";
+            var ws = new WebSocket("ws://localhost/ws");
+            Console.log("created Websocket endpoint");
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -82,7 +87,26 @@ async def root(request: Request):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    print('Accepting client connection...')
     await websocket.accept()
     while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
+        try:
+            # Wait for any message from the client
+            data = await websocket.receive_text()
+            # Send message to the client
+            await websocket.send_text(f"Message text was: {data}")
+        except Exception as e:
+            print('error:', e)
+            break
+    print('Bye..')
+
+
+
+def test_websocket():
+    client = TestClient(app)
+    with client.websocket_connect("/ws") as websocket:
+        data = websocket.receive_json()
+        assert data == {"msg": "Hello WebSocket"}
+
+
+
