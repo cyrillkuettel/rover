@@ -16,9 +16,10 @@ app.mount(
     name="static",
 )
 
-logging.basicConfig(level=logging.INFO)
-Log = logging.getLogger(__name__)
-Log.setLevel(logging.INFO)
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s',
+                    )
 
 current_file = Path(__file__)
 current_file_dir = current_file.parent  # /code/app
@@ -91,7 +92,7 @@ async def root(request: Request):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    Log('Accepting client connection...')
+    logging.info('Accepting client connection...')
     await websocket.accept()
     while True:
         try:
@@ -100,8 +101,8 @@ async def websocket_endpoint(websocket: WebSocket):
             # Send message to the client
             await websocket.send_text(f"Message text was: {data}")
         except Exception as e:
-            Log('websocket_endpoint: error:', e)
-            Log.exception("message")
+            logging.error('websocket_endpoint: error:', e)
+            logging.exception("message")
             break
 
 
