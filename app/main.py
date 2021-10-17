@@ -51,8 +51,8 @@ html = """
         </ul>
         <script>    
             var ip = "192.168.188.38";
-            var dockerip = "172.17.0.1";
-            var ws = new WebSocket("ws://localhost/ws");
+            
+            var ws = new WebSocket("ws://0.0.0.0/ws");
             Console.log("created Websocket endpoint");
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
