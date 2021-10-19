@@ -16,6 +16,9 @@ app.mount(
     name="static",
 )
 
+# Main Storage for all text-based information from the rover
+Incoming_Logs = []
+Incoming_Logs.append("QR code successfully detected!")
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s',
@@ -54,33 +57,20 @@ html = """
         </form>
         <ul id='messages'>
         </ul>
-        <script>    
-            var ip = "192.168.188.38";
-            
+        <script>                
             var ws = new WebSocket("ws://0.0.0.0/ws");
             console.log("created Websocket endpoint");
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
-            }
+    
         </script>
     </body>
 </html>
 """
 
 
-@app.get("/test/")
-async def get():
-    return HTMLResponse(html)
+@app.get("/items/", response_class=HTMLResponse)
+async def read_item(request: Request):
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
 
 
 @app.get("/")
@@ -99,6 +89,7 @@ async def websocket_endpoint(websocket: WebSocket):
             # Wait for any message from the client
             data = await websocket.receive_text()
             logging.info("received Text:" + data)
+            Incoming_Logs.append(data)
             # Send message to the client
             # await websocket.send_text(f"Message text was: {data}")
         except Exception as e:

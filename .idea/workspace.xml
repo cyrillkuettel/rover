@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1ae4ea42-aab9-49f2-af2b-967fadc5debb" name="Changes" comment="Changes">
-      <change afterPath="$PROJECT_DIR$/run.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.~lock.website-documentation.odt#" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website-documentation.odt" beforeDir="false" afterPath="$PROJECT_DIR$/website-documentation.odt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +66,9 @@
       <workItem from="1634479047163" duration="3064000" />
       <workItem from="1634484077615" duration="806000" />
       <workItem from="1634485177475" duration="2000" />
-      <workItem from="1634501996885" duration="2543000" />
+      <workItem from="1634501996885" duration="3140000" />
+      <workItem from="1634557816655" duration="32000" />
+      <workItem from="1634638744553" duration="4530000" />
     </task>
     <servers />
   </component>

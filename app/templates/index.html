@@ -25,24 +25,20 @@
     </div>
 
     <div class="w3-container">
-
-
         <div class="w3-container">
             <h2>Regelmässige Statusupdates </h2>
         </div>
 
-
         <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 ">
-
             <li>Rover Gestartet </li>
-            <li>Bilderkennung läuft</li>
-            <li>Bild wird erkannt</li>
-            <li>Fahre jetzt weiter</li>
+
+            {% for item in Incoming_Logs%}
+                <li>{{item}}</li>
+            {% endfor %}
+
         </ul>
 
-
-
-        <!-- w3.CSS buffering Symbol-->
+        <!-- w3.CSS buffering Symbol -->
         <!-- <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p> -->
 
 
