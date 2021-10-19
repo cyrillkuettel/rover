@@ -10,8 +10,8 @@
 - [ ] Display pictures
 - [ ] Show path (geographical) based on GPS with 
 - [ ] Specify location of plant pot in row at the end
-- [ ] image processing with a drizzle parallelism? (If still time, this would be very interesting. However, latency may be an issue. )
+- [ ] image processing with high-performance Server? Of course, with massive parallelism. (If still time, this would be very interesting. Latency may be an issue, because of the size of the image )
 
 
 
-quite practical examples of javascript callback: http://callbackhell.com/
+
