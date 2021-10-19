@@ -3,7 +3,7 @@
 ## Website to display status information of the vehicle
 
 
-### yt_scraping is planned to include the features
+### Feature List
 - [x] Websocket endpoint for low-latency bidirectional coummunication
 - [x] Dynamically display status information
 - [x] Show Error messages, color code it
