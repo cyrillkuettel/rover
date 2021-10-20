@@ -3,6 +3,7 @@ from typing import Optional
 
 from pathlib import Path
 import logging
+import jinja2
 from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -15,6 +16,7 @@ app.mount(
     StaticFiles(directory=Path(__file__).parent.absolute() / "static"),
     name="static",
 )
+
 
 # Main Storage for all text-based information from the rover
 Incoming_Logs = []
@@ -35,6 +37,10 @@ INDEX_HTML_PATH = static_root_absolute / "index.html"
 CSS_PATH = static_root_absolute / "css"  # find a way to reference this variable
 
 templates = Jinja2Templates(directory=TEMPLATES)
+jinja2.Environment.auto_reload = True
+
+#main_template = templates.TemplateResponse(
+ #       "index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
 
 """
 html = ""
@@ -67,17 +73,12 @@ html = """
 """
 
 
-@app.get("/items/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
+    logging.info(request)
     return templates.TemplateResponse(
         "index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
 
-
-@app.get("/")
-async def root(request: Request):
-    return templates.TemplateResponse(
-        "index.html", {"request": request}
-    )
 
 
 @app.websocket("/ws")
