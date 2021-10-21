@@ -42,18 +42,36 @@
             }, 1500); // this is very bad.
             */
 
-            /*
-                var ws = new WebSocket("ws://0.0.0.0:80/ws");
 
-                ws.onmessage = function (event) {
-                    console.debug("WebSocket message received:", event);
-                    var messages = document.getElementById('logs')
-                    var message = document.createElement('li')
-                    var content = document.createTextNode(event.data)
-                    message.appendChild(content)
-                    messages.appendChild(message)
-                };
-            */
+            var ws = new WebSocket("ws://0.0.0.0:80/ws");
+            // Listen for messages
+            ws.addEventListener('message', function (event) {
+                console.log('Message from server ', event.data);
+                var messages = document.getElementById('logs')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            });
+
+            /*
+                      ws.onmessage = function (event) {
+                          console.debug("WebSocket message received:", event);
+                          var messages = document.getElementById('logs')
+                          var message = document.createElement('li')
+                          var content = document.createTextNode(event.data)
+                          message.appendChild(content)
+                          messages.appendChild(message)
+                      };
+
+                      function sendMessage(event) {
+                          var input = document.getElementById("messageText")
+                          ws.send(input.value)
+                          input.value = ''
+                          event.preventDefault()
+                      }
+
+                       */
 
         </script>
     </ul>
