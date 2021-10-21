@@ -1,14 +1,12 @@
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect
 from typing import Optional, List
-
 from pathlib import Path
 import logging
 import jinja2
 from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.testclient import TestClient
+
 
 app = FastAPI()
 app.mount(
@@ -21,10 +19,7 @@ app.mount(
 Incoming_Logs = []
 
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s',
-                    )
-
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
 
 
 html2 = """
@@ -42,7 +37,7 @@ html2 = """
 <header>
     <div class="w3-container">
         <h1><a href="index.html"></a>Gruppe 38</h1>
-         <h2>Your ID: <span id="ws-id"></span></h2>
+     
     </div>
 </header>
 
@@ -63,7 +58,7 @@ html2 = """
      </ul>
         <script>
             var client_id = Date.now()
-            document.querySelector("#ws-id").textContent = client_id;
+        
             var ws = new WebSocket(`ws://localhost:80/ws/${client_id}`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
