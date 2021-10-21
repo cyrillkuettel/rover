@@ -2,7 +2,6 @@ body {
 
     margin: 40px auto;
     max-width: 750px;
-
     line-height: 1.6;
     font-size: 18px;
     color: #444;
@@ -27,7 +26,7 @@ ul>li {
     list-style-type: circle;
     list-style-position: inside;
     font-family: Consolas, monaco, monospace;
-    font-size: 14px;
+    font-size: 20px;
     font-style: normal;
     font-variant: normal;
     font-weight: 400;

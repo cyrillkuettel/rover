@@ -3,6 +3,7 @@ from typing import Optional, List
 from pathlib import Path
 import logging
 import jinja2
+from datetime import datetime
 from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -154,6 +155,11 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
+def get_timestamp():
+    time = datetime.now().strftime("%H:%M:%S.%f")
+    return time[:-3]
+
+
 @app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
     return HTMLResponse(html2)
@@ -164,11 +170,14 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
     try:
         while True:
+            #  Here we can create if statements for the type of socket connection and what kind of information in will
+            # convey.
             data = await websocket.receive_text()
             Incoming_Logs.append(data) # Just to store all Logs on the server side as well
             logging.info("received Text:" + data)
             await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            stamp = get_timestamp()
+            await manager.broadcast(f"{stamp}: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{client_id} left the chat")

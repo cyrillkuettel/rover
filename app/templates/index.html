@@ -3,13 +3,12 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
-
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/main.css') }}">
+    <link rel="stylesheet" href="static/css/main.css">
+
     <title>Rover</title>
 </head>
 
-<body>
 <header>
     <div class="w3-container">
         <h1><a href="index.html"></a>Gruppe 38</h1>
@@ -30,32 +29,9 @@
         <h2>Real-time logs</h2>
     </div>
 
-    <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="logs">
-        <li>Rover Gestartet</li>
-        {% for item in Incoming_Logs%}
-        <li>{{item}}</li>
-        {% endfor %}
-        <script>
-            /*
-            setTimeout(function () {
-                window.location.reload(1);
-            }, 1500); // this is very bad.
-            */
+    <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
+     </ul>
 
-
-            var ws = new WebSocket("ws://0.0.0.0:80/ws");
-            // Listen for messages
-            ws.addEventListener('message', function (event) {
-                console.log('Message from server ', event.data);
-                var messages = document.getElementById('logs')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            });
-
-        </script>
-    </ul>
 
     <!-- w3.CSS buffering Symbol -->
     <!-- <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p> -->
@@ -114,7 +90,5 @@
             <p> HSLU HS2021 - PREN 1 & 2 Gruppe 38 Copyright &copy;</p>
         </div>
     </div>
-
 </footer>
-
 </html>
