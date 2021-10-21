@@ -92,7 +92,7 @@ async def websocket_endpoint(websocket: WebSocket):
             logging.info("received Text:" + data)
             Incoming_Logs.append(data)
             # Send message to the client
-            # await websocket.send_text(f"Message text was: {data}")
+            await websocket.send_text(f"Message text was: {data}")
         except Exception as e:
             logging.error('websocket_endpoint: error:', e)
             logging.exception("message")
