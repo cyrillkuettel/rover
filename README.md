@@ -12,6 +12,6 @@
 - [ ] Specify location of plant pot in row at the end
 - [ ] image processing with high-performance Server? Of course, with massive parallelism. (If still time, this would be very interesting. Latency may be an issue, because of the size of the image )
 
-
+Remember to exclude the --reload uvicorn option in production. The --reload option consumes much more resources, is more unstable, etc
 
 
