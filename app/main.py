@@ -19,57 +19,13 @@ app.mount(
 
 # Main Storage for all text-based information from the rover
 Incoming_Logs = []
-Incoming_Logs.append("QR code successfully detected!")
+
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s',
                     )
 
-current_file = Path(__file__)
-current_file_dir = current_file.parent  # /code/app
-project_root = current_file_dir.parent  # /code/
-project_root_absolute = project_root.resolve()
 
-static_root_absolute = current_file_dir / "static"
-TEMPLATES = current_file_dir / "templates"
-INDEX_HTML_PATH = static_root_absolute / "index.html"
-CSS_PATH = static_root_absolute / "css"  # find a way to reference this variable
-
-templates = Jinja2Templates(directory=TEMPLATES)
-jinja2.Environment.auto_reload = True
-
-# main_template = templates.TemplateResponse(
-#       "index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
-
-"""
-html = ""
-with open(INDEX_HTML_PATH, 'r') as f:
-    html = f.read()
-
-"""
-
-html = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Chat</title>
-    </head>
-    <body>
-        <h1>WebSocket Chat</h1>
-        <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <button>Send</button>
-        </form>
-        <ul id='messages'>
-        </ul>
-        <script>                
-            var ws = new WebSocket("ws://0.0.0.0/ws");
-            console.log("created Websocket endpoint");
-    
-        </script>
-    </body>
-</html>
-"""
 
 html2 = """
 <!DOCTYPE html>
@@ -78,7 +34,9 @@ html2 = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <title>Rover</title>
+    <link rel="stylesheet" href="static/css/main.css">
+        
+    <title>Rover</title>    
 </head>
 
 <header>
@@ -174,9 +132,7 @@ html2 = """
             <p> HSLU HS2021 - PREN 1 & 2 Gruppe 38 Copyright &copy;</p>
         </div>
     </div>
-
 </footer>
-
 </html>
 """
 
@@ -207,10 +163,6 @@ manager = ConnectionManager()
 async def read_item(request: Request):
     return HTMLResponse(html2)
 
-    # logging.info(request)
-    # return templates.TemplateResponse(
-    # "index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
-
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
@@ -218,6 +170,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     try:
         while True:
             data = await websocket.receive_text()
+            Incoming_Logs.append(data) # Just to store all Logs on the server side as well
             logging.info("received Text:" + data)
             await manager.send_personal_message(f"You wrote: {data}", websocket)
             await manager.broadcast(f"Client #{client_id} says: {data}")
