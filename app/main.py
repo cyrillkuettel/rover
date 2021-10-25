@@ -62,6 +62,7 @@ html2 = """
         
             var ws = new WebSocket(`ws://localhost:80/ws/${client_id}`);
             ws.onmessage = function(event) {
+                
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
                 var content = document.createTextNode(event.data)
@@ -180,4 +181,4 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             await manager.broadcast(f"{stamp}: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} left the chat")
+        # await manager.broadcast(f"Client #{client_id} left the chat")
