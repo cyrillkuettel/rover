@@ -171,7 +171,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
     try:
         while True:
-            #  Here we can create if statements for the type of socket connection and what kind of information in will
+            #  Here we can create if statements for the type of socket connection and what kind of information it will
             # convey.
             data = await websocket.receive_text()
             Incoming_Logs.append(data) # Just to store all Logs on the server side as well
