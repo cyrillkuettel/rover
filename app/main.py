@@ -7,6 +7,7 @@ from datetime import datetime
 from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
@@ -15,12 +16,20 @@ app.mount(
     StaticFiles(directory=Path(__file__).parent.absolute() / "static"),
     name="static",
 )
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Main Storage for all text-based information from the rover
 Incoming_Logs = []
 
-
-# logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
 
 
 html2 = """
@@ -60,7 +69,7 @@ html2 = """
         <script>
             var client_id = Date.now()
         
-            var ws = new WebSocket(`ws://localhost:80/ws/${client_id}`);
+            var ws = new WebSocket(`ws://pren.garteroboter.li:80/ws/${client_id}`);
             ws.onmessage = function(event) {
                 
                 var messages = document.getElementById('messages')
@@ -174,7 +183,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             #  Here we can create if statements for the type of socket connection and what kind of information it will
             # convey.
             data = await websocket.receive_text()
-            Incoming_Logs.append(data) # Just to store all Logs on the server side as well
+            Incoming_Logs.append(data)  # Just to store all Logs on the server side as well
             logging.info("received Text:" + data)
             await manager.send_personal_message(f"You wrote: {data}", websocket)
             stamp = get_timestamp()
