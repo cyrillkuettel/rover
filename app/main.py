@@ -7,8 +7,8 @@ from datetime import datetime
 from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-
 
 app = FastAPI()
 app.mount(
@@ -29,8 +29,13 @@ app.add_middleware(
 # Main Storage for all text-based information from the rover
 Incoming_Logs = []
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
+current_file = Path(__file__)
+current_file_dir = current_file.parent  # /code/app
+TEMPLATES = current_file_dir / "templates"
+templates = Jinja2Templates(directory=TEMPLATES)
 
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
 
 html2 = """
 <!DOCTYPE html>
@@ -172,7 +177,15 @@ def get_timestamp():
 
 @app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
-    return HTMLResponse(html2)
+    return templates.TemplateResponse("index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
+    # return HTMLResponse(html2)
+
+
+@app.get("/deleteCache/",  response_class=HTMLResponse)
+async def del_cache(request: Request):
+    logging.info("clearing the Incoming_Logs")
+    Incoming_Logs.clear()
+    return "<h2>Cleared Cache :)</h2>"
 
 
 @app.websocket("/ws/{client_id}")
@@ -182,11 +195,13 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
         while True:
             #  Here we can create if statements for the type of socket connection and what kind of information it will
             # convey.
-            data = await websocket.receive_text()
-            Incoming_Logs.append(data)  # Just to store all Logs on the server side as well
-            logging.info("received Text:" + data)
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
             stamp = get_timestamp()
+            data = await websocket.receive_text()
+            Incoming_Logs.append(f"{stamp}: {data}")  # Just to store all Logs on the server side as well.
+            # This effectively reloads them from memory, the next time the page is fully reloaded.
+            # Thus, we have achieved a "primitive persistence functionality"
+            logging.info("received Text:" + data)
+            await manager.send_personal_message(f"You wrote: {data}", websocket) # this is not really necessary
             await manager.broadcast(f"{stamp}: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
