@@ -183,10 +183,10 @@ async def read_item(request: Request):
     # return HTMLResponse(html2)
 
 
-@app.get("/apk/", response_class=FileResponse)
+@app.get("/apk/", )
 async def serve_File():
     logging.info("Serving a file response")
-    return APP
+    return FileResponse(path=APP, filename="pilot.apk")
 
 
 @app.get("/deleteCache/",  response_class=HTMLResponse)
