@@ -38,8 +38,9 @@
             console.log("got here");
             var client_id = Date.now()
             var uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`
+            var uri = `ws://pren.garteroboter.li:80/ws/${client_id}`
+            var ws = new WebSocket(uri);
 
-            var ws = new WebSocket(uri_for_local_testing);
             ws.onmessage = function(event) {
 
                 var messages = document.getElementById('messages')
