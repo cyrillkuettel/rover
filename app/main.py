@@ -32,6 +32,8 @@ Incoming_Logs = []
 current_file = Path(__file__)
 current_file_dir = current_file.parent  # /code/app
 TEMPLATES = current_file_dir / "templates"
+FILES = current_file_dir / "files"
+APP = FILES / "pilot.apk"
 templates = Jinja2Templates(directory=TEMPLATES)
 
 logging.basicConfig(level=logging.INFO,
@@ -179,6 +181,12 @@ def get_timestamp():
 async def read_item(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
     # return HTMLResponse(html2)
+
+
+@app.get("/apk/", response_class=FileResponse)
+async def serve_File():
+    logging.info("Serving a file response")
+    return APP
 
 
 @app.get("/deleteCache/",  response_class=HTMLResponse)
