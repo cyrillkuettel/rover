@@ -34,11 +34,13 @@ current_file_dir = current_file.parent  # /code/app
 TEMPLATES = current_file_dir / "templates"
 FILES = current_file_dir / "files"
 APP = FILES / "pilot.apk"
+static = current_file_dir / "static"
+STATIC_IMG = static / "img"
+FAVICON = STATIC_IMG / "favicon.ico"
 templates = Jinja2Templates(directory=TEMPLATES)
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
-
 
 
 class ConnectionManager:
@@ -73,13 +75,18 @@ async def read_item(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
 
 
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse(FAVICON)
+
+
 @app.get("/apk/", )
 async def serve_File():
     logging.info("Serving a file response")
     return FileResponse(path=APP, filename="pilot.apk")
 
 
-@app.get("/deleteCache/",  response_class=HTMLResponse)
+@app.get("/deleteCache/", response_class=HTMLResponse)
 async def del_cache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
@@ -99,7 +106,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             # This effectively reloads them from memory, the next time the page is fully reloaded.
             # Thus, we have achieved a "primitive persistence functionality"
             logging.info("received Text:" + data)
-            await manager.send_personal_message(f"You wrote: {data}", websocket) # this is not really necessary
+            await manager.send_personal_message(f"You wrote: {data}", websocket)  # this is not really necessary
             await manager.broadcast(f"{stamp}: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
