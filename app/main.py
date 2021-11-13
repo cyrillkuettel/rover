@@ -39,115 +39,6 @@ templates = Jinja2Templates(directory=TEMPLATES)
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
 
-html2 = """
-<!DOCTYPE html>
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="static/css/main.css">
-        
-    <title>Rover</title>    
-</head>
-
-<header>
-    <div class="w3-container">
-        <h1><a href="index.html"></a>Gruppe 38</h1>
-     
-    </div>
-</header>
-
-<div class="w3-container timer">
-    <div id="numbers">
-        <span id="hours">00:</span>
-        <span id="mins">00:</span>
-        <span id="seconds">00</span>
-    </div>
-</div>
-
-<div class="w3-container">
-    <div class="w3-container">
-        <h2>Real-time logs</h2>
-    </div>
-
-    <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
-     </ul>
-        <script>
-            var client_id = Date.now()
-        
-            var ws = new WebSocket(`ws://pren.garteroboter.li:80/ws/${client_id}`);
-            ws.onmessage = function(event) {
-                
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-        </script>
-   
-
-    <!-- w3.CSS buffering Symbol -->
-    <!-- <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p> -->
-    <!-- test -->
-
-    <div class="flex_container_main_Pot">
-        <div class="w3-container w3-card-4">
-            <img src="../static/img/minze-im-topf.jpg" alt="Pfefferminze" class="w3-image flex_container_main_Pot"
-                 id="detected-image">
-        </div>
-        <div class="w3-container w3-card-4">
-            <h2> Pfefferminze</h2> <!-- Hier ein Symbol bild einfügen, -->
-        </div>
-    </div>
-
-
-    <div class="w3-container">
-        <p>Reihen-Position: </p>
-    </div>
-
-
-    <div class="flex_container_pots">
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant1.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant2.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant3.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant4.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant5.png" alt="">
-        </div>
-    </div>
-
-    <br>
-
-
-    <div class="flex_container_arrow">
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/arrow_transparent.png" alt="">
-        </div>
-    </div>
-
-
-</div>
-</body>
-
-<footer>
-    <div class="footer-container">
-        <div class="footer-center">
-            <p> HSLU HS2021 - PREN 1 & 2 Gruppe 38 Copyright &copy;</p>
-        </div>
-    </div>
-</footer>
-</html>
-"""
 
 
 class ConnectionManager:
@@ -180,7 +71,6 @@ def get_timestamp():
 @app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
-    # return HTMLResponse(html2)
 
 
 @app.get("/apk/", )
