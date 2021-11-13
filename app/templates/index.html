@@ -35,11 +35,17 @@
             {% endfor %}
      </ul>
         <script>
-            console.log("got here");
             var client_id = Date.now()
             var uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`
             var uri = `ws://pren.garteroboter.li:80/ws/${client_id}`
-            var ws = new WebSocket(uri);
+            var ws;
+
+            if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+                ws = new WebSocket(uri_for_local_testing);
+                } else {
+                ws = new WebSocket(uri);
+            }
+
 
             ws.onmessage = function(event) {
 
