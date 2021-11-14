@@ -114,20 +114,23 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
         while True:
             data = await websocket.receive_text()
             logging.info("received Text:" + data)
+
             if len(str(client_id)) <= 9:  # It's a Smartphone with The app
                 if "command=" in data:
                     command = data[:]
                     splitted = command.split("command=", 1)[1]
-                    logging.info(splitted)
-                    await manager.broadcast("splitted")
+
+                    await manager.send_personal_message(f"You wrote: {splitted}", websocket)  # this is not really necessary
+                    await manager.broadcast(splitted)
                 else:  # Normal Log
                     stamp = get_timestamp()
-                    Incoming_Logs.append(f"{stamp}: {data}")  # Just to store all Logs on the server side as well.
+                    LogEntry = f"{stamp}: {data}"
+                    Incoming_Logs.append(LogEntry)  # Just to store all Logs on the server side as well.
                     # This effectively reloads them from memory, the next time the page is fully reloaded.
                     # Thus we have achieved a primitive kind of persistence
-            else:  # this client is a visitor of the Website.
-                message = f"You wrote: {data}", websocket
-                await manager.send_personal_message(message)  # this is not really necessary
-                await manager.broadcast(f"{stamp}: {data}")
+                    await manager.send_personal_message(f"You wrote: {data}", websocket)  # this is not really necessary
+                    await manager.broadcast(LogEntry)
+            else:
+                logging.info("Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
