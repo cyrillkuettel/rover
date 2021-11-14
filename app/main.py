@@ -119,8 +119,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 if "command=" in data:
                     command = data[:]
                     splitted = command.split("command=", 1)[1]
-
-                    await manager.send_personal_message(f"You wrote: {splitted}", websocket)  # this is not really necessary
+                    await manager.send_personal_message(f"You wrote: {splitted}", websocket)
                     await manager.broadcast(splitted)
                 else:  # Normal Log
                     stamp = get_timestamp()
@@ -128,7 +127,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     Incoming_Logs.append(LogEntry)  # Just to store all Logs on the server side as well.
                     # This effectively reloads them from memory, the next time the page is fully reloaded.
                     # Thus we have achieved a primitive kind of persistence
-                    await manager.send_personal_message(f"You wrote: {data}", websocket)  # this is not really necessary
+                    await manager.send_personal_message(f"You wrote: {data}", websocket)
                     await manager.broadcast(LogEntry)
             else:
                 logging.info("Len(client_id) bigger than 9")
