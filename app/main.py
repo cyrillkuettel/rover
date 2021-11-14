@@ -9,7 +9,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-
+import datetime
+import types
 app = FastAPI()
 app.mount(
     "/static",
@@ -119,8 +120,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 if "command=" in data:
                     command = data[:]
                     splitted = command.split("command=", 1)[1]
-                    await manager.send_personal_message(f"You wrote: {splitted}", websocket)
-                    await manager.broadcast(splitted)
+                    if splitted == "startTime":
+                        await manager.send_personal_message(f"You wrote: {splitted}", websocket)
+                        await manager.broadcast(splitted)
+                    if splitted == "requestTime":
+                        await manager.send_personal_message(f"Time={datetime.datetime.now()}", websocket)
                 else:  # Normal Log
                     stamp = get_timestamp()
                     LogEntry = f"{stamp}: {data}"
