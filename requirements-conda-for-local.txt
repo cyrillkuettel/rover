@@ -1,0 +1,10 @@
+fastapi[all]>=0.68.0,<0.69.0
+pydantic>=1.8.0,<2.0.0
+uvicorn>=0.15.0,<0.16.0
+aiofiles>=0.7.0
+Jinja2>=3.0.2,<3.0.3
+uvicorn[standard]>=0.15,<0.16
+requests>=2.26.0
+websockets>=10.0.0,<10.0.1
+python-multipart>=0.0.5
+
