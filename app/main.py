@@ -11,6 +11,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
 import types
+
 app = FastAPI()
 app.mount(
     "/static",
@@ -46,6 +47,18 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
 
 
+class Paths:
+
+    def __init__(self):
+        self.pilot_apk_name = "pilot.apk"
+
+    def add_PILOT_APK_NAME(self, variable):
+        self.pilot_apk_name = variable
+
+    def get_PILOT_APK_NAME(self):
+        return self.pilot_apk_name
+
+
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -66,6 +79,7 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
+paths = Paths()
 
 
 def get_timestamp():
@@ -86,7 +100,7 @@ async def favicon():
 @app.get("/apk/", )
 async def serve_File():
     logging.info("Serving a file response")
-    return FileResponse(path=APP, filename="pilot.apk")
+    return FileResponse(path=APP, filename=paths.get_PILOT_APK_NAME())
 
 
 @app.get("/deleteCache/", response_class=HTMLResponse)
@@ -97,15 +111,15 @@ async def del_cache(request: Request):
 
 
 @app.post("/apk/upload/")
-async def image(file: UploadFile = File(...)):
-    name = file.filename.replace(" ", "-")
-    file_name = UPLOAD / name
-    with open(file_name, 'wb+') as f:
+async def image(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
+    name = file.filename
+    full_path_apk_file_name = UPLOAD / name
+    with open(full_path_apk_file_name, 'wb+') as f:
         f.write(file.file.read())
         f.close()
-    logging.info(f"uploaded file. FILENAME = {file_name}")
-    APP = file_name  # can't access variable. ( TODO: Wrap in class )
-    return {"Uploaded File": file_name}
+    logging.info(f"uploaded file. FILENAME = {full_path_apk_file_name}")
+    paths.add_PILOT_APK_NAME(name)
+    return {"Uploaded File": name}
 
 
 @app.websocket("/ws/{client_id}")
@@ -120,6 +134,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 if "command=" in data:
                     command = data[:]
                     splitted = command.split("command=", 1)[1]
+                    logging.info(splitted)
                     if splitted == "startTime":
                         await manager.send_personal_message(f"You wrote: {splitted}", websocket)
                         await manager.broadcast(splitted)
