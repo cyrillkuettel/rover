@@ -139,7 +139,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                         await manager.send_personal_message(f"You wrote: {splitted}", websocket)
                         await manager.broadcast(splitted)
                     if splitted == "requestTime":
-                        await manager.send_personal_message(f"Time={datetime.datetime.now()}", websocket)
+                        await manager.send_personal_message(f"Time={datetime.now()}", websocket)
                 else:  # Normal Log
                     stamp = get_timestamp()
                     LogEntry = f"{stamp}: {data}"
