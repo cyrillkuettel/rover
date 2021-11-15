@@ -81,13 +81,13 @@ manager = ConnectionManager()
 paths = Paths()
 
 
-def get_timestamp(long = False):
+def get_timestamp(long=False):
     if not long:
         time = datetime.now().strftime("%H:%M:%S.%f")
         return time[:-3]
     else:
         now = datetime.now()
-        Date_Time = now.strftime("%d/%m/%Y, %H:%M:%S.%f") # dd/mm/YY H:M:S format
+        Date_Time = now.strftime("%d/%m/%Y, %H:%M:%S.%f")  # dd/mm/YY H:M:S format
         return Date_Time[:-3]
 
 
@@ -137,13 +137,13 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             if len(str(client_id)) <= 9:  # It's a Smartphone with The app
                 if "command=" in data:
                     command = data[:]
-                    splitted = command.split("command=", 1)[1]
-                    logging.info(splitted)
-                    if splitted == "startTime":  # startTime=2020-12-01T...
+                    splitted_command_from_text = command.split("command=", 1)[1]
+                    logging.info(splitted_command_from_text)
+                    if "startTime" in splitted_command_from_text:  # startTime=2020-12-01T...
                         logging.info("sending start Signal to client. Browser should handle the rest");
-                        await manager.send_personal_message(f"You wrote: {splitted}", websocket)
-                        await manager.broadcast(splitted)  # Let the client handle the rest
-                    if splitted == "requestTime":
+                        await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
+                        await manager.broadcast(splitted_command_from_text)  # Let the client handle the rest
+                    if splitted_command_from_text == "requestTime":
                         stamp = get_timestamp(long=True)
                         await manager.send_personal_message(f"Time={stamp}", websocket)
                 else:  # Normal Log
