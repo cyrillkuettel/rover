@@ -15,20 +15,20 @@
 
 <header>
     <div class="w3-container">
-        <h1><a href="index.html"></a>Gruppe 38</h1>
-
+        <h1 style="text-align:center !important;"><a href="index.html"></a >Garteroboterli</h1>
     </div>
 </header>
 
-<div class="w3-container timer">
-    <div id="numbers">
-        <h2 id="timer">0:00</h2>
+
+    <div class="w3-container">
+        <h2 style="display: inline !important;">Timer  </h2>
+        <h2 style="display: inline !important;">0:00</h2>
     </div>
-</div>
+
 
 <div class="w3-container">
     <div class="w3-container">
-        <h2>Real-time logs</h2>
+        <h2 style="text-align:center;"> Real-time Logbuch</h2>
     </div>
 
     <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
@@ -44,7 +44,7 @@
         var now;  // Used to Store the timestamp
 
         if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-                ws = new WebSocket(uri_for_local_testing);
+            ws = new WebSocket(uri_for_local_testing);
         } else {
             ws = new WebSocket(uri);
         }
@@ -68,13 +68,13 @@
                     startTime = startTime.substring(0, startTime.length - 4);
                     console.log("startime = " + startTime)
                     let timeStamp = dayjs(startTime).valueOf();
-                   // console.log("timeStamp = " + timeStamp);
+                    // console.log("timeStamp = " + timeStamp);
                     let now2 = dayjs();
-                   // console.log("now = " + now2); // in millis
+                    // console.log("now = " + now2); // in millis
 
                     var timer = setInterval(function () {
-                     // there has to be an easier way to do this
-                    // with dayjs.extend(window.dayjs_plugin_relativeTime) and a custom format for .from()
+                        // there has to be an easier way to do this
+                        // with dayjs.extend(window.dayjs_plugin_relativeTime) and a custom format for .from()
 
 
                         let now = dayjs()
@@ -131,11 +131,11 @@
                  id="detected-image">
         </div>
         <div class="w3-container w3-card-4">
-            <h2> Pfefferminze</h2> <!-- Hier ein Symbol bild einfügen, -->
+            <h2 style="text-align:center;"> Pfefferminze</h2> <!-- Hier ein Symbol bild einfügen, -->
         </div>
     </div>
 
-
+    <script>/* ...
     <div class="w3-container">
         <p>Reihen-Position: </p>
     </div>
@@ -168,9 +168,11 @@
         </div>
     </div>
 
-
+*/</script>
 </div>
+
 </body>
+
 
 <footer>
     <div class="footer-container">

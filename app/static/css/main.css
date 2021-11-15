@@ -1,14 +1,17 @@
 body {
 
     margin: 40px auto;
+     text-align:center;
     max-width: 750px;
     line-height: 1.6;
     font-size: 18px;
     color: #444;
     padding: 0 10px;
-    /* Trick */
-    display: flex;
+    /*
+     display: flex;
     flex-direction: column;
+    Trick */
+
 }
 
 h1 {
@@ -18,6 +21,10 @@ h1 {
 
 h2 {
     font-size: 4vh;
+}
+
+h2 .flex_time {
+    display: inline;
 }
 
 
@@ -64,7 +71,19 @@ ul>li {
 
 .flex_container_arrow {
     display: flex;
+    flex-direction: row;
 }
+
+.flex_time {
+    display: flex;
+}
+
+.flex_time>div {
+    margin: 3px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
 
 img {
     object-fit: contain;
