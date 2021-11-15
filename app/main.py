@@ -9,7 +9,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-import datetime
 import types
 
 app = FastAPI()
@@ -82,9 +81,14 @@ manager = ConnectionManager()
 paths = Paths()
 
 
-def get_timestamp():
-    time = datetime.now().strftime("%H:%M:%S.%f")
-    return time[:-3]
+def get_timestamp(long = False):
+    if not long:
+        time = datetime.now().strftime("%H:%M:%S.%f")
+        return time[:-3]
+    else:
+        now = datetime.now()
+        Date_Time = now.strftime("%d/%m/%Y, %H:%M:%S.%f") # dd/mm/YY H:M:S format
+        return Date_Time[:-3]
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -135,11 +139,13 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     command = data[:]
                     splitted = command.split("command=", 1)[1]
                     logging.info(splitted)
-                    if splitted == "startTime":
+                    if splitted == "startTime":  # startTime=2020-12-01T...
+                        logging.info("sending start Signal to client. Browser should handle the rest");
                         await manager.send_personal_message(f"You wrote: {splitted}", websocket)
-                        await manager.broadcast(splitted)
+                        await manager.broadcast(splitted)  # Let the client handle the rest
                     if splitted == "requestTime":
-                        await manager.send_personal_message(f"Time={datetime.now()}", websocket)
+                        stamp = get_timestamp(long=True)
+                        await manager.send_personal_message(f"Time={stamp}", websocket)
                 else:  # Normal Log
                     stamp = get_timestamp()
                     LogEntry = f"{stamp}: {data}"
