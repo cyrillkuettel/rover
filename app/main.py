@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, File, UploadFile
 from typing import Optional, List
 from pathlib import Path
 import logging
@@ -9,6 +9,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+import datetime
+import types
 
 app = FastAPI()
 app.mount(
@@ -32,122 +34,29 @@ Incoming_Logs = []
 current_file = Path(__file__)
 current_file_dir = current_file.parent  # /code/app
 TEMPLATES = current_file_dir / "templates"
-FILES = current_file_dir / "files"
-APP = FILES / "pilot.apk"
+UPLOAD = current_file_dir / "upload"
+APP = UPLOAD / "pilot.apk"
+
+static = current_file_dir / "static"
+STATIC_IMG = static / "img"
+
+FAVICON = STATIC_IMG / "favicon.ico"
 templates = Jinja2Templates(directory=TEMPLATES)
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
 
-html2 = """
-<!DOCTYPE html>
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="static/css/main.css">
-        
-    <title>Rover</title>    
-</head>
 
-<header>
-    <div class="w3-container">
-        <h1><a href="index.html"></a>Gruppe 38</h1>
-     
-    </div>
-</header>
+class Paths:
 
-<div class="w3-container timer">
-    <div id="numbers">
-        <span id="hours">00:</span>
-        <span id="mins">00:</span>
-        <span id="seconds">00</span>
-    </div>
-</div>
+    def __init__(self):
+        self.pilot_apk_name = "pilot.apk"
 
-<div class="w3-container">
-    <div class="w3-container">
-        <h2>Real-time logs</h2>
-    </div>
+    def add_PILOT_APK_NAME(self, variable):
+        self.pilot_apk_name = variable
 
-    <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
-     </ul>
-        <script>
-            var client_id = Date.now()
-        
-            var ws = new WebSocket(`ws://pren.garteroboter.li:80/ws/${client_id}`);
-            ws.onmessage = function(event) {
-                
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-        </script>
-   
-
-    <!-- w3.CSS buffering Symbol -->
-    <!-- <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p> -->
-    <!-- test -->
-
-    <div class="flex_container_main_Pot">
-        <div class="w3-container w3-card-4">
-            <img src="../static/img/minze-im-topf.jpg" alt="Pfefferminze" class="w3-image flex_container_main_Pot"
-                 id="detected-image">
-        </div>
-        <div class="w3-container w3-card-4">
-            <h2> Pfefferminze</h2> <!-- Hier ein Symbol bild einfügen, -->
-        </div>
-    </div>
-
-
-    <div class="w3-container">
-        <p>Reihen-Position: </p>
-    </div>
-
-
-    <div class="flex_container_pots">
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant1.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant2.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant3.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant4.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant5.png" alt="">
-        </div>
-    </div>
-
-    <br>
-
-
-    <div class="flex_container_arrow">
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/arrow_transparent.png" alt="">
-        </div>
-    </div>
-
-
-</div>
-</body>
-
-<footer>
-    <div class="footer-container">
-        <div class="footer-center">
-            <p> HSLU HS2021 - PREN 1 & 2 Gruppe 38 Copyright &copy;</p>
-        </div>
-    </div>
-</footer>
-</html>
-"""
+    def get_PILOT_APK_NAME(self):
+        return self.pilot_apk_name
 
 
 class ConnectionManager:
@@ -170,6 +79,7 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
+paths = Paths()
 
 
 def get_timestamp():
@@ -180,20 +90,36 @@ def get_timestamp():
 @app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
-    # return HTMLResponse(html2)
+
+
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse(FAVICON)
 
 
 @app.get("/apk/", )
 async def serve_File():
     logging.info("Serving a file response")
-    return FileResponse(path=APP, filename="pilot.apk")
+    return FileResponse(path=APP, filename=paths.get_PILOT_APK_NAME())
 
 
-@app.get("/deleteCache/",  response_class=HTMLResponse)
+@app.get("/deleteCache/", response_class=HTMLResponse)
 async def del_cache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
     return "<h2>Cleared Cache :)</h2>"
+
+
+@app.post("/apk/upload/")
+async def image(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
+    name = file.filename
+    full_path_apk_file_name = UPLOAD / name
+    with open(full_path_apk_file_name, 'wb+') as f:
+        f.write(file.file.read())
+        f.close()
+    logging.info(f"uploaded file. FILENAME = {full_path_apk_file_name}")
+    paths.add_PILOT_APK_NAME(name)
+    return {"Uploaded File": name}
 
 
 @app.websocket("/ws/{client_id}")
@@ -201,16 +127,28 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
     try:
         while True:
-            #  Here we can create if statements for the type of socket connection and what kind of information it will
-            # convey.
-            stamp = get_timestamp()
             data = await websocket.receive_text()
-            Incoming_Logs.append(f"{stamp}: {data}")  # Just to store all Logs on the server side as well.
-            # This effectively reloads them from memory, the next time the page is fully reloaded.
-            # Thus, we have achieved a "primitive persistence functionality"
             logging.info("received Text:" + data)
-            await manager.send_personal_message(f"You wrote: {data}", websocket) # this is not really necessary
-            await manager.broadcast(f"{stamp}: {data}")
+
+            if len(str(client_id)) <= 9:  # It's a Smartphone with The app
+                if "command=" in data:
+                    command = data[:]
+                    splitted = command.split("command=", 1)[1]
+                    logging.info(splitted)
+                    if splitted == "startTime":
+                        await manager.send_personal_message(f"You wrote: {splitted}", websocket)
+                        await manager.broadcast(splitted)
+                    if splitted == "requestTime":
+                        await manager.send_personal_message(f"Time={datetime.datetime.now()}", websocket)
+                else:  # Normal Log
+                    stamp = get_timestamp()
+                    LogEntry = f"{stamp}: {data}"
+                    Incoming_Logs.append(LogEntry)  # Just to store all Logs on the server side as well.
+                    # This effectively reloads them from memory, the next time the page is fully reloaded.
+                    # Thus we have achieved a primitive kind of persistence
+                    await manager.send_personal_message(f"You wrote: {data}", websocket)
+                    await manager.broadcast(LogEntry)
+            else:
+                logging.info("Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        # await manager.broadcast(f"Client #{client_id} left the chat")

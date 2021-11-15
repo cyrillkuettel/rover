@@ -3,8 +3,12 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <!-- link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" -->
+    <link rel="stylesheet" href="static/css/w3.css">
     <link rel="stylesheet" href="static/css/main.css">
+    <script type="text/javascript" src="static/dayjs.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
+
 
     <title>Rover</title>
 </head>
@@ -18,9 +22,7 @@
 
 <div class="w3-container timer">
     <div id="numbers">
-        <span id="hours">00:</span>
-        <span id="mins">00:</span>
-        <span id="seconds">00</span>
+        <h2 id="timer">0:00</h2>
     </div>
 </div>
 
@@ -30,26 +32,93 @@
     </div>
 
     <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
-            {% for item in Incoming_Logs%}
-                <li>{{item}}</li>
-            {% endfor %}
-     </ul>
-        <script>
-            console.log("got here");
-            var client_id = Date.now()
-            var uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`
-            var uri = `ws://pren.garteroboter.li:80/ws/${client_id}`
-            var ws = new WebSocket(uri);
+        {% for item in Incoming_Logs%}
+        <li>{{item}}</li>
+        {% endfor %}
+    </ul>
+    <script>
+        var client_id = Date.now()
+        var uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`
+        var uri = `ws://pren.garteroboter.li:80/ws/${client_id}`
+        var ws;
+        var now;  // Used to Store the timestamp
 
-            ws.onmessage = function(event) {
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+                ws = new WebSocket(uri_for_local_testing);
+        } else {
+            ws = new WebSocket(uri);
+        }
 
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-        </script>
+
+        ws.onmessage = function (event) {
+            let data = event.data
+            // Binary data: depending on binaryType being set to either arraybuffer or blob
+            if (data instanceof Blob) {
+                console.log("blob ")
+            } else if (data instanceof ArrayBuffer) {
+                console.log("ArrayBuffer")
+            } else if (typeof data === "string") {
+                console.log("string data")
+
+                if (data.includes("startTime=")) { //  start the timer based on the provided start time
+                    let startTime = data;
+                    let hours = "00:"; // this will not change
+                    startTime = startTime.replace('startTime=', '');
+                    startTime = startTime.replace(' ', 'T');
+                    startTime = startTime.substring(0, startTime.length - 4);
+                    console.log("startime = " + startTime)
+                    let timeStamp = dayjs(startTime).valueOf();
+                   // console.log("timeStamp = " + timeStamp);
+                    let now2 = dayjs();
+                   // console.log("now = " + now2); // in millis
+
+                    var timer = setInterval(function () {
+                     // there has to be an easier way to do this
+                    // with dayjs.extend(window.dayjs_plugin_relativeTime) and a custom format for .from()
+
+
+                        let now = dayjs()
+                        let diff = now.diff(timeStamp);
+                        diff = Math.abs(diff);
+
+                        let minutes_and_seconds = millisToMinutesAndSeconds(diff);
+                        console.log(minutes_and_seconds)
+                        document.getElementById("timer").innerHTML = millisToMinutesAndSeconds(diff)
+                        /*
+                        document.getElementById("hours").innerHTML = hours
+                        document.getElementById("mins").innerHTML = arr[0] + ":";
+                        document.getElementById("secs").innerHTML = arr[1] + ":"
+
+                         */
+                    }, 1000);
+
+
+                } else { //  append to logbook
+                    let messages = document.getElementById('messages')
+                    let message = document.createElement('li')
+                    let content = document.createTextNode(data)
+                    message.appendChild(content)
+                    messages.appendChild(message)
+                }
+            }
+        };
+
+        // simple vanilla js timer
+        function startTimer() {
+            setInterval(() => {
+                now = new Date(now.getTime() + 1000);
+                console.log(now)
+            }, 1000);
+        }
+
+
+        function millisToMinutesAndSeconds(millis) {
+            var minutes = Math.floor(millis / 60000);
+            var seconds = ((millis % 60000) / 1000).toFixed(0);
+            return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+        }
+
+    </script>
 
 
     <!-- w3.CSS buffering Symbol -->
