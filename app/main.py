@@ -81,13 +81,13 @@ manager = ConnectionManager()
 paths = Paths()
 
 
-def get_timestamp(long=False):
+def get_timestamp(long = False):
     if not long:
         time = datetime.now().strftime("%H:%M:%S.%f")
         return time[:-3]
     else:
         now = datetime.now()
-        Date_Time = now.strftime("%d/%m/%Y, %H:%M:%S.%f")  # dd/mm/YY H:M:S format
+        Date_Time = now.strftime("%d/%m/%Y, %H:%M:%S.%f") # dd/mm/YY H:M:S format
         return Date_Time[:-3]
 
 
@@ -116,8 +116,11 @@ async def del_cache(request: Request):
 
 @app.post("/apk/upload/")
 async def image(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
-    name = file.filename
+    # name = file.filename
+    name = "pilot.apk" # don't bother with the version numbers
+    [f.unlink() for f in Path(UPLOAD).glob("*") if f.is_file()] # delete all old apk
     full_path_apk_file_name = UPLOAD / name
+
     with open(full_path_apk_file_name, 'wb+') as f:
         f.write(file.file.read())
         f.close()
@@ -139,7 +142,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     command = data[:]
                     splitted_command_from_text = command.split("command=", 1)[1]
                     logging.info(splitted_command_from_text)
-                    if "startTime" in splitted_command_from_text:  # startTime=2020-12-01T...
+                    if  "startTime" in splitted_command_from_text:  # startTime=2020-12-01T...
                         logging.info("sending start Signal to client. Browser should handle the rest");
                         await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
                         await manager.broadcast(splitted_command_from_text)  # Let the client handle the rest

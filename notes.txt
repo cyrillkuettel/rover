@@ -1,16 +1,11 @@
 After some extensive research, I have come to the following conclusion:
 
-use nginx (reverse proxy): for simple website visits, to reduce load capacity. does it even matter? 
-nginx is the thing preparing incoming requests. It is a layer on top of the current architecture. 
+use nginx (reverse proxy): for simple website visits, to reduce load capacity.
+nginx is the thing preparing incoming requests. 
+It is a layer on top of the current architecture. 
+
+Then Gunicorn managing multiple Uvicorn workers. Each worker can serve multiple requests at the same time. 
  
-
-
-TODO:
-
-- implement timer functionality -> take initial spark after the Websocket handshake (It is my impression that this is only the first time.)
-- animate the arrows -> Take position from request
-- vertical progress bar
-
-roulette wheel idea: https://editor.p5js.org/D_Snyder/sketches/tLSpRB2Rp
-
-Spinning ARt for buffering: https://editor.p5js.org/roger1mjh/sketches/-U2F-BP-x
+Various CSS stuff
+- roulette wheel idea: https://editor.p5js.org/D_Snyder/sketches/tLSpRB2Rp
+- Spinning ARt for buffering: https://editor.p5js.org/roger1mjh/sketches/-U2-F-BP-x
