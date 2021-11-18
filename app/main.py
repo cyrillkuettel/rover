@@ -72,22 +72,29 @@ class ConnectionManager:
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
-    async def broadcast(self, message: str):
+    async def broadcastText(self, message: str):
         for connection in self.active_connections:
             await connection.send_text(message)
+
+    async def broadcastBytes(self, message: bytes):
+        for connection in self.active_connections:
+            # TODO:
+            # maybe skip the Pilot client id in the list
+            # It's not necessary and worse: adds unecessary complexity
+            await connection.send_bytes(message)
 
 
 manager = ConnectionManager()
 paths = Paths()
 
 
-def get_timestamp(long = False):
+def get_timestamp(long=False):
     if not long:
         time = datetime.now().strftime("%H:%M:%S.%f")
         return time[:-3]
     else:
         now = datetime.now()
-        Date_Time = now.strftime("%d/%m/%Y, %H:%M:%S.%f") # dd/mm/YY H:M:S format
+        Date_Time = now.strftime("%d/%m/%Y, %H:%M:%S.%f")  # dd/mm/YY H:M:S format
         return Date_Time[:-3]
 
 
@@ -117,8 +124,8 @@ async def del_cache(request: Request):
 @app.post("/apk/upload/")
 async def image(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
     # name = file.filename
-    name = "pilot.apk" # don't bother with the version numbers
-    [f.unlink() for f in Path(UPLOAD).glob("*") if f.is_file()] # delete all old apk
+    name = "pilot.apk"  # don't bother with the version numbers
+    [f.unlink() for f in Path(UPLOAD).glob("*") if f.is_file()]  # delete all old apk
     full_path_apk_file_name = UPLOAD / name
 
     with open(full_path_apk_file_name, 'wb+') as f:
@@ -134,30 +141,36 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
     try:
         while True:
-            data = await websocket.receive_text()
-            logging.info("received Text:" + data)
-
-            if len(str(client_id)) <= 9:  # It's a Smartphone with The app
-                if "command=" in data:
-                    command = data[:]
-                    splitted_command_from_text = command.split("command=", 1)[1]
-                    logging.info(splitted_command_from_text)
-                    if  "startTime" in splitted_command_from_text:  # startTime=2020-12-01T...
-                        logging.info("sending start Signal to client. Browser should handle the rest");
-                        await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
-                        await manager.broadcast(splitted_command_from_text)  # Let the client handle the rest
-                    if splitted_command_from_text == "requestTime":
-                        stamp = get_timestamp(long=True)
-                        await manager.send_personal_message(f"Time={stamp}", websocket)
-                else:  # Normal Log
-                    stamp = get_timestamp()
-                    LogEntry = f"{stamp}: {data}"
-                    Incoming_Logs.append(LogEntry)  # Just to store all Logs on the server side as well.
-                    # This effectively reloads them from memory, the next time the page is fully reloaded.
-                    # Thus we have achieved a primitive kind of persistence
-                    await manager.send_personal_message(f"You wrote: {data}", websocket)
-                    await manager.broadcast(LogEntry)
+            if str(client_id) == "888":  # 888 is the pre-defined client-id, which stands for binary data
+                binaryData = await websocket.receive_bytes()
+                logging.info("Recceived bytes :) Sending to client")
+                await manager.broadcastBytes(binaryData)
             else:
-                logging.info("Len(client_id) bigger than 9")
+                data = await websocket.receive_text()
+                logging.info("received Text:" + data)
+
+                if len(str(client_id)) <= 9:  # It's a Smartphone with The app
+                    if "command=" in data:
+                        command = data[:]
+                        splitted_command_from_text = command.split("command=", 1)[1]
+                        logging.info(splitted_command_from_text)
+                        if "startTime" in splitted_command_from_text:  # startTime=2020-12-01T...
+                            logging.info("sending start Signal to client. Browser should handle the rest");
+                            await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
+                            await manager.broadcastText(splitted_command_from_text)  # Let the client handle the rest
+                        if splitted_command_from_text == "requestTime":
+                            stamp = get_timestamp(long=True)
+                            await manager.send_personal_message(f"Time={stamp}", websocket)
+                    else:  # Normal Log
+                        stamp = get_timestamp()
+                        # LogEntry = f"{stamp}: {data}"
+                        LogEntry = data
+                        Incoming_Logs.append(LogEntry)  # Just to store all Logs on the server side as well.
+                        # This effectively reloads them from memory, the next time the page is fully reloaded.
+                        # Thus we have achieved a primitive kind of persistence
+                        await manager.send_personal_message(f"You wrote: {data}", websocket)
+                        await manager.broadcastText(LogEntry)
+                else:
+                    logging.info("Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
