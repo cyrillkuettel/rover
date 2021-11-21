@@ -9,6 +9,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+from io import BytesIO
+from PIL import Image
 import types
 
 app = FastAPI()
@@ -27,7 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Main Storage for all text-based information from the rover
+# Main Storage for all text-based Logging information
 Incoming_Logs = []
 
 current_file = Path(__file__)
@@ -122,7 +124,7 @@ async def del_cache(request: Request):
 
 
 @app.post("/apk/upload/")
-async def image(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
+async def uploadApk(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
     # name = file.filename
     name = "pilot.apk"  # don't bother with the version numbers
     [f.unlink() for f in Path(UPLOAD).glob("*") if f.is_file()]  # delete all old apk
@@ -143,8 +145,16 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
         while True:
             if str(client_id) == "888":  # 888 is the pre-defined client-id, which stands for binary data
                 binaryData = await websocket.receive_bytes()
-                logging.info("Recceived bytes :) Sending to client")
-                await manager.broadcastBytes(binaryData)
+                """
+                ull_path = UPLOAD / "image"
+                full_image_path = UPLOAD / "a_test.jpg"
+                with open(full_path, "wb") as f:
+                    f.write(binaryData)
+                img = Image.frombuffer('YUV', (320, 240), binaryData)
+                img.save()
+                """
+                logging.info("Recceived bytes ")
+                # await manager.broadcastBytes(binaryData)
             else:
                 data = await websocket.receive_text()
                 logging.info("received Text:" + data)
@@ -160,7 +170,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             await manager.broadcastText(splitted_command_from_text)  # Let the client handle the rest
                         if splitted_command_from_text == "requestTime":
                             stamp = get_timestamp(long=True)
-                            await manager.send_personal_message(f"Time={stamp}", websocket)
+                            await manager.send_personal_message(f"time={stamp}", websocket)
                     else:  # Normal Log
                         stamp = get_timestamp()
                         # LogEntry = f"{stamp}: {data}"

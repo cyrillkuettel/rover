@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
     <!-- link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" -->
     <link rel="stylesheet" href="static/css/w3.css">
     <link rel="stylesheet" href="static/css/main.css">
@@ -15,27 +16,28 @@
 
 <header>
     <div class="w3-container">
-        <h1 style="text-align:center !important;"><a href="index.html"></a >Garteroboterli</h1>
+        <h1 style="text-align:center !important;"><a href="index.html"></a>Garteroboterli</h1>
     </div>
 </header>
 
-
+<body>
     <div class="w3-container">
-        <h2 style="display: inline !important;">Timer  </h2>
+        <h2 style="display: inline !important;">Timer </h2>
         <h2 id="timer" style="display: inline !important;">0:00</h2>
     </div>
 
 
-<div class="w3-container">
     <div class="w3-container">
-        <h2 style="text-align:center;"> Real-time Logbuch</h2>
-    </div>
+        <div class="w3-container">
+            <h2 style="text-align:center;"> Real-time Logbuch</h2>
+        </div>
 
-    <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
-        {% for item in Incoming_Logs%}
-        <li>{{item}}</li>
-        {% endfor %}
-    </ul>
+        <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
+            {% for item in Incoming_Logs%}
+            <li>{{item}}</li>
+            {% endfor %}
+        </ul>
+    </div>
     <script>
         var client_id = Date.now()
         var uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`
@@ -54,7 +56,27 @@
             let data = event.data
             // Binary data: depending on binaryType being set to either arraybuffer or blob
             if (data instanceof Blob) {
-                console.log("blob ")
+                console.log("blob")
+                const url = URL.createObjectURL(data);
+                console.log(url);
+                document.getElementById("detected-image").src = url;
+
+
+
+                /*
+                const blobToImage = (blob) => {
+                    return new Promise(resolve => {
+                        const url = URL.createObjectURL(blob)
+                        let img = new Image()
+                        img.onload = () => {
+                            URL.revokeObjectURL(url)
+                            resolve(img)
+                        }
+                        img.src = url
+                    })
+                }
+                */
+
             } else if (data instanceof ArrayBuffer) {
                 console.log("ArrayBuffer")
             } else if (typeof data === "string") {
@@ -128,50 +150,52 @@
     <div class="flex_container_main_Pot">
         <div class="w3-container w3-card-4">
             <img src="../static/img/minze-im-topf.jpg" alt="Pfefferminze" class="w3-image flex_container_main_Pot"
-                 id="detected-image">
-        </div>
-        <div class="w3-container w3-card-4">
-            <h2 style="text-align:center;"> Pfefferminze</h2> <!-- Hier ein Symbol bild einfügen, -->
+                id="detected-image">
+
+            <div class="w3-container w3-card-4">
+                <h2 style="text-align:center;"> Pfefferminze</h2> <!-- Hier ein Symbol bild einfügen, -->
+            </div>
+
         </div>
     </div>
-
-    <script>/* ...
-    <div class="w3-container">
-        <p>Reihen-Position: </p>
-    </div>
-
-
-    <div class="flex_container_pots">
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant1.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant2.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant3.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant4.png" alt="">
-        </div>
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/plant-icons/plant5.png" alt="">
-        </div>
-    </div>
-
-    <br>
-
-
-    <div class="flex_container_arrow">
-        <div class="w3-container">
-            <img class="w3-image" src="../static/img/arrow_transparent.png" alt="">
-        </div>
-    </div>
-
-*/</script>
-</div>
 
 </body>
+
+<script>/* ...
+<div class="w3-container">
+    <p>Reihen-Position: </p>
+</div>
+
+
+<div class="flex_container_pots">
+    <div class="w3-container">
+        <img class="w3-image" src="../static/img/plant-icons/plant1.png" alt="">
+    </div>
+    <div class="w3-container">
+        <img class="w3-image" src="../static/img/plant-icons/plant2.png" alt="">
+    </div>
+    <div class="w3-container">
+        <img class="w3-image" src="../static/img/plant-icons/plant3.png" alt="">
+    </div>
+    <div class="w3-container">
+        <img class="w3-image" src="../static/img/plant-icons/plant4.png" alt="">
+    </div>
+    <div class="w3-container">
+        <img class="w3-image" src="../static/img/plant-icons/plant5.png" alt="">
+    </div>
+</div>
+
+<br>
+
+
+<div class="flex_container_arrow">
+    <div class="w3-container">
+        <img class="w3-image" src="../static/img/arrow_transparent.png" alt="">
+    </div>
+</div>
+
+*/</script>
+
 
 
 <footer>
@@ -181,4 +205,5 @@
         </div>
     </div>
 </footer>
+
 </html>
