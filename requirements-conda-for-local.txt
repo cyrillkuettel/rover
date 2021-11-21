@@ -7,5 +7,5 @@ uvicorn[standard]>=0.15,<0.16
 requests>=2.26.0
 websockets>=10.0.0,<10.0.1
 python-multipart>=0.0.5
-
+Pillow>=8.4.0
 starlette~=0.14.2
