@@ -45,10 +45,14 @@
         var ws;
         var now;  // Used to Store the timestamp
 
-        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1" ||
+            location.hostname === "192.168.188.38") {
             ws = new WebSocket(uri_for_local_testing);
+            console.log("using local hostname");
         } else {
-            ws = new WebSocket(uri);
+           ws = new WebSocket(uri);
+           console.log("using domain for hostname");
+           console.log(location.hostname)
         }
 
 

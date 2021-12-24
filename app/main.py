@@ -9,6 +9,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+import io
 from io import BytesIO
 from PIL import Image
 import types
@@ -82,7 +83,7 @@ class ConnectionManager:
         for connection in self.active_connections:
             # TODO:
             # maybe skip the Pilot client id in the list
-            # It's not necessary and worse: adds unecessary complexity
+            # It's not necessary and worse: adds unnecessary complexity
             await connection.send_bytes(message)
 
 
@@ -144,17 +145,20 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     try:
         while True:
             if str(client_id) == "888":  # 888 is the pre-defined client-id, which stands for binary data
-                binaryData = await websocket.receive_bytes()
+                image_data = await websocket.receive_bytes()
+                im = Image.open(io.BytesIO(image_data))
+                logging.info(f"Received bytes. Length = {len(image_data)} ")
+
                 """
-                ull_path = UPLOAD / "image"
-                full_image_path = UPLOAD / "a_test.jpg"
+                full_path = UPLOAD / "image"
+                full_image_path = full_path / "a_test.jpg"
                 with open(full_path, "wb") as f:
                     f.write(binaryData)
-                img = Image.frombuffer('YUV', (320, 240), binaryData)
+                img = Image.frombuffer('RGBA', (3036, 4048), binaryData)
                 img.save()
                 """
-                logging.info("Recceived bytes ")
-                # await manager.broadcastBytes(binaryData)
+
+                await manager.broadcastBytes(image_data)
             else:
                 data = await websocket.receive_text()
                 logging.info("received Text:" + data)
@@ -172,7 +176,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             stamp = get_timestamp(long=True)
                             await manager.send_personal_message(f"time={stamp}", websocket)
                     else:  # Normal Log
-                        stamp = get_timestamp()
+                        stamp = get_timestamp()  # Not currently used
                         # LogEntry = f"{stamp}: {data}"
                         LogEntry = data
                         Incoming_Logs.append(LogEntry)  # Just to store all Logs on the server side as well.
