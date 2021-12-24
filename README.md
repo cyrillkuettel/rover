@@ -12,6 +12,7 @@
 - [ ] nginx running in docker
 - [ ] Show path (geographical) based on GPS with 
 - [ ] Specify location of plant pot in row at the end
+- [ ] Tabs
 - [ ] image processing with high-performance Server? Of course, with massive parallelism. (If still time, this would be very interesting. Latency may be an issue, because of the size of the image )
 
 
