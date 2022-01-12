@@ -1,5 +1,5 @@
-
-All commands for setting up a new Droplet 
+#!/bin/bash
+#All commands for setting up a new Droplet 
 
 adduser cyrill
 usermod -aG sudo cyrill
