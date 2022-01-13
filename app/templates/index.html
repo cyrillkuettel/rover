@@ -39,11 +39,11 @@
         </ul>
     </div>
     <script>
-        var client_id = Date.now()
-        var uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`
-        var uri = `ws://pren.garteroboter.li:80/ws/${client_id}`
-        var ws;
-        var now;  // Used to Store the timestamp
+        const client_id = Date.now();
+        const uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`;
+        const uri = `ws://pren.garteroboter.li:80/ws/${client_id}`;
+        let ws;
+        let now;  // Used to Store the timestamp
 
         if (location.hostname === "localhost" || location.hostname === "127.0.0.1" ||
             location.hostname === "192.168.188.38") {
@@ -64,24 +64,7 @@
                 const url = URL.createObjectURL(data);
                 console.log(url);
                 document.getElementById("detected-image").src = url;
-
-
-
-                /*
-                const blobToImage = (blob) => {
-                    return new Promise(resolve => {
-                        const url = URL.createObjectURL(blob)
-                        let img = new Image()
-                        img.onload = () => {
-                            URL.revokeObjectURL(url)
-                            resolve(img)
-                        }
-                        img.src = url
-                    })
-                }
-                */
-
-            } else if (data instanceof ArrayBuffer) {
+            } else if (data instanceof ArrayBuffer) { // Not used, leaving it for documentation purposes
                 console.log("ArrayBuffer")
             } else if (typeof data === "string") {
                 console.log("string data")
@@ -95,10 +78,10 @@
                     console.log("startime = " + startTime)
                     let timeStamp = dayjs(startTime).valueOf();
                     // console.log("timeStamp = " + timeStamp);
-                    let now2 = dayjs();
+                    // let now2 = dayjs();
                     // console.log("now = " + now2); // in millis
 
-                    var timer = setInterval(function () {
+                    let timer = setInterval(function () {
                         // there has to be an easier way to do this
                         // with dayjs.extend(window.dayjs_plugin_relativeTime) and a custom format for .from()
 

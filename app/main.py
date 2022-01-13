@@ -185,6 +185,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                         await manager.send_personal_message(f"You wrote: {data}", websocket)
                         await manager.broadcastText(LogEntry)
                 else:
-                    logging.info("Len(client_id) bigger than 9")
+                    logging.info(" FATALERROR: Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
