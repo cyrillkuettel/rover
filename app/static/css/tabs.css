@@ -1,0 +1,33 @@
+.mytabs {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 750px;
+    padding: 25px;
+}
+.mytabs input[type="radio"] {
+    display: none;
+}
+.mytabs label {
+    padding: 25px;
+    background: #e2e2e2;
+    font-weight: bold;
+}
+
+.mytabs .tab {
+    width: 100%;
+    padding: 20px;
+    background: #fff;
+    order: 1;
+    display: none;
+}
+.mytabs .tab h2 {
+    font-size: 2em;
+}
+
+.mytabs input[type='radio']:checked + label + .tab {
+    display: block;
+}
+
+.mytabs input[type="radio"]:checked + label {
+    background: #fff;
+}

@@ -1,17 +1,16 @@
 body {
 
+    background: #ccc;
+    font-family: 'Roboto', sans-serif;
     margin: 40px auto;
-     text-align:center;
-    max-width: 750px;
-    line-height: 1.6;
+    text-align:center;
+    max-width: 850px;
     font-size: 18px;
-    color: #444;
     padding: 0 10px;
     /*
      display: flex;
     flex-direction: column;
     Trick */
-
 }
 
 h1 {
@@ -20,7 +19,7 @@ h1 {
 }
 
 h2 {
-    font-size: 4vh;
+    
 }
 
 h2 .flex_time {
@@ -28,16 +27,18 @@ h2 .flex_time {
 }
 
 
-ul>li {
-    /* css styles go here */
+ul>li { /*Log Container */
+    
     list-style-type: circle;
     list-style-position: inside;
     font-family: Consolas, monaco, monospace;
     font-size: 20px;
     font-style: normal;
     font-variant: normal;
-    font-weight: 400;
-    line-height: 20px;
+    line-height: 5px;
+    text-align:left;
+   
+    
 }
 
 .flex_container_main_Pot {

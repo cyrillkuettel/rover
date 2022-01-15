@@ -7,8 +7,11 @@
     <!-- link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" -->
     <link rel="stylesheet" href="static/css/w3.css">
     <link rel="stylesheet" href="static/css/main.css">
+    <link rel="stylesheet" href="static/css/tabs.css">
     <script type="text/javascript" src="static/dayjs.min.js"></script>
     <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
 
 
     <title>Rover</title>
@@ -21,174 +24,180 @@
 </header>
 
 <body>
-    <div class="w3-container">
-        <h2 style="display: inline !important;">Timer </h2>
-        <h2 id="timer" style="display: inline !important;">0:00</h2>
-    </div>
+  
 
 
-    <div class="w3-container">
-        <div class="w3-container">
-            <h2 style="text-align:center;"> Real-time Logbuch</h2>
-        </div>
-
-        <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
-            {% for item in Incoming_Logs%}
-            <li>{{item}}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    <script>
-        const client_id = Date.now();
-        const uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`;
-        const uri = `ws://pren.garteroboter.li:80/ws/${client_id}`;
-        let ws;
-        let now;  // Used to Store the timestamp
-
-        if (location.hostname === "localhost" || location.hostname === "127.0.0.1" ||
-            location.hostname === "192.168.188.38") {
-            ws = new WebSocket(uri_for_local_testing);
-            console.log("using local hostname");
-        } else {
-           ws = new WebSocket(uri);
-           console.log("using domain for hostname");
-           console.log(location.hostname)
-        }
+        <div class="mytabs">
+            <input type="radio" id="tablogs" name="mytabs" checked="checked">
+            <label for="tablogs">Logs</label>
+            <div class="tab">
 
 
-        ws.onmessage = function (event) {
-            let data = event.data
-            // Binary data: depending on binaryType being set to either arraybuffer or blob
-            if (data instanceof Blob) {
-                console.log("blob")
-                const url = URL.createObjectURL(data);
-                console.log(url);
-                document.getElementById("detected-image").src = url;
-            } else if (data instanceof ArrayBuffer) { // Not used, leaving it for documentation purposes
-                console.log("ArrayBuffer")
-            } else if (typeof data === "string") {
-                console.log("string data")
+                <div class="w3-container">
+                    <h2 style="display: inline !important;">Timer </h2>
+                    <h2 id="timer" style="display: inline !important;">0:00</h2>
+                </div>
+                <div class="w3-container">
+                    <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
+                        {% for item in Incoming_Logs%}
+                        <li>{{item}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <script>
+                    const client_id = Date.now();
+                    const uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`;
+                    const uri = `ws://pren.garteroboter.li:80/ws/${client_id}`;
+                    let ws;
+                    let now;  // Used to Store the timestamp
 
-                if (data.includes("startTime=")) { //  start the timer based on the provided start time
-                    let startTime = data;
-                    let hours = "00:"; // this will not change
-                    startTime = startTime.replace('startTime=', '');
-                    startTime = startTime.replace(' ', 'T');
-                    startTime = startTime.substring(0, startTime.length - 4);
-                    console.log("startime = " + startTime)
-                    let timeStamp = dayjs(startTime).valueOf();
-                    // console.log("timeStamp = " + timeStamp);
-                    // let now2 = dayjs();
-                    // console.log("now = " + now2); // in millis
-
-                    let timer = setInterval(function () {
-                        // there has to be an easier way to do this
-                        // with dayjs.extend(window.dayjs_plugin_relativeTime) and a custom format for .from()
-
-
-                        let now = dayjs()
-                        let diff = now.diff(timeStamp);
-                        diff = Math.abs(diff);
-
-                        let minutes_and_seconds = millisToMinutesAndSeconds(diff);
-                        console.log(minutes_and_seconds)
-                        document.getElementById("timer").innerHTML = millisToMinutesAndSeconds(diff)
-                        /*
-                        document.getElementById("hours").innerHTML = hours
-                        document.getElementById("mins").innerHTML = arr[0] + ":";
-                        document.getElementById("secs").innerHTML = arr[1] + ":"
-
-                         */
-                    }, 1000);
+                    if (location.hostname === "localhost" || location.hostname === "127.0.0.1" ||
+                        location.hostname === "192.168.188.38") {
+                        ws = new WebSocket(uri_for_local_testing);
+                        console.log("using local hostname");
+                    } else {
+                        ws = new WebSocket(uri);
+                        console.log("using domain for hostname");
+                        console.log(location.hostname)
+                    }
 
 
-                } else { //  append to logbook
-                    let messages = document.getElementById('messages')
-                    let message = document.createElement('li')
-                    let content = document.createTextNode(data)
-                    message.appendChild(content)
-                    messages.appendChild(message)
-                }
-            }
-        };
+                    ws.onmessage = function (event) {
+                        let data = event.data
+                        // Binary data: depending on binaryType being set to either arraybuffer or blob
+                        if (data instanceof Blob) {
+                            console.log("blob")
+                            const url = URL.createObjectURL(data);
+                            console.log(url);
+                            document.getElementById("detected-image").src = url;
+                        } else if (data instanceof ArrayBuffer) { // Not used, leaving it for documentation purposes
+                            console.log("ArrayBuffer")
+                        } else if (typeof data === "string") {
+                            console.log("string data")
 
-        // simple vanilla js timer
-        function startTimer() {
-            setInterval(() => {
-                now = new Date(now.getTime() + 1000);
-                console.log(now)
-            }, 1000);
-        }
+                            if (data.includes("startTime=")) { //  start the timer based on the provided start time
+                                let startTime = data;
+                                let hours = "00:"; // this will not change
+                                startTime = startTime.replace('startTime=', '');
+                                startTime = startTime.replace(' ', 'T');
+                                startTime = startTime.substring(0, startTime.length - 4);
+                                console.log("startime = " + startTime)
+                                let timeStamp = dayjs(startTime).valueOf();
+                                // console.log("timeStamp = " + timeStamp);
+                                // let now2 = dayjs();
+                                // console.log("now = " + now2); // in millis
+
+                                let timer = setInterval(function () {
+                                    // there has to be an easier way to do this
+                                    // with dayjs.extend(window.dayjs_plugin_relativeTime) and a custom format for .from()
 
 
-        function millisToMinutesAndSeconds(millis) {
-            var minutes = Math.floor(millis / 60000);
-            var seconds = ((millis % 60000) / 1000).toFixed(0);
-            return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
-        }
+                                    let now = dayjs()
+                                    let diff = now.diff(timeStamp);
+                                    diff = Math.abs(diff);
 
-    </script>
+                                    let minutes_and_seconds = millisToMinutesAndSeconds(diff);
+                                    console.log(minutes_and_seconds)
+                                    document.getElementById("timer").innerHTML = millisToMinutesAndSeconds(diff)
+                                    /*
+                                    document.getElementById("hours").innerHTML = hours
+                                    document.getElementById("mins").innerHTML = arr[0] + ":";
+                                    document.getElementById("secs").innerHTML = arr[1] + ":"
+            
+                                     */
+                                }, 1000);
 
 
-    <!-- w3.CSS buffering Symbol -->
-    <!-- <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p> -->
-    <!-- test -->
+                            } else { //  append to logbook
+                                let messages = document.getElementById('messages')
+                                let message = document.createElement('li')
+                                let content = document.createTextNode(data)
+                                message.appendChild(content)
+                                messages.appendChild(message)
+                            }
+                        }
+                    };
 
-    <div class="flex_container_main_Pot">
-        <div class="w3-container w3-card-4">
-            <img src="../static/img/minze-im-topf.jpg" alt="Pfefferminze" class="w3-image flex_container_main_Pot"
-                id="detected-image">
+                    // simple vanilla js timer
+                    function startTimer() {
+                        setInterval(() => {
+                            now = new Date(now.getTime() + 1000);
+                            console.log(now)
+                        }, 1000);
+                    }
 
-            <div class="w3-container w3-card-4">
-                <h2 style="text-align:center;"> Pfefferminze</h2> <!-- Hier ein Symbol bild einfügen, -->
+
+                    function millisToMinutesAndSeconds(millis) {
+                        var minutes = Math.floor(millis / 60000);
+                        var seconds = ((millis % 60000) / 1000).toFixed(0);
+                        return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+                    }
+
+                </script>
+
             </div>
 
-        </div>
-    </div>
+            <input type="radio" id="tabimages" name="mytabs">
+            <label for="tabimages">Bilder</label>
+            <div class="tab">
 
-</body>
 
-<script>/* ...
+                <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p>
+
+
+                <div class="flex_container_main_Pot">
+                    <div class="w3-container w3-card-4">
+                        <img src="../static/img/minze-im-topf.jpg" alt="Pfefferminze"
+                            class="w3-image flex_container_main_Pot" id="detected-image">
+
+                        <div class="w3-container w3-card-4">
+                            <h2 style="text-align:center;"> </h2>
+                        </div>
+
+                    </div>
+                </div>
+
+                <script> /* ...
 <div class="w3-container">
-    <p>Reihen-Position: </p>
+  <p>Reihen-Position: </p>
 </div>
-
-
+ 
+ 
 <div class="flex_container_pots">
-    <div class="w3-container">
-        <img class="w3-image" src="../static/img/plant-icons/plant1.png" alt="">
-    </div>
-    <div class="w3-container">
-        <img class="w3-image" src="../static/img/plant-icons/plant2.png" alt="">
-    </div>
-    <div class="w3-container">
-        <img class="w3-image" src="../static/img/plant-icons/plant3.png" alt="">
-    </div>
-    <div class="w3-container">
-        <img class="w3-image" src="../static/img/plant-icons/plant4.png" alt="">
-    </div>
-    <div class="w3-container">
-        <img class="w3-image" src="../static/img/plant-icons/plant5.png" alt="">
-    </div>
+  <div class="w3-container">
+      <img class="w3-image" src="../static/img/plant-icons/plant1.png" alt="">
+  </div>
+  <div class="w3-container">
+      <img class="w3-image" src="../static/img/plant-icons/plant2.png" alt="">
+  </div>
+  <div class="w3-container">
+      <img class="w3-image" src="../static/img/plant-icons/plant3.png" alt="">
+  </div>
+  <div class="w3-container">
+      <img class="w3-image" src="../static/img/plant-icons/plant4.png" alt="">
+  </div>
+  <div class="w3-container">
+      <img class="w3-image" src="../static/img/plant-icons/plant5.png" alt="">
+  </div>
 </div>
-
+ 
 <br>
-
-
+ 
+ 
 <div class="flex_container_arrow">
-    <div class="w3-container">
-        <img class="w3-image" src="../static/img/arrow_transparent.png" alt="">
-    </div>
+  <div class="w3-container">
+      <img class="w3-image" src="../static/img/arrow_transparent.png" alt="">
+  </div>
 </div>
-
+ 
 */</script>
 
-
+</body>
 
 <footer>
     <div class="footer-container">
         <div class="footer-center">
-            <p> HSLU HS2021 - PREN 1 & 2 Gruppe 38 Copyright &copy;</p>
+            <p> HSLU HS2021 - PREN 1 & 2 Gruppe 38 Copyright 2022 &copy;</p>
         </div>
     </div>
 </footer>
