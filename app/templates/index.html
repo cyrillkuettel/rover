@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="static/css/w3.css">
     <link rel="stylesheet" href="static/css/main.css">
     <link rel="stylesheet" href="static/css/tabs.css">
-    <script type="text/javascript" src="static/dayjs.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.7/dayjs.min.js"></script>
+
     <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
@@ -45,6 +46,10 @@
                     </ul>
                 </div>
                 <script>
+
+                    dayjs.locale('ch') // use locale globally
+                    dayjs().locale('ch').format() // use locale in a specific instance
+
                     const client_id = Date.now();
                     const uri_for_local_testing = `ws://0.0.0.0:80/ws/${client_id}`;
                     const uri = `ws://pren.garteroboter.li:80/ws/${client_id}`;
@@ -73,20 +78,20 @@
                         } else if (data instanceof ArrayBuffer) { // Not used, leaving it for documentation purposes
                             console.log("ArrayBuffer")
                         } else if (typeof data === "string") {
-                            console.log("string data")
 
-                            if (data.includes("startTime=")) { //  start the timer based on the provided start time
+                            if (data.includes("startTime=")) {  // TODO: rounding up and down on millliseconds
                                 let startTime = data;
-                                let hours = "00:"; // this will not change
+                                let hours = "00:"; // this will not change.
                                 startTime = startTime.replace('startTime=', '');
-                                startTime = startTime.replace(' ', 'T');
-                                startTime = startTime.substring(0, startTime.length - 4);
-                                console.log("startime = " + startTime)
-                                let timeStamp = dayjs(startTime).valueOf();
-                                // console.log("timeStamp = " + timeStamp);
-                                // let now2 = dayjs();
-                                // console.log("now = " + now2); // in millis
-
+                                console.log(startTime)
+                                var numberTime = parseInt(startTime, 10); // convert to integer
+                                 
+                                let timeStamp = dayjs(numberTime)
+                                console.log("timeStamp = " + timeStamp)
+                                if (isNaN(timeStamp)) {
+                                    console.log("NAN detected") // we got a invalid timeStamp
+                                    return;
+                                }
                                 let timer = setInterval(function () {
                                     // there has to be an easier way to do this
                                     // with dayjs.extend(window.dayjs_plugin_relativeTime) and a custom format for .from()
@@ -94,8 +99,8 @@
 
                                     let now = dayjs()
                                     let diff = now.diff(timeStamp);
-                                    diff = Math.abs(diff);
-
+                                   
+                
                                     let minutes_and_seconds = millisToMinutesAndSeconds(diff);
                                     console.log(minutes_and_seconds)
                                     document.getElementById("timer").innerHTML = millisToMinutesAndSeconds(diff)
@@ -103,9 +108,10 @@
                                     document.getElementById("hours").innerHTML = hours
                                     document.getElementById("mins").innerHTML = arr[0] + ":";
                                     document.getElementById("secs").innerHTML = arr[1] + ":"
-            
-                                     */
-                                }, 1000);
+                                    */
+                                     
+                                }, 1000);  
+                               
 
 
                             } else { //  append to logbook
