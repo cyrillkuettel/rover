@@ -28,7 +28,7 @@
 
 
         <div class="mytabs">
-            <input type="radio" id="tablogs" name="mytabs" checked="checked">
+            <input type="radio" id="tablogs" name="mytabs">
             <label for="tablogs">Logs</label>
             <div class="tab">
 
@@ -37,7 +37,7 @@
                     <h2 style="display: inline !important;">Timer </h2>
                     <h2 id="timer" style="display: inline !important;">0:00</h2>
                 </div>
-                <div class="w3-container">
+                <div class="" id="logging-box-wrapper">
                     <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
                         {% for item in Incoming_Logs%}
                         <li>{{item}}</li>
@@ -137,7 +137,7 @@
 
             </div>
 
-            <input type="radio" id="tabimages" name="mytabs">
+            <input type="radio" id="tabimages" name="mytabs"  checked="checked">
             <label for="tabimages">Bilder</label>
             <div class="tab">
 
@@ -191,15 +191,11 @@
 </div>
  
 */</script>
+</div>
 
 </body>
 
-<footer>
-    <div class="footer-container">
-        <div class="footer-center">
-            <p> HSLU HS2021 - PREN 1 & 2 Gruppe 38 Copyright 2022 &copy;</p>
-        </div>
-    </div>
+
 </footer>
 
 </html>

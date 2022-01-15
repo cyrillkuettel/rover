@@ -14,18 +14,18 @@ body {
 }
 
 h1 {
-
     font-size: 8vh;
 }
 
-h2 {
-    
-}
 
 h2 .flex_time {
     display: inline;
 }
 
+#messages { /*Log Container: I overrride the w3.css padding */
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+}
 
 ul>li { /*Log Container */
     
@@ -37,7 +37,8 @@ ul>li { /*Log Container */
     font-variant: normal;
     line-height: 5px;
     text-align:left;
-   
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
     
 }
 
