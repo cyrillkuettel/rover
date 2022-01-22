@@ -6,14 +6,14 @@
 ### Feature List
 - [x] Websocket endpoint for low-latency bidirectional coummunication
 - [x] Dynamically display status information
-- [x] Show Error messages, color code it
-- [x] start accurate Timer. (Also implemented with weboscket)
-- [ ] Display pictures
+- [X] Display pictures, updated by App (ecstatic pilot)
+- [x] start accurate Time based on timestamr. (Also implemented with weboscket)
+- [X] Switch between tabs
 - [ ] nginx running in docker
 - [ ] Show path (geographical) based on GPS with 
 - [ ] Specify location of plant pot in row at the end
-- [ ] Tabs
-- [ ] image processing with high-performance Server? Of course, with massive parallelism. (If still time, this would be very interesting. Latency may be an issue, because of the size of the image )
+- [ ] Show Error messages, color code it
+- [ ] image processing with high-performance Server? )
 
 
 
