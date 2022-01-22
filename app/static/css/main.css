@@ -50,7 +50,7 @@ ul>li { /*Log Container */
     /* align-items: center; */
 }
 
-#detected-image {
+.detected-image {
     max-width: 100%;
     height: auto;
     /* align-self: flex-start */

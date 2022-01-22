@@ -3,6 +3,7 @@ from typing import Optional, List
 from pathlib import Path
 import logging
 import jinja2
+import subprocess
 from datetime import datetime
 from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
@@ -33,15 +34,19 @@ app.add_middleware(
 # Main Storage for all text-based Logging information
 Incoming_Logs = []
 
+# Main Storage for all plant images
+Incoming_Images = []
+
 current_file = Path(__file__)
 current_file_dir = current_file.parent  # /code/app
 TEMPLATES = current_file_dir / "templates"
 UPLOAD = current_file_dir / "upload"
+
 APP = UPLOAD / "pilot.apk"
 
 static = current_file_dir / "static"
 STATIC_IMG = static / "img"
-
+IMG_REMOVE = STATIC_IMG / "remove-images.sh"
 FAVICON = STATIC_IMG / "favicon.ico"
 templates = Jinja2Templates(directory=TEMPLATES)
 
@@ -53,6 +58,7 @@ class Paths:
 
     def __init__(self):
         self.pilot_apk_name = "pilot.apk"
+        self.plant_count = 0  # To keep track of the number of images
 
     def add_PILOT_APK_NAME(self, variable):
         self.pilot_apk_name = variable
@@ -103,7 +109,11 @@ def get_timestamp(long=False):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "Incoming_Logs": Incoming_Logs})
+    return templates.TemplateResponse(
+        "index.html", {"request": request,
+                       "Incoming_Logs": Incoming_Logs,
+                       "numer_of_images": paths.plant_count,
+                       "images_for_future": 12 - paths.plant_count})  # There will be a maximum of 11 plants
 
 
 @app.get("/favicon.ico")
@@ -117,11 +127,15 @@ async def serve_File():
     return FileResponse(path=APP, filename=paths.get_PILOT_APK_NAME())
 
 
-@app.get("/deleteCache/", response_class=HTMLResponse)
+@app.get("/clear/", response_class=HTMLResponse)
 async def del_cache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
-    return "<h2>Cleared Cache :)</h2>"
+    paths.plant_count = 0
+    logging.info("clearing the images")
+    logging.info(f"calling script {IMG_REMOVE}")
+    subprocess.call(IMG_REMOVE)
+    return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
 @app.post("/apk/upload/")
@@ -145,18 +159,19 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     try:
         while True:
             if str(client_id) == "888":  # 888 is the pre-defined client-id, which stands for binary data
+                paths.plant_count += 1
+                plant_image_absolute_path = STATIC_IMG / f"plant{paths.plant_count}.jpg"
+
                 image_data = await websocket.receive_bytes()
                 im = Image.open(io.BytesIO(image_data))
                 logging.info(f"Received bytes. Length = {len(image_data)} ")
 
-                """
-                full_path = UPLOAD / "image"
-                full_image_path = full_path / "a_test.jpg"
-                with open(full_path, "wb") as f:
-                    f.write(binaryData)
-                img = Image.frombuffer('RGBA', (3036, 4048), binaryData)
-                img.save()
-                """
+                try:
+                    im.save(plant_image_absolute_path)
+                    logging.info("Saving the image")
+                except Exception as ex:
+                    logging.debug(f"failed to save the image: {plant_image_absolute_path}")
+                    logging.info(ex)
 
                 await manager.broadcastBytes(image_data)
             else:
