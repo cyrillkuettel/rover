@@ -1,0 +1,37 @@
+version: '2'
+volumes:
+  static_files:
+  gunicorn_socket:
+services:
+  # Python/FASTAIP + Gunicorn
+  python:
+    build:
+      context: . # We set this context to load the app requirements when building the image
+      dockerfile: ./Dockerfile
+    volumes:
+      # include the code of our app
+      - ./:/app
+      # include static files
+      - static_files:/static_files
+      - gunicorn_socket:/gunicorn_socket
+    # command: python manage.py runserver 0.0.0.0:5000
+    command: /gunicorn.sh --log-level debug
+    ports:
+      - "5000:5000"
+    expose:
+      - "5000"
+  # nginx webserver, hosting static_files, uploaded_files, and proxying to the django app
+  nginx:
+    build:
+      context: . # We set this context to load the app requirements when building the image
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - "80:80"
+    expose:
+      - "80"
+    volumes:
+      # nginx needs to access static files
+      - static_files:app/static
+      - gunicorn_socket:/gunicorn_socket
+    depends_on:
+      - python
