@@ -10,8 +10,7 @@ usermod -aG sudo cyrill
 sudo nano /etc/ssh/sshd_config
 PasswordAuthentication yes
 sudo service sshd restart
-
-# Now you can log in from the new user. We're almost done.
+# SSH has to be configured. 
 mkdir ~/.ssh
 nano ~/.ssh/authorized_keys # Paste your ssh public key here
 sudo service sshd restart
@@ -30,4 +29,27 @@ sudo systemctl status docker
 sudo usermod -aG docker ${USER}
 su - ${USER}
 
+# Then there was the issue with HTTPS (Which I resolved by installing the ufw:
+# https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-18-04
+# All issued commands
+sudo nano /etc/default/ufw
+IPV6=yes
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+# You can check which profiles are currently registered:
+sudo ufw app list
+sudo ufw allow OpenSSH
+sudo ufw enable #IMPORTANT
+sudo ufw allow 80
+sudo ufw allow 443
+sudo ufw status verbose
+
+# Output
+# Available applications:
+  # OpenSSH
+
+
+
+# Useful curl commands
+curl -I -L https://yourdomain.com
 
