@@ -2,8 +2,8 @@
 #All commands for setting up a new Droplet 
 
 # Manually:
-adduser cyrill
-usermod -aG sudo cyrill
+adduser your_username
+usermod -aG sudo your_username
 
 
 # before re-logging with my username, have to: 
