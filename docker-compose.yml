@@ -1,5 +1,9 @@
 version: '3' # specify docker-compose version
 
+
+volumes:
+  gunicorn_socket:
+
 # Define the services/containers to be run
 services:
   python:
@@ -11,23 +15,23 @@ services:
       - /home/demo/rover/app:/code/app
       # include static files
       #- static_files:/static_files
-      # - gunicorn_socket:/gunicorn_socket
-    command: -e MODULE_NAME="app.main" -e VARIABLE_NAME="app" /start-reload.sh #I am not sure if the -e tags are neccessary
-    ports:
-      - "80:80"
+      - gunicorn_socket:/gunicorn_socket
+        # command: MODULE_NAME="app.main" -e VARIABLE_NAME="app" /start-reload.sh #I am not sure if the -e tags are neccessary
     expose:
-      - "80"
-      
-      
+      - "80" 
+    
   nginx:
     image: nginx
     volumes:
+      - "./app/static:/var/www/public/static"
       - "./app/templates:/var/www/public"
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
       - "./nginx/html/404.html:/usr/share/nginx/html/404.html"
+      - gunicorn_socket:/gunicorn_socket  
     ports:
-      - 80:80
-      - 443:443
-
-
+      - "80:80"
+    expose: 
+      - "80"
+    depends_on:
+      - python
 
