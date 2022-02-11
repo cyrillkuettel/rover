@@ -6,7 +6,7 @@ services:
     build:
       context: . # We set this context to load the app requirements when building the image
       dockerfile: ./Dockerfile # uvicorn-gunicorn-fastapi:python3.9
-     volumes:
+    volumes:
       # include the code of our app
       - /home/demo/rover/app:/code/app
       # include static files
