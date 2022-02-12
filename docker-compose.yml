@@ -3,7 +3,8 @@ version: '3.2' # specify docker-compose version
 
 volumes:
   app:
-  gunicorn_socket:
+
+
 # Define the services/containers to be run
 services:
   python:
@@ -14,7 +15,6 @@ services:
       - type: volume
         source: app
         target: /code/app
-        # - gunicorn_socket:/gunicorn_socket
     ports:
       - "8000:8000"
     
@@ -26,9 +26,10 @@ services:
         target: /var/www/public/
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
       - "./nginx/html/404.html:/usr/share/nginx/html/404.html"
-        # - gunicorn_socket:/gunicorn_socket  
+      - "~/cert/rover:/etc/ssl"
     ports:
       - "80:80"
+      - "443:443"
     expose: 
       - "80"
     depends_on:
