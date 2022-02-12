@@ -1,5 +1,7 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
+LABEL maintainer="Sebastian Ramirez <tiangolo@gmail.com>"
+
 WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt

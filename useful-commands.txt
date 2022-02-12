@@ -1,1 +1,3 @@
 curl -v http://pren.garteroboter.li > /dev/null
+
+ab -c 32 -n 12000 -k https://pren.garteroboter.li
