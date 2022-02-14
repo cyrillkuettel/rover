@@ -49,8 +49,8 @@
             dayjs().locale('ch').format() // use locale in a specific instance
 
             const client_id = Date.now();
-            const uri_for_local_testing = `wss://0.0.0.0:443/ws/${client_id}`;
-            const uri = `wss://pren.garteroboter.li:443/ws/${client_id}`;
+            const uri_for_local_testing = `wss://0.0.0.0/ws/${client_id}`;
+            const uri = `wss://pren.garteroboter.li/ws/${client_id}`;
             let ws;
             let now;  // Used to Store the timestamp
 

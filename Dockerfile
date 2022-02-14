@@ -8,7 +8,7 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY ./app /code/app
+# COPY ./app /code/app      (I use volume instead)
 
 ENV MODULE_NAME="app.main"
 ENV VARIABLE_NAME="app"

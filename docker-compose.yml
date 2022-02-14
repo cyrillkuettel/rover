@@ -12,20 +12,16 @@ services:
       context: . # We set this context to load the app requirements when building the image
       dockerfile: ./Dockerfile # uvicorn-gunicorn-fastapi:python3.9
     volumes:
-      - type: volume
-        source: app
-        target: /code/app
+      - ./app:/code/app # This might interere with the COPY command in Dockerfile
     ports:
       - "8000:8000"
     
   nginx:
     image: nginx
     volumes:
-      - type: volume
-        source: app
-        target: /var/www/public/
-      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "./app:/var/www/public"
       - "./nginx/html/404.html:/usr/share/nginx/html/404.html"
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf" 
       - "~/cert/rover:/etc/ssl"
     ports:
       - "80:80"
