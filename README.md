@@ -9,7 +9,7 @@
 - [X] Display pictures, updated by App (ecstatic pilot)
 - [x] start accurate Time based on timestamr. (Also implemented with weboscket)
 - [X] Switch between tabs
-- [ ] nginx running in docker
+- [x] nginx running in docker
 - [ ] Show path (geographical) based on GPS with 
 - [ ] Specify location of plant pot in row at the end
 - [ ] Show Error messages, color code it
