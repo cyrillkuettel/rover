@@ -6,20 +6,21 @@
 ### Feature List
 - [x] Websocket endpoint for low-latency bidirectional coummunication
 - [x] Dynamically display status information
-- [X] Display pictures, updated by App (ecstatic pilot)
-- [x] start accurate Time based on timestamr. (Also implemented with weboscket)
+- [X] Display pictures, updated by ![App](https://github.com/cyrillkuettel/ecstatic-pilot)
+- [x] Timer, fetch Timestamp from device
 - [X] Switch between tabs
 - [x] nginx running in docker
-- [ ] Show path (geographical) based on GPS with 
-- [ ] Specify location of plant pot in row at the end
+- [ ] Specify species and similarity of plants.
+- [ ] species -> API
 - [ ] Show Error messages, color code it
-- [ ] image processing with high-performance Server? )
+- [ ] image processing: image comparision algorithm
+- [ ] Show Map based on GPS in phone
 
 
 
 
 
-### various Notes
+### various Notes on Unvicorn
 Remember to exclude the --reload uvicorn option in production. The --reload option consumes much more resources, is more unstable, etc
 Try to read the gunicorn.conf file in docker container. 
 
