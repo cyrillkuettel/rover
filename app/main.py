@@ -85,6 +85,10 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_text(message)
 
+# This function sends the image as binary to all clients. Clients are people visiting the website currently
+# The reason I use this approach, it that the images just 'pop-up' in the browser,
+# they are automatically dynamically generated, so to speak.
+    # The browser does not have to ask ever X seconds: "Is there a new image?"
     async def broadcastBytes(self, message: bytes):
         for connection in self.active_connections:
             # TODO:
@@ -116,18 +120,13 @@ async def read_item(request: Request):
                        "images_for_future": 12 - paths.plant_count})  # There will be a maximum of 11 plants
 
 
-@app.get("/favicon.ico")
-async def favicon():
-    return FileResponse(FAVICON)
-
-
-@app.get("/apk/", )
+@app.get("/apk", )
 async def serve_File():
     logging.info("Serving a file response")
     return FileResponse(path=APP, filename=paths.get_PILOT_APK_NAME())
 
 
-@app.get("/clear/", response_class=HTMLResponse)
+@app.get("/clear", response_class=HTMLResponse)
 async def del_cache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
@@ -138,7 +137,7 @@ async def del_cache(request: Request):
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
-@app.post("/apk/upload/")
+@app.post("/apk/upload")
 async def uploadApk(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
     # name = file.filename
     name = "pilot.apk"  # don't bother with the version numbers
@@ -173,7 +172,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     logging.debug(f"failed to save the image: {plant_image_absolute_path}")
                     logging.info(ex)
 
-                await manager.broadcastBytes(image_data)
+                await manager.broadcastBytes(image_data)  # Send the new image to all clients
             else:
                 data = await websocket.receive_text()
                 logging.info("received Text:" + data)
@@ -191,8 +190,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             stamp = get_timestamp(long=True)
                             await manager.send_personal_message(f"time={stamp}", websocket)
                     else:  # Normal Log
-                        stamp = get_timestamp()  # Not currently used
-                        # LogEntry = f"{stamp}: {data}"
+
                         LogEntry = data
                         Incoming_Logs.append(LogEntry)  # Just to store all Logs on the server side as well.
                         # This effectively reloads them from memory, the next time the page is fully reloaded.
@@ -200,6 +198,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                         await manager.send_personal_message(f"You wrote: {data}", websocket)
                         await manager.broadcastText(LogEntry)
                 else:
+                    # The only client that is not a passive receiver of data, is Pilot
                     logging.info(" FATALERROR: Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
