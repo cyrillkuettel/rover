@@ -30,8 +30,6 @@
     <input type="radio" id="tablogs" name="mytabs">
     <label for="tablogs">Logs</label>
     <div class="tab">
-
-
         <div class="w3-container">
             <h2 style="display: inline !important;">Timer </h2>
             <h2 id="timer" style="display: inline !important;">0:00</h2>
@@ -66,6 +64,8 @@
 
 
             ws.onmessage = function (event) {
+                console.log("ws.onmessage");
+
                 let data = event.data
                 // Binary data: depending on binaryType being set to either arraybuffer or blob
                 if (data instanceof Blob) {
@@ -104,6 +104,7 @@
 
 
                     } else { //  append to logbook
+                        console.log("new logs");
                         let messages = document.getElementById('messages')
                         let message = document.createElement('li')
                         let content = document.createTextNode(data)
@@ -150,13 +151,13 @@
                          class="w3-image flex_container_main_Pot detected-image" id="{{ ID }}">
                 </div>
             {% endfor %}
-            <!-- All the plants starting here will be dynamically added through websockets -->
+            <!-- All the plants starting here can be dynamically added through websockets -->
             {% for i in range(images_for_future) %}
                 {% set count = i + numer_of_images %}
-                {% set ID = "detected-image" ~ count %}
+                {% set ID_future = "detected-image" ~ count %}
                 <div class="w3-card-4">
                     <img src="" alt=""
-                         class="w3-image flex_container_main_Pot detected-image" id="{{ ID }}">
+                         class="w3-image flex_container_main_Pot detected-image" id="{{ ID_future }}">
                 </div>
             {% endfor %}
 
