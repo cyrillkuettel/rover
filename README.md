@@ -1,9 +1,18 @@
 # Rover Front-and Backend
+It's a Website to dynamically display status information.
 
-## Website to display status information of robot. 
+# Features
+* It uses [FastAPI](https://fastapi.tiangolo.com/) framework for API development. FastAPI is a modern, highly performant, web framework for building APIs with Python 3.6+.
+
+* The APIs are served with [Gunicorn](https://gunicorn.org/) server with multiple [Uvicorn](https://www.uvicorn.org/) workers. Uvicorn is a lightning-fast "ASGI" server. It runs asynchronous Python web code in a single process.
+
+* Reverse-proxying with [Nginx](https:www.nginx.com)
+
+* Dockerized using the [uvicorn-gunicorn-fastapi-docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker) Docker image
 
 
-### Feature List
+
+### TODO List
 - [x] Websocket endpoint for low-latency bidirectional coummunication
 - [x] Dynamically display status information
 - [X] Display pictures, updated by ![App](https://github.com/cyrillkuettel/ecstatic-pilot)

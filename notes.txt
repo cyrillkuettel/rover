@@ -1,8 +1,9 @@
 After some extensive research, I have come to the following conclusion:
 
-use nginx (reverse proxy): for simple website visits, to reduce load capacity.
+I will use nginx (reverse proxy): for simple website visits, to reduce load capacity. Nginx is tuned for high-performance. It is very good at what it does. 
 nginx is the thing preparing incoming requests. 
 It is a layer on top of the current architecture. 
+
 
 Then Gunicorn managing multiple Uvicorn workers. Each worker can serve multiple requests at the same time. 
  
