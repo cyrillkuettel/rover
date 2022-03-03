@@ -45,7 +45,7 @@ current_file_dir = current_file.parent  # /code/app
 TEMPLATES = current_file_dir / "templates"
 UPLOAD = current_file_dir / "upload"
 
-APP = UPLOAD / "pilot.apk"
+APP = UPLOAD / "app-debug.apk"
 
 static = current_file_dir / "static"
 STATIC_IMG = static / "img"
