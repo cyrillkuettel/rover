@@ -14,6 +14,9 @@ import io
 from io import BytesIO
 from PIL import Image
 import types
+import requests
+import json
+from pprint import pprint
 
 app = FastAPI()
 app.mount(
@@ -85,9 +88,9 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_text(message)
 
-# This function sends the image as binary to all clients. Clients are people visiting the website currently
-# The reason I use this approach, it that the images just 'pop-up' in the browser,
-# they are automatically dynamically generated, so to speak.
+    # This function sends the image as binary to all clients. Clients are people visiting the website currently
+    # The reason I use this approach, it that the images just 'pop-up' in the browser,
+    # they are automatically dynamically generated, so to speak.
     # The browser does not have to ask ever X seconds: "Is there a new image?"
     async def broadcastBytes(self, message: bytes):
         for connection in self.active_connections:
@@ -127,7 +130,7 @@ async def serve_File():
 
 
 @app.get("/clear", response_class=HTMLResponse)
-async def del_cache(request: Request):
+async def deleteCache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
     paths.plant_count = 0
@@ -152,6 +155,31 @@ async def uploadApk(file: UploadFile = File(...)):  # maybe add asynchronously f
     return {"Uploaded File": name}
 
 
+async def doPostRequest(image_path):
+    API_KEY = "2b10rYOrxC0HDiZzccuFce"  # Set you API_KEY here
+    api_endpoint = f"https://my-api.plantnet.org/v2/identify/all?api-key={API_KEY}"
+
+    image_path_1 = image_path
+    image_data_1 = open(image_path_1, 'rb')
+
+    data = {
+        'organs': ['leaf']
+    }
+
+    files = [
+        ('images', (image_path_1, image_data_1)),
+    ]
+
+    req = requests.Request('POST', url=api_endpoint, files=files, data=data)
+    prepared = req.prepare()
+
+    s = requests.Session()
+    response = s.send(prepared)
+    json_result = json.loads(response.text)
+    logging.info(response.status_code)
+    return json_result
+
+
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
@@ -168,10 +196,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 try:
                     im.save(plant_image_absolute_path)
                     logging.info("Saving the image")
+                    response = doPostRequest(plant_image_absolute_path)
+                    logging.info(response)
                 except Exception as ex:
+                    # TODO: request image again maybe?
                     logging.debug(f"failed to save the image: {plant_image_absolute_path}")
                     logging.info(ex)
-
                 await manager.broadcastBytes(image_data)  # Send the new image to all clients
             else:
                 data = await websocket.receive_text()
