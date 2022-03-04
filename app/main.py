@@ -60,7 +60,7 @@ logging.basicConfig(level=logging.INFO,
 class Paths:
 
     def __init__(self):
-        self.pilot_apk_name = "pilot.apk"
+        self.pilot_apk_name = "app-debug.apk"
         self.plant_count = 0  # To keep track of the number of images
 
     def add_PILOT_APK_NAME(self, variable):
