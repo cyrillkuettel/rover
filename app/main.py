@@ -67,7 +67,7 @@ class Paths:
         self.pilot_apk_name = variable
 
     def get_PILOT_APK_NAME(self):
-        return self.pilot_apk_name
+        return self.pilot_apk_name;
 
 
 class ConnectionManager:
