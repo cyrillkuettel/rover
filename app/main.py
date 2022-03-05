@@ -45,7 +45,7 @@ current_file_dir = current_file.parent  # /code/app
 TEMPLATES = current_file_dir / "templates"
 UPLOAD = current_file_dir / "upload"
 
-APP = UPLOAD / "app-debug.apk"
+APP = UPLOAD / "app-release.apk"
 
 static = current_file_dir / "static"
 STATIC_IMG = static / "img"
@@ -60,7 +60,7 @@ logging.basicConfig(level=logging.INFO,
 class Paths:
 
     def __init__(self):
-        self.pilot_apk_name = "app-debug.apk"
+        self.pilot_apk_name = "app-release.apk"
         self.plant_count = 0  # To keep track of the number of images
 
     def add_PILOT_APK_NAME(self, variable):
@@ -140,6 +140,7 @@ async def deleteCache(request: Request):
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
+"""
 @app.post("/apk/upload")
 async def uploadApk(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
     # name = file.filename
@@ -153,6 +154,8 @@ async def uploadApk(file: UploadFile = File(...)):  # maybe add asynchronously f
     logging.info(f"uploaded file. FILENAME = {full_path_apk_file_name}")
     paths.add_PILOT_APK_NAME(name)
     return {"Uploaded File": name}
+"""
+
 
 
 async def doPostRequest(image_path):
