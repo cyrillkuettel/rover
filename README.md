@@ -5,7 +5,7 @@ It's a Website to display status information, which continuously receives update
 # Features
 * It uses [FastAPI](https://fastapi.tiangolo.com/) framework for API development. FastAPI is a modern, highly performant, web framework for building APIs with Python 3.6+.
 
-* The APIs are served with [Gunicorn](https://gunicorn.org/) server with multiple [Uvicorn](https://www.uvicorn.org/) workers. Uvicorn is a lightning-fast "ASGI" server. It runs asynchronous Python web code in a single process.
+* The APIs are served with [Gunicorn](https://gunicorn.org/) server with multiple [Uvicorn](https://www.uvicorn.org/) workers. Uvicorn is a lightning-fast "ASGI" server. Univorn runs asynchronous Python web code in a single process.
 
 * Reverse-proxying with [Nginx](https:www.nginx.com). Nginx is very good at serving static content. 
 

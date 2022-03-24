@@ -18,7 +18,6 @@ import requests
 import json
 from pprint import pprint
 from .socket_manager import ConnectionManager
-from .counter import AtomicCounter
 
 app = FastAPI()
 app.mount(
@@ -61,9 +60,9 @@ logging.basicConfig(level=logging.INFO,
 
 class Paths:
 
-    def __init__(self):
+    def __init__(self, initial):
         self.pilot_apk_name = "app-release.apk"
-        self.plant_count = 0  # To keep track of the number of images
+        self.plant_count = initial
 
     def add_pilot_apk_name(self, variable):
         self.pilot_apk_name = variable
@@ -75,8 +74,7 @@ class Paths:
 
 
 manager = ConnectionManager()
-paths = Paths()
-atomic_counter = AtomicCounter()
+paths = Paths(0)
 
 
 
@@ -92,7 +90,7 @@ def get_timestamp(long=False):
 
 @app.get("/", response_class=HTMLResponse)
 def main(request: Request):
-    count = atomic_counter.get_plant_count_with_lock()
+    count = paths.plant_count
     logging.info("Serving TemplateResponse. with plant_count = %d  ", count)
     return templates.TemplateResponse(
         "index.html", {"request": request,
@@ -111,8 +109,7 @@ async def serve_File():
 async def delete_cache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
-    # paths.plant_count = 0
-    atomic_counter.reset()
+    paths.plant_count = 0
     logging.info("clearing the images")
     logging.info(f"calling script {IMG_REMOVE}")
     subprocess.call(IMG_REMOVE)
@@ -153,9 +150,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     try:
         while True:
             if str(client_id) == "888":  # 888 is the pre-defined client-id, which stands for binary data
-                # paths.plant_count += 1
-                count = atomic_counter.increment()
-                plant_image_absolute_path = STATIC_IMG / f"plant{count}.jpg"
+                paths.plant_count += 1
+                plant_image_absolute_path = STATIC_IMG / f"plant{paths.plant_count}.jpg"
 
                 image_data = await websocket.receive_bytes()
                 im = Image.open(io.BytesIO(image_data))
