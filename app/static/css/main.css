@@ -2,11 +2,12 @@ body {
 
     background: #ccc;
     font-family: 'Roboto', sans-serif;
-    margin: 40px auto;
+    /* margin: 40px auto; */
     text-align:center;
     max-width: 850px;
-    font-size: 18px;
+    /* font-size: 18px; 
     padding: 0 10px;
+    */
     /*
      display: flex;
     flex-direction: column;
@@ -14,7 +15,7 @@ body {
 }
 
 h1 {
-    font-size: 8vh;
+    font-size: 6vh; 
 }
 
 
