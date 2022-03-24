@@ -64,10 +64,10 @@ class Paths:
         self.pilot_apk_name = "app-release.apk"
         self.plant_count = 0  # To keep track of the number of images
 
-    def add_PILOT_APK_NAME(self, variable):
+    def add_pilot_apk_name(self, variable):
         self.pilot_apk_name = variable
 
-    def get_PILOT_APK_NAME(self):
+    def get_pilot_apk_name(self):
         return self.pilot_apk_name;
 
 
@@ -88,6 +88,7 @@ def get_timestamp(long=False):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
+    logging.info("Serving TemplateResponse")
     return templates.TemplateResponse(
         "index.html", {"request": request,
                        "Incoming_Logs": Incoming_Logs,
@@ -98,11 +99,11 @@ async def read_item(request: Request):
 @app.get("/apk", )
 async def serve_File():
     logging.info("Serving a file response")
-    return FileResponse(path=APP, filename=paths.get_PILOT_APK_NAME())
+    return FileResponse(path=APP, filename=paths.get_pilot_apk_name())
 
 
 @app.get("/clear", response_class=HTMLResponse)
-async def deleteCache(request: Request):
+async def delete_cache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
     paths.plant_count = 0
@@ -114,7 +115,7 @@ async def deleteCache(request: Request):
 
 
 
-async def doPostRequest(image_path):
+async def do_plant_api_request(image_path):
 
     API_KEY = "2b10rYOrxC0HDiZzccuFce"  # Set you API_KEY here
     api_endpoint = f"https://my-api.plantnet.org/v2/identify/all?api-key={API_KEY}"
@@ -156,8 +157,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 try:
                     im.save(plant_image_absolute_path)
                     logging.info("Saving the image")
-                    response = doPostRequest(plant_image_absolute_path)
-                    logging.info(response)
+                    # response = doPostRequest(plant_image_absolute_path)
+                    # logging.info(response)
                 except Exception as ex:
                     # TODO: request image again maybe?
                     logging.debug(f"failed to save the image: {plant_image_absolute_path}")
@@ -181,12 +182,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             await manager.send_personal_message(f"time={stamp}", websocket)
                     else:  # Normal Log
 
-                        LogEntry = data
-                        Incoming_Logs.append(LogEntry)  # Just to store all Logs on the server side as well.
+                        log_entry = data
+                        Incoming_Logs.append(log_entry)  # Just to store all Logs on the server side as well.
                         # This effectively reloads them from memory, the next time the page is fully reloaded.
-                        # Thus we have achieved a primitive kind of persistence
+                        # Thus, we have achieved a primitive kind of persistence
                         await manager.send_personal_message(f"You wrote: {data}", websocket)
-                        await manager.broadcastText(LogEntry)
+                        await manager.broadcastText(log_entry)
                 else:
                     # The only client that is not a passive receiver of data, is Pilot
                     logging.info(" FATALERROR: Len(client_id) bigger than 9")
