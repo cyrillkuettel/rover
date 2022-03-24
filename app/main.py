@@ -18,6 +18,7 @@ import requests
 import json
 from pprint import pprint
 from .socket_manager import ConnectionManager
+from .counter import AtomicCounter
 
 app = FastAPI()
 app.mount(
@@ -67,6 +68,7 @@ class Paths:
     def add_pilot_apk_name(self, variable):
         self.pilot_apk_name = variable
 
+
     def get_pilot_apk_name(self):
         return self.pilot_apk_name;
 
@@ -74,6 +76,8 @@ class Paths:
 
 manager = ConnectionManager()
 paths = Paths()
+atomic_counter = AtomicCounter()
+
 
 
 def get_timestamp(long=False):
@@ -88,12 +92,13 @@ def get_timestamp(long=False):
 
 @app.get("/", response_class=HTMLResponse)
 def main(request: Request):
-    logging.info("Serving TemplateResponse. with plant_count = %d  ", paths.plant_count)
+    count = atomic_counter.get_plant_count_with_lock()
+    logging.info("Serving TemplateResponse. with plant_count = %d  ", count)
     return templates.TemplateResponse(
         "index.html", {"request": request,
                        "Incoming_Logs": Incoming_Logs,
-                       "numer_of_images": paths.plant_count,
-                       "images_for_future": 12 - paths.plant_count})  # There will be a maximum of 11 plants
+                       "numer_of_images": count,
+                       "images_for_future": 12 - count})  # There will be a maximum of 11 plants
 
 
 @app.get("/apk", )
@@ -106,7 +111,8 @@ async def serve_File():
 async def delete_cache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
-    paths.plant_count = 0
+    # paths.plant_count = 0
+    atomic_counter.reset()
     logging.info("clearing the images")
     logging.info(f"calling script {IMG_REMOVE}")
     subprocess.call(IMG_REMOVE)
@@ -147,8 +153,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     try:
         while True:
             if str(client_id) == "888":  # 888 is the pre-defined client-id, which stands for binary data
-                paths.plant_count += 1
-                plant_image_absolute_path = STATIC_IMG / f"plant{paths.plant_count}.jpg"
+                # paths.plant_count += 1
+                count = atomic_counter.increment()
+                plant_image_absolute_path = STATIC_IMG / f"plant{count}.jpg"
 
                 image_data = await websocket.receive_bytes()
                 im = Image.open(io.BytesIO(image_data))
