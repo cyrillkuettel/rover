@@ -17,7 +17,7 @@ import types
 import requests
 import json
 from pprint import pprint
-from socket_manager import ConnectionManager
+from .socket_manager import ConnectionManager
 
 app = FastAPI()
 app.mount(

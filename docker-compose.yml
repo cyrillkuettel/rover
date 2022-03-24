@@ -21,7 +21,7 @@ services:
     image: nginx:latest
     restart: always
     volumes:
-      - "./app:/var/www/public:ro"
+      - "./app:/var/www/public:ro" # read-only
       - "./nginx/html/404.html:/usr/share/nginx/html/404.html"
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf" 
       - "~/cert/rover:/etc/ssl"
