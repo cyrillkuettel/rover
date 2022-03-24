@@ -82,12 +82,12 @@ def get_timestamp(long=False):
         return time[:-3]
     else:
         now = datetime.now()
-        Date_Time = now.strftime("%d/%m/%Y, %H:%M:%S.%f")  # dd/mm/YY H:M:S format
-        return Date_Time[:-3]
+        date_time = now.strftime("%d/%m/%Y, %H:%M:%S.%f")  # dd/mm/YY H:M:S format
+        return date_time[:-3]
 
 
 @app.get("/", response_class=HTMLResponse)
-async def read_item(request: Request):
+def main(request: Request):
     logging.info("Serving TemplateResponse. with plant_count = %d  ", paths.plant_count)
     return templates.TemplateResponse(
         "index.html", {"request": request,
