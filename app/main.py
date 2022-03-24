@@ -56,7 +56,7 @@ FAVICON = STATIC_IMG / "favicon.ico"
 templates = Jinja2Templates(directory=TEMPLATES)
 
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s', )
+                    format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s %(processName)s %(threadName)s', )
 
 
 class Paths:
