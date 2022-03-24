@@ -17,6 +17,7 @@ import types
 import requests
 import json
 from pprint import pprint
+from socket_manager import ConnectionManager
 
 app = FastAPI()
 app.mount(
@@ -70,35 +71,6 @@ class Paths:
         return self.pilot_apk_name;
 
 
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
-
-    async def broadcastText(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
-
-    # This function sends the image as binary to all clients. Clients are people visiting the website currently
-    # The reason I use this approach, it that the images just 'pop-up' in the browser,
-    # they are automatically dynamically generated, so to speak.
-    # The browser does not have to ask ever X seconds: "Is there a new image?"
-    async def broadcastBytes(self, message: bytes):
-        for connection in self.active_connections:
-            # TODO:
-            # maybe skip the Pilot client id in the list
-            # It's not necessary and worse: adds unnecessary complexity
-            await connection.send_bytes(message)
-
 
 manager = ConnectionManager()
 paths = Paths()
@@ -140,25 +112,10 @@ async def deleteCache(request: Request):
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
-"""
-@app.post("/apk/upload")
-async def uploadApk(file: UploadFile = File(...)):  # maybe add asynchronously file write for performance
-    # name = file.filename
-    name = "pilot.apk"  # don't bother with the version numbers
-    [f.unlink() for f in Path(UPLOAD).glob("*") if f.is_file()]  # delete all old apk
-    full_path_apk_file_name = UPLOAD / name
-
-    with open(full_path_apk_file_name, 'wb+') as f:
-        f.write(file.file.read())
-        f.close()
-    logging.info(f"uploaded file. FILENAME = {full_path_apk_file_name}")
-    paths.add_PILOT_APK_NAME(name)
-    return {"Uploaded File": name}
-"""
-
 
 
 async def doPostRequest(image_path):
+
     API_KEY = "2b10rYOrxC0HDiZzccuFce"  # Set you API_KEY here
     api_endpoint = f"https://my-api.plantnet.org/v2/identify/all?api-key={API_KEY}"
 
