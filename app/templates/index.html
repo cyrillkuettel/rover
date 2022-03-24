@@ -74,8 +74,6 @@
                     document.getElementById(`detected-image${getNextPlantID() + numberOfImagesCount}`).src = url;
                     numberOfImagesCount += 1;
                     console.log("Next plant ID = " + getNextPlantID() + numberOfImagesCount);
-                } else if (data instanceof ArrayBuffer) { // Not used, leaving it for documentation purposes. It's one of three options anyway.
-                    console.log("ArrayBuffer")
                 } else if (typeof data === "string") {
 
                     if (data.includes("startTime=")) {  // TODO: rounding up and down on millliseconds

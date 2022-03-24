@@ -88,7 +88,7 @@ def get_timestamp(long=False):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
-    logging.info("Serving TemplateResponse")
+    logging.info("Serving TemplateResponse. with plant_count = %d  ", paths.plant_count)
     return templates.TemplateResponse(
         "index.html", {"request": request,
                        "Incoming_Logs": Incoming_Logs,
