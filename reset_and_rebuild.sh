@@ -6,3 +6,4 @@ git fetch origin
 git reset --hard origin/main
 docker-compose build
 docker-compose up --build --detach
+docker logs --tail=0 --follow
