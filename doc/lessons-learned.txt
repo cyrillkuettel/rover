@@ -1,0 +1,16 @@
+lesson learned #1
+Das Resultat von einigen Stunden debugging und ein langer Denkprozess später:
+
+Situation: 
+1.) Die Bilder haben manchmal geladen bei einem refresh, manmacmal nicht. Das war sehr merk
+Der Grund warum die Bilder zum teil nicht geladen haben, ist weil der counter nicht über alle Worker-Threads abgestimmt war.
+
+Asynchrone python module (wie FastAPI)
+Mann rennt in Probleme, wenn man mehrere Workers startet. 
+ein atomic counter, im code implementiert funktioniert nicht wenn die Anzahl workers grösser als 1 ist, weil jeder Worker sein eigenes memory hat. 
+
+https://stackoverflow.com/questions/68331493/count-number-of-requests-with-global-variable-using-fastapi
+
+
+https://stackoverflow.com/questions/65686318/sharing-python-objects-across-multiple-workers
+ich bin sehr glücklich, jetzt da ich das herausgefunden haben. Wir haben den Ursprung, den kausalen Zusammenhang des Problems gefunden. Obwohl das jetzt eine Menge Mehraufwand bedeutet, bin ich zufrieden, dass ich as herausgefunden habe. 
