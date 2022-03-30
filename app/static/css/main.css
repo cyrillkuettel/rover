@@ -2,11 +2,12 @@ body {
 
     background: #ccc;
     font-family: 'Roboto', sans-serif;
-    /* margin: 40px auto; */
-    text-align:center;
-    max-width: 850px;
+     margin: 40px auto;
+     text-align:center;
+     max-width: 850px;
+     padding: 0 10px;
     /* font-size: 18px; 
-    padding: 0 10px;
+
     */
     /*
      display: flex;
