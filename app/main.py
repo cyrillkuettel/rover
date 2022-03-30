@@ -1,5 +1,8 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, File, UploadFile
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, File, UploadFile, Depends
 from typing import Optional, List
+
+from pydantic import BaseModel
+
 from pathlib import Path
 import logging
 import jinja2
@@ -18,6 +21,11 @@ import requests
 import json
 from pprint import pprint
 from .socket_manager import ConnectionManager
+from . import models
+from .database import SessionLocal, engine
+from sqlalchemy.orm import Session
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.mount(
@@ -52,10 +60,15 @@ static = current_file_dir / "static"
 STATIC_IMG = static / "img"
 IMG_REMOVE = STATIC_IMG / "remove-images.sh"
 FAVICON = STATIC_IMG / "favicon.ico"
+
+
 templates = Jinja2Templates(directory=TEMPLATES)
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s %(processName)s %(threadName)s', )
+
+
+
 
 
 class Paths:
@@ -97,6 +110,32 @@ def main(request: Request):
                        "Incoming_Logs": Incoming_Logs,
                        "numer_of_images": count,
                        "images_for_future": 12 - count})  # There will be a maximum of 11 plants
+
+
+
+# Helper function to access the database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# new index.html with database:
+@app.get("/main")
+def main(request: Request, db: Session = Depends(get_db)):
+    logs = db.query(models.Log).all()
+    count = paths.plant_count
+    logging.info("this is the new main")
+    return templates.TemplateResponse(
+        "index2.html", {"request": request,
+                       "Log": logs,
+                       "numer_of_images": count,
+                       "images_for_future": 12 - count})
+
+
+
+
 
 
 @app.get("/apk", )
@@ -158,6 +197,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 logging.info(f"Received bytes. Length = {len(image_data)} ")
 
                 try:
+                    # todo: save image to databse.
                     im.save(plant_image_absolute_path)
                     logging.info("Saving the image")
                     # response = doPostRequest(plant_image_absolute_path)
@@ -193,6 +233,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                         await manager.broadcastText(log_entry)
                 else:
                     # The only client that is not a passive receiver of data, is Pilot
-                    logging.info(" FATALERROR: Len(client_id) bigger than 9")
+                    logging.info(" FATAL ERROR: Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
