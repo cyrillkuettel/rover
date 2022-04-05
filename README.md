@@ -3,17 +3,20 @@ It's a Website to display status information, which continuously receives update
 
 
 # Features
-* It uses [FastAPI](https://fastapi.tiangolo.com/) framework for API development. FastAPI is a modern, highly performant, web framework for building APIs with Python 3.6+.
+* It uses [FastAPI](https://fastapi.tiangolo.com/) framework for API development. FastAPI is a modern, highly performant, web framework for building APIs with Python.
 
 * The APIs are served with [Gunicorn](https://gunicorn.org/) server with multiple [Uvicorn](https://www.uvicorn.org/) workers. Uvicorn is a lightning-fast "ASGI" server. Univorn runs asynchronous Python web code in a single process.
 
 * Reverse-proxying with [Nginx](https:www.nginx.com). Nginx is very good at serving static content. 
 
-* Dockerized using the [uvicorn-gunicorn-fastapi-docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker) Docker image
+* Dockerized using the [uvicorn-gunicorn-fastapi-docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker) Docker image.
 
+# System architecture overview
+![](https://github.com/cyrillkuettel/rover/blob/main/doc/diagram/w.png)
 
+The number of Worker threads is variable. Generally speaking, it can scale with the number of CPU cores.
 
-### TODO List
+# Milestones
 - [x] Websocket endpoint for low-latency bidirectional coummunication
 - [x] Dynamically display status information
 - [X] Display pictures, updated by ![App](https://github.com/cyrillkuettel/ecstatic-pilot)
@@ -24,7 +27,7 @@ It's a Website to display status information, which continuously receives update
 - [ ] species -> API
 - [ ] Show Error messages, color code it
 - [ ] image processing: image comparision algorithm
-- [ ] Show Map based on GPS in phone
+- [ ] Show Progress bar
 
 
 
