@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, File, UploadFile, Depends
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends
 from typing import Optional, List
 
 from pydantic import BaseModel
@@ -22,7 +22,7 @@ from pprint import pprint
 from .socket_manager import ConnectionManager
 from . import models
 from .database import SessionLocal, engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, Query
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -42,52 +42,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Main Storage for all text-based Logging information
-Incoming_Logs = []
-
-# Main Storage for all plant images
-Incoming_Images = []
-
 current_file = Path(__file__)
 current_file_dir = current_file.parent  # /code/app
 TEMPLATES = current_file_dir / "templates"
 UPLOAD = current_file_dir / "upload"
-
 APP = UPLOAD / "app-release.apk"
-
 static = current_file_dir / "static"
 STATIC_IMG = static / "img"
 IMG_REMOVE = STATIC_IMG / "remove-images.sh"
 FAVICON = STATIC_IMG / "favicon.ico"
-
-
 templates = Jinja2Templates(directory=TEMPLATES)
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s %(processName)s %(threadName)s', )
 
 
-
-
-
 class Paths:
-
-    def __init__(self, initial):
+    def __init__(self):
         self.pilot_apk_name = "app-release.apk"
-        self.plant_count = initial
-
-    def add_pilot_apk_name(self, variable):
-        self.pilot_apk_name = variable
-
 
     def get_pilot_apk_name(self):
-        return self.pilot_apk_name;
-
+        return self.pilot_apk_name
 
 
 manager = ConnectionManager()
-paths = Paths(0)
-
+paths = Paths()
 
 
 def get_timestamp(long=False):
@@ -100,18 +79,6 @@ def get_timestamp(long=False):
         return date_time[:-3]
 
 
-@app.get("/", response_class=HTMLResponse)
-def main(request: Request):
-    count = paths.plant_count
-    logging.info("Serving TemplateResponse. with plant_count = %d  ", count)
-    return templates.TemplateResponse(
-        "index.html", {"request": request,
-                       "Incoming_Logs": Incoming_Logs,
-                       "numer_of_images": count,
-                       "images_for_future": 12 - count})  # There will be a maximum of 11 plants
-
-
-
 # Helper function to access the database session
 def get_db():
     db = SessionLocal()
@@ -121,22 +88,17 @@ def get_db():
         db.close()
 
 
-# new index.html with database:
-@app.get("/main")
-def main(request: Request, db: Session = Depends(get_db)):
-    logs = db.query(models.Log).all()
-    logging.info(logs)
-    count = paths.plant_count
-    logging.info("this is the new main")
+@app.get("/")
+async def main(request: Request, db: Session = Depends(get_db)):
+    logs: List[Query] = db.query(models.Log).all()
+    number_of_plants: int = len(db.query(models.Plant).all())
+    logging.info(f"number_of_plants = %s", number_of_plants)
+    # logging.info("printing type of object %s", str(type(logs)))
     return templates.TemplateResponse(
-        "index2.html", {"request": request,
+        "index.html", {"request": request,
                        "Log": logs,
-                       "numer_of_images": count,
-                       "images_for_future": 12 - count})
-
-
-
-
+                       "numer_of_images": number_of_plants,
+                       "images_for_future": 12 - number_of_plants})  # Expect max 11 plants
 
 
 @app.get("/apk", )
@@ -147,34 +109,35 @@ async def serve_File():
 
 @app.get("/clear", response_class=HTMLResponse)
 async def delete_cache(request: Request):
-    logging.info("clearing the Incoming_Logs")
-    Incoming_Logs.clear()
-    # todo: change this to use database counter
-    paths.plant_count = 0
+    await clear_database()
     logging.info("clearing the images")
     logging.info(f"calling script {IMG_REMOVE}")
     subprocess.call(IMG_REMOVE)
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
+async def clear_database(db: Session = Depends(get_db)):
+    db.query(models.Plant).delete()
+    db.query(models.Log).delete()
+    logging.info("cleared database")
 
 
 @app.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
+async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session = Depends(get_db)):
     await manager.connect(websocket)
     try:
         while True:
-            if str(client_id) == "888":  # 888 is the pre-defined client-id, which stands for binary data
-                paths.plant_count += 1
-                plant_image_absolute_path = STATIC_IMG / f"plant{paths.plant_count}.jpg"
-
+            if client_id == 888:  # 888 is the pre-defined client-id, which stands for binary data
+                number_of_plants: int = len(db.query(models.Plant).all())
+                plant_image_absolute_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
                 image_data = await websocket.receive_bytes()
                 im = Image.open(io.BytesIO(image_data))
                 logging.info(f"Received bytes. Length = {len(image_data)} ")
-
                 try:
-                    # todo: save image to databse.
                     im.save(plant_image_absolute_path)
+                    new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
+                    db.add(new_Plant)
+                    db.commit()
                     logging.info("Saving the image")
                 except Exception as ex:
                     # TODO: request image again maybe?
@@ -182,29 +145,28 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     logging.info(ex)
                 await manager.broadcastBytes(image_data)  # Send the new image to all clients
             else:
-                data = await websocket.receive_text()
-                logging.info("received Text:" + data)
+                textData = await websocket.receive_text()
+                logging.info("received Text:" + textData)
 
                 if len(str(client_id)) <= 9:  # It's a Smartphone with The app
-                    if "command=" in data:
-                        command = data[:]
+                    if "command=" in textData:
+                        command = textData[:]
                         splitted_command_from_text = command.split("command=", 1)[1]
                         logging.info(splitted_command_from_text)
                         if "startTime" in splitted_command_from_text:  # startTime=2020-12-01T...
-                            logging.info("sending start Signal to client. Browser should handle the rest");
+                            logging.info("sending start Signal to client. The client's browser should handle the rest")
                             await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
                             await manager.broadcastText(splitted_command_from_text)  # Let the client handle the rest
                         if splitted_command_from_text == "requestTime":
                             stamp = get_timestamp(long=True)
                             await manager.send_personal_message(f"time={stamp}", websocket)
                     else:  # Normal Log
+                        new_log = models.Log(content=textData)
+                        db.add(new_log)
+                        db.commit()
+                        await manager.broadcastText(textData)
+                        await manager.send_personal_message(f"You wrote: {textData}", websocket)  # just for debugging
 
-                        log_entry = data
-                        Incoming_Logs.append(log_entry)  # Just to store all Logs on the server side as well.
-                        # This effectively reloads them from memory, the next time the page is fully reloaded.
-                        # Thus, we have achieved a primitive kind of persistence
-                        await manager.send_personal_message(f"You wrote: {data}", websocket)
-                        await manager.broadcastText(log_entry)
                 else:
                     # The only client that is not a passive receiver of data, is Pilot
                     logging.info(" FATAL ERROR: Len(client_id) bigger than 9")

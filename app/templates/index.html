@@ -37,8 +37,8 @@
         </div>
         <div class="" id="logging-box-wrapper">
             <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
-                {% for item in Incoming_Logs %}
-                    <li>{{ item }}</li>
+                {% for item in Log %}
+                    <li>{{ item.content }}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -48,13 +48,12 @@
             dayjs().locale('ch').format() // use locale in a specific instance
 
             const client_id = Date.now();
-            const uri_for_local_testing = `wss://0.0.0.0/ws/${client_id}`;
+            const uri_for_local_testing = `ws://0.0.0.0:8000/ws/${client_id}`;
             const uri = `wss://pren.garteroboter.li/ws/${client_id}`;
             let ws;
             let now;  // Used to Store the timestamp
 
-            if (location.hostname === "localhost" || location.hostname === "127.0.0.1" ||
-                location.hostname === "192.168.188.38") {
+            if (!Boolean(location.hostname === "pren.garteroboter.li")) {
                 ws = new WebSocket(uri_for_local_testing);
                 console.log("using local hostname");
             } else {
@@ -66,7 +65,6 @@
 
             ws.onmessage = function (event) {
                 console.log("ws.onmessage");
-
                 let data = event.data
                 // Binary data: depending on binaryType being set to either arraybuffer or blob
                 if (data instanceof Blob) {
@@ -82,28 +80,23 @@
                         let hours = "00:"; // this will not change.
                         startTime = startTime.replace('startTime=', '');
                         console.log(startTime)
-                        var numberTime = parseInt(startTime, 10); // convert to integer
-
+                        let numberTime = parseInt(startTime, 10); // convert to integer
                         let timeStamp = dayjs(numberTime)
                         console.log("timeStamp = " + timeStamp)
                         if (isNaN(timeStamp)) {
-                            console.log("NAN detected. Invalid timestamp.")
+                            console.error("NAN detected. Invalid timestamp.")
                             return;
                         }
                         let timer = setInterval(function () {
                             let now = dayjs()
                             let diff = now.diff(timeStamp);
-
                             let minutes_and_seconds = millisToMinutesAndSeconds(diff);
                             console.log(minutes_and_seconds)
                             document.getElementById("timer").innerHTML = millisToMinutesAndSeconds(diff)
-
-
                         }, 1000);
 
 
                     } else { //  append to logbook
-                        console.log("new logs");
                         let messages = document.getElementById('messages')
                         let message = document.createElement('li')
                         let content = document.createTextNode(data)
