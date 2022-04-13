@@ -2,7 +2,6 @@ from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, File, Uplo
 from typing import Optional, List
 
 from pydantic import BaseModel
-
 from pathlib import Path
 import logging
 import jinja2
@@ -121,10 +120,12 @@ def get_db():
     finally:
         db.close()
 
+
 # new index.html with database:
 @app.get("/main")
 def main(request: Request, db: Session = Depends(get_db)):
     logs = db.query(models.Log).all()
+    logging.info(logs)
     count = paths.plant_count
     logging.info("this is the new main")
     return templates.TemplateResponse(
@@ -148,6 +149,7 @@ async def serve_File():
 async def delete_cache(request: Request):
     logging.info("clearing the Incoming_Logs")
     Incoming_Logs.clear()
+    # todo: change this to use database counter
     paths.plant_count = 0
     logging.info("clearing the images")
     logging.info(f"calling script {IMG_REMOVE}")
@@ -155,32 +157,6 @@ async def delete_cache(request: Request):
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
-
-
-async def do_plant_api_request(image_path):
-
-    API_KEY = "2b10rYOrxC0HDiZzccuFce"  # Set you API_KEY here
-    api_endpoint = f"https://my-api.plantnet.org/v2/identify/all?api-key={API_KEY}"
-
-    image_path_1 = image_path
-    image_data_1 = open(image_path_1, 'rb')
-
-    data = {
-        'organs': ['leaf']
-    }
-
-    files = [
-        ('images', (image_path_1, image_data_1)),
-    ]
-
-    req = requests.Request('POST', url=api_endpoint, files=files, data=data)
-    prepared = req.prepare()
-
-    s = requests.Session()
-    response = s.send(prepared)
-    json_result = json.loads(response.text)
-    logging.info(response.status_code)
-    return json_result
 
 
 @app.websocket("/ws/{client_id}")
@@ -200,8 +176,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     # todo: save image to databse.
                     im.save(plant_image_absolute_path)
                     logging.info("Saving the image")
-                    # response = doPostRequest(plant_image_absolute_path)
-                    # logging.info(response)
                 except Exception as ex:
                     # TODO: request image again maybe?
                     logging.debug(f"failed to save the image: {plant_image_absolute_path}")
