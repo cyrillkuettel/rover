@@ -11,7 +11,7 @@ It's a Website to display status information, which continuously receives update
 
 * Dockerized using the [uvicorn-gunicorn-fastapi-docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker) Docker image.
 
-# System architecture overview
+# System Architecture Overview
 ![](https://github.com/cyrillkuettel/rover/blob/main/doc/diagram/w.png)
 
 The number of Worker threads is variable. Generally speaking, it can scale with the number of CPU cores.
