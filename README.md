@@ -29,6 +29,23 @@ The number of Worker threads is variable. Generally speaking, it can scale with 
 - [ ] image processing: image comparision algorithm
 - [ ] Show Progress bar
 
+# Start Local dev Environment: Linux
+Quick startup with Docker:
+Open the `build_and_run_locally.sh` file.
+Adjust the absolute path, it should point to the directory where you cloned the repository.
+ ```bash
+ ./build_and_run_locally.sh
+```
+
+# Configure Autocomplete
+If you develop in a IDE, it's much easier with autocompletion.
+Create a virtual environment. This will create a python interpreter for your local development environment. 
+
+```bash
+   conda create --name rover python=3.9.0
+   conda activate rover
+   pip install -r requirements-conda-for-local.txt 
+```
 
 
 
@@ -37,5 +54,4 @@ The number of Worker threads is variable. Generally speaking, it can scale with 
 Remember to exclude the --reload uvicorn option in production. The --reload option consumes much more resources, is more unstable, etc
 Try to read the gunicorn.conf file in docker container. 
 
-In Docker you can add --restart option to restart server if it crashes.
 
