@@ -8,9 +8,17 @@ Der Grund warum die Bilder zum teil nicht geladen haben, ist weil der counter ni
 Asynchrone python module (wie FastAPI)
 Mann rennt in Probleme, wenn man mehrere Workers startet. 
 ein atomic counter, im code implementiert funktioniert nicht wenn die Anzahl workers grösser als 1 ist, weil jeder Worker sein eigenes memory hat. 
-
 https://stackoverflow.com/questions/68331493/count-number-of-requests-with-global-variable-using-fastapi
-
 
 https://stackoverflow.com/questions/65686318/sharing-python-objects-across-multiple-workers
 ich bin sehr glücklich, jetzt da ich das herausgefunden haben. Wir haben den Ursprung, den kausalen Zusammenhang des Problems gefunden. Obwohl das jetzt eine Menge Mehraufwand bedeutet, bin ich zufrieden, dass ich as herausgefunden habe. 
+
+
+
+
+Die grosse Herausforderung war, die Software an die Eigenheiten des Android Ökosystems anzupassen. Immer wieder musste auf Kniffe zurückgegriffen werden, um gewisse Einschränkungen des Systems zu umgehen. Man kann nicht frei machen was man will mit einer App - es gibt Barieren, die vom Betriebssystem forciert sind. Natürlich gibt es auch Schlupflöcher. Typisches Beispiel sind die App-Berechtigungen. In der echten Welt wichtiger Sicherheitsbestandteil, in unserem Fall höchstens lästig. Android erzwingt die Abfrage von Berechtigungen zur Laufzeit, wenn man auf die Kamera zugreifen möchte. Meine Frustration, nicht volle Kontrolle über das Gerät zu haben, hat schliesslich dazu geführt, dass ich die Firmware geflasht habe.
+
+- Beispie: Rooted Android, um UNIX-Befehle als Root User ausführen zu könnnen.
+
+- Apps sind grundsätzlich auf User-Interkation ausgelegt, das färbt sich auch auf die Software Architektur ab. Die Interaktion auf dem Touchscreeen ist quasi eine fundamentale Prämisse, eine grundlegende Annahme, auf der das ganze Android System basiert. Gerade diese Eigenheit wird häufig genutzt und das System ist darauf konzipiert, auf Inputs des Benutzers zu reagieren. Das kam in unserem Fall natürlich an gar nicht infrage - das Smartphone muss selbständig sein.
+Zusamengefasst: Softwaretechnisch war eine es eine Herausforderung, in einem explizit auf User-Interaktion basierended System eine Applikation zu entwickeln die komplett autonom läuft. Aber jetzt habe es geschafft.
