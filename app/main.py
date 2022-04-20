@@ -172,3 +172,29 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     logging.info(" FATAL ERROR: Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+
+@app.get("/websocketTest", response_class=HTMLResponse)
+async def delete_cache(request: Request):
+    html_content = """
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Websocket Test</title>
+</head>
+<body>
+<video controls width="250">
+
+    <source src="../static/img/video/test_websocket.mp4"
+            type="video/mp4">
+
+    <source src="../static/img/video/test_websocket.webm"
+            type="video/webm">
+
+    Sorry, your browser doesn't support embedded videos.
+</video>
+</body>
+</html>
+    """
+    return HTMLResponse(content=html_content, status_code=200)
