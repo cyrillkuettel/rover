@@ -160,6 +160,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                         if splitted_command_from_text == "requestTime":
                             stamp = get_timestamp(long=True)
                             await manager.send_personal_message(f"time={stamp}", websocket)
+                        if "species" in splitted_command_from_text:
+                            logging.info(splitted_command_from_text)
+                            await manager.broadcastText(splitted_command_from_text)
+
                     else:  # Normal Log
                         new_log = models.Log(content=textData)
                         db.add(new_log)
