@@ -86,31 +86,41 @@
                         let numberTime = parseInt(startTime, 10); // convert to integer
                         let timeStamp = dayjs(numberTime)
                         console.log("timeStamp = " + timeStamp)
-                        if (isNaN(timeStamp)) {
-                            console.error("NAN detected. Invalid timestamp.")
-                            return;
-                        }
-                        let timerID = setInterval(function () {
-                            let now = dayjs()
-                            let diff = now.diff(timeStamp);
-                            if (fourMinutesHavePassed(diff)) {
-                                 clearInterval(timerID);
-                            }
-                            let minutes_and_seconds = millisToMinutesAndSeconds(diff);
-                            console.log(minutes_and_seconds)
-                            document.getElementById("timer").innerHTML = millisToMinutesAndSeconds(diff)
-                        }, 1000);
-
-
+                        startTimerFromTimeStamp(timeStamp)
                     } else { //  append to logbook
-                        let messages = document.getElementById('messages')
-                        let message = document.createElement('li')
-                        let content = document.createTextNode(data)
-                        message.appendChild(content)
-                        messages.appendChild(message)
+                        appendMessageToLogBook(data)
                     }
                 }
             };
+
+
+
+
+            function startTimerFromTimeStamp(time) {
+                if (isNaN(time)) {
+                    console.error("NAN detected. Invalid timestamp.")
+                     return;
+                }
+                let timerID = setInterval(function () {
+                    let now = dayjs()
+                    let diff = now.diff(time);
+                    if (fourMinutesHavePassed(diff)) {
+                         clearInterval(timerID);
+                    }
+                    let minutes_and_seconds = millisToMinutesAndSeconds(diff);
+                    console.log(minutes_and_seconds)
+                    document.getElementById("timer").innerHTML = millisToMinutesAndSeconds(diff)
+                }, 1000);
+            }
+
+
+            function appendMessageToLogBook(data) {
+                    let messages = document.getElementById('messages')
+                    let message = document.createElement('li')
+                    let content = document.createTextNode(data)
+                    message.appendChild(content)
+                    messages.appendChild(message)
+            }
 
             function fourMinutesHavePassed(difference) {
                 return difference === 240000;
