@@ -86,7 +86,11 @@
                         let numberTime = parseInt(startTime, 10); // convert to integer
                         let timeStamp = dayjs(numberTime)
                         console.log("timeStamp = " + timeStamp)
-                        startTimerFromTimeStamp(timeStamp)
+                        if (invalidTimestamp(timeStamp)) {
+                           console.error("NAN detected. Invalid timestamp.")
+                        } else {
+                            startIntervalTimer(timeStamp)
+                        }
                     } else { //  append to logbook
                         appendMessageToLogBook(data)
                     }
@@ -94,14 +98,12 @@
             };
 
 
+            function invalidTimestamp(time) {
+                return isNaN(time)
+            }
 
-
-            function startTimerFromTimeStamp(time) {
-                if (isNaN(time)) {
-                    console.error("NAN detected. Invalid timestamp.")
-                     return;
-                }
-                let timerID = setInterval(function () {
+            function startIntervalTimer(time) {
+              let timerID = setInterval(function () {
                     let now = dayjs()
                     let diff = now.diff(time);
                     if (fourMinutesHavePassed(diff)) {
@@ -109,7 +111,7 @@
                     }
                     let minutes_and_seconds = millisToMinutesAndSeconds(diff);
                     console.log(minutes_and_seconds)
-                    document.getElementById("timer").innerHTML = millisToMinutesAndSeconds(diff)
+                    document.getElementById("timer").innerHTML = minutes_and_seconds
                 }, 1000);
             }
 
@@ -127,8 +129,8 @@
             }
 
             function millisToMinutesAndSeconds(millis) {
-                var minutes = Math.floor(millis / 60000);
-                var seconds = ((millis % 60000) / 1000).toFixed(0);
+                let minutes = Math.floor(millis / 60000);
+                let seconds = ((millis % 60000) / 1000).toFixed(0);
                 return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
             }
 
