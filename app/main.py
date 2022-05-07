@@ -108,15 +108,15 @@ async def serve_File():
 
 
 @app.get("/clear", response_class=HTMLResponse)
-async def delete_cache(request: Request):
-    await clear_database()
+async def delete_cache(request: Request, db: Session = Depends(get_db)):
+    await clear_database(db)
     logging.info("clearing the images")
     logging.info(f"calling script {IMG_REMOVE}")
     subprocess.call(IMG_REMOVE)
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
-async def clear_database(db: Session = Depends(get_db)):
+async def clear_database(db: Session):
     db.query(models.Plant).delete()
     db.query(models.Log).delete()
     logging.info("cleared database")
