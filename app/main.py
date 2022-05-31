@@ -121,6 +121,7 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/steam/injector/restart")
 async def restart(start: bool):
+    logging.info("steam/injector/restart")
     _id = 777
     if _id in websocket_map:
         pilot: WebSocket = websocket_map.get(_id)
