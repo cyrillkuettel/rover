@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import io
+import os
 from io import BytesIO
 from PIL import Image
 import types
@@ -127,20 +128,22 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
     await manager.connect(websocket)
     try:
         while True:
-            if client_id == 888:  # 888 is the pre-defined client-id, which stands for binary data
+            if client_id == 888:  # 888 is the pre-defined client-id, which represents binary data
                 number_of_plants: int = len(db.query(models.Plant).all())
                 plant_image_absolute_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
                 image_data = await websocket.receive_bytes()
                 im = Image.open(io.BytesIO(image_data))
+                im.rotate(180)
                 logging.info(f"Received bytes. Length = {len(image_data)} ")
                 try:
                     im.save(plant_image_absolute_path)
                     new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
                     db.add(new_Plant)
                     db.commit()
+
+                    logging.info(f"file size on disk: {os.stat('somefile.ext').st_size}")
                     logging.info("Saving the image")
                 except Exception as ex:
-                    # TODO: request image again maybe?
                     logging.debug(f"failed to save the image: {plant_image_absolute_path}")
                     logging.info(ex)
                 await manager.broadcastBytes(image_data)  # Send the new image to all clients
