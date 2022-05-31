@@ -119,7 +119,7 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
-@app.post("/steam/injector/restart")
+@app.post("/steam/injector/restart/")
 async def restart(start: bool):
     logging.info("steam/injector/restart")
     _id = 777
