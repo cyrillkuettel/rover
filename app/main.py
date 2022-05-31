@@ -69,6 +69,8 @@ class Paths:
 manager = ConnectionManager()
 paths = Paths()
 
+websocket_map = {}
+
 
 def get_timestamp(long=False):
     if not long:
@@ -117,6 +119,14 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
 
 
+@app.get("/steam/injector/restart")
+async def restart():
+    _id = 777
+    if _id in websocket_map:
+        pilot: WebSocket = websocket_map.get(_id)
+        await manager.send_personal_message("restart", pilot)
+
+
 async def clear_database(db: Session):
     db.query(models.Plant).delete()
     db.query(models.Log).delete()
@@ -128,19 +138,20 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
     await manager.connect(websocket)
     try:
         while True:
+            if client_id == 777:
+                websocket_map[client_id] = websocket
             if client_id == 888:  # 888 is the pre-defined client-id, which represents binary data
                 number_of_plants: int = len(db.query(models.Plant).all())
                 plant_image_absolute_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
                 image_data = await websocket.receive_bytes()
                 im = Image.open(io.BytesIO(image_data))
                 im.rotate(180)
-                logging.info(f"Received bytes. Length = {len(image_data)} ")
+                logging.info(f"Received bytes. Length = {len(image_data)}")
                 try:
                     im.save(plant_image_absolute_path)
                     new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
                     db.add(new_Plant)
                     db.commit()
-
                     logging.info(f"file size on disk: {os.stat('somefile.ext').st_size}")
                     logging.info("Saving the image")
                 except Exception as ex:
