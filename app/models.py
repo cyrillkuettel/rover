@@ -20,3 +20,12 @@ class Plant(Base):
 
     def __str__(self):
         return self.absolute_path
+
+
+class Time(Base):
+    __tablename__ = "time"
+    id = Column(Integer, primary_key=True, index=True)
+    time = Column(String)
+
+    def __str__(self):
+        return self.time
