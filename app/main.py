@@ -147,6 +147,11 @@ async def clear_database(db: Session):
     logging.info("cleared database")
 
 
+def timeAlreadySet(db: Session):
+    timeColumn: int = len(db.query(models.Time).all())
+    return timeColumn > 0
+
+
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session = Depends(get_db)):
     await manager.connect(websocket)
@@ -183,12 +188,16 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                         splitted_command_from_text = command.split("command=", 1)[1]
                         logging.info(splitted_command_from_text)
                         if "startTime" in splitted_command_from_text:  # startTime=2020-12-01T...
-                            logging.info("sending start Signal to client. The client's browser should handle the rest")
-                            await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
-                            await manager.broadcastText(splitted_command_from_text)  # Let the client handle the rest
-                            time = models.Time(time=splitted_command_from_text)
-                            db.add(time)
-                            db.commit()
+                            if not timeAlreadySet(db):
+                                logging.info("sending start Signal to client. The client's browser should handle the "
+                                             "rest")
+                                await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
+                                await manager.broadcastText(splitted_command_from_text)  # Subtract time on client-side
+                                time = models.Time(time=splitted_command_from_text)
+                                db.add(time)
+                                db.commit()
+                            else:
+                                logging.error("Time has already been set, skipping.")
                         if splitted_command_from_text == "requestTime":
                             stamp = get_timestamp(long=True)
                             await manager.send_personal_message(f"time={stamp}", websocket)
