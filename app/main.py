@@ -69,7 +69,7 @@ class Paths:
 manager = ConnectionManager()
 paths = Paths()
 
-websocket_map = {}
+websocket_map = {}  # This is useed to get websocket object by id
 
 
 def get_timestamp(long=False):
@@ -91,17 +91,30 @@ def get_db():
         db.close()
 
 
+@app.get("/api/time")
+async def main(db: Session = Depends(get_db)):
+    timeColumn: List[str] = db.query(models.Time).all()
+    if len(timeColumn) > 0:
+        time = timeColumn[0]
+    else:
+        time = "not-initialized"
+    logging.info(f"fetched time = %s", time)
+    logging.info(f"fetched time = %s", time)
+    return time
+
+
 @app.get("/")
 async def main(request: Request, db: Session = Depends(get_db)):
     logs: List[Query] = db.query(models.Log).all()
     number_of_plants: int = len(db.query(models.Plant).all())
+
     logging.info(f"number_of_plants = %s", number_of_plants)
-    # logging.info("printing type of object %s", str(type(logs)))
+
     return templates.TemplateResponse(
         "index.html", {"request": request,
                        "Log": logs,
                        "numer_of_images": number_of_plants,
-                       "images_for_future": 12 - number_of_plants})  # Expect max 11 plants
+                       "images_for_future": 12 - number_of_plants})  # expecting never more than 11 plant
 
 
 @app.get("/apk", )
@@ -149,7 +162,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 im.rotate(180)
                 logging.info(f"Received bytes. Length = {len(image_data)}")
                 try:
-                    im.save(plant_image_absolute_path)
+                    im.save(plant_image_absolute_path)  # write to file system
+                    # save reference to stored image path in db
                     new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
                     db.add(new_Plant)
                     db.commit()
@@ -163,7 +177,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 textData = await websocket.receive_text()
                 logging.info("received Text:" + textData)
 
-                if len(str(client_id)) <= 9:  # It's a Smartphone with The app
+                if len(str(client_id)) <= 9:  # It's the pilot
                     if "command=" in textData:
                         command = textData[:]
                         splitted_command_from_text = command.split("command=", 1)[1]
@@ -172,6 +186,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                             logging.info("sending start Signal to client. The client's browser should handle the rest")
                             await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
                             await manager.broadcastText(splitted_command_from_text)  # Let the client handle the rest
+                            time = models.Time(time=splitted_command_from_text)
+                            db.add(time)
+                            db.commit()
                         if splitted_command_from_text == "requestTime":
                             stamp = get_timestamp(long=True)
                             await manager.send_personal_message(f"time={stamp}", websocket)
