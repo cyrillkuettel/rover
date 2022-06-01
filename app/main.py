@@ -1,10 +1,7 @@
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends
-from typing import Optional, List
-
-from pydantic import BaseModel
+from typing import List
 from pathlib import Path
 import logging
-import jinja2
 import subprocess
 from datetime import datetime
 from starlette.responses import FileResponse
@@ -14,12 +11,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
-from io import BytesIO
 from PIL import Image
-import types
-import requests
-import json
-from pprint import pprint
 from .socket_manager import ConnectionManager
 from . import models
 from .database import SessionLocal, engine
