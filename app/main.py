@@ -4,6 +4,8 @@ from pathlib import Path
 import logging
 import subprocess
 from datetime import datetime
+
+from pandas import DataFrame
 from starlette.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -16,6 +18,8 @@ from .socket_manager import ConnectionManager
 from . import models
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session, Query
+import torch
+import pandas
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -81,6 +85,25 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@app.get("/api/yolo")
+async def main(db: Session = Depends(get_db)):
+    # https://github.com/ultralytics/yolov5/issues/7933
+    # Model
+    model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
+
+    # Images
+    img = 'https://lawncarecoppell.com/wp-content/uploads/potted-herb-garden.jpg'  # or file, Path, PIL,
+    # OpenCV, numpy, list
+
+    # Inference
+    results = model(img)
+    box_pred: DataFrame = results.pandas().xyxy[0]
+    best_index = box_pred['confidence'].idxmax()
+    best = box_pred.loc[[best_index]]
+    logging.info(best)
+    results.print()
 
 
 @app.get("/api/time")
