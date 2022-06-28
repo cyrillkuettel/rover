@@ -11,7 +11,7 @@ RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
 
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --upgrade -r /code/requirements.txt
 
 # because we're not using nginx in local build, copy the directory instead of using volumes.
 COPY ./app /code/app

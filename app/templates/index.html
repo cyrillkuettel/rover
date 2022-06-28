@@ -4,14 +4,12 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
-    <!-- link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" -->
     <link rel="stylesheet" href="static/css/w3.css">
     <link rel="stylesheet" href="static/css/main.css">
     <link rel="stylesheet" href="static/css/tabs.css">
-    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.7/dayjs.min.js"></script> -->
-
+    <link rel="stylesheet" href="static/css/progressbar.css">
+    <script src="static/progressbar.js" defer></script>
     <script type="text/javascript" src="static/dayjs.min.js"></script>
-
     <link rel="icon" type="image/x-icon" href="static/img/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
@@ -27,14 +25,18 @@
 </header>
 
 <body>
-
+        <div class="progress-bar">
+            <div class="progress__fill"></div>
+            <span class="progress__text__right">0%</span>
+            <span class="progress__text__left">Standby</span>
+        </div>
 
 <div class="mytabs">
     <input type="radio" id="tablogs" name="mytabs">
     <label for="tablogs">Logs</label>
     <div class="tab">
         <div class="w3-container">
-            <h2 style="display: inline !important;">Timer </h2>
+            <h2 style="display: inline !important;">Laufzeit </h2>
             <h2 id="timer" style="display: inline !important;">0:00</h2>
         </div>
         <div class="" id="logging-box-wrapper">
@@ -166,37 +168,32 @@
                 })
                 return static_plants.length;
             }
-
         </script>
-
     </div>
 
     <input type="radio" id="tabimages" name="mytabs" checked="checked">
     <label for="tabimages">Bilder</label>
     <div class="tab">
 
-
         <p><i class="fa fa-spinner w3-spin" style="font-size:64px"></i></p>
-
 
         <div class="flex_container_main_Pot">
             {% for i in range(numer_of_images) %}
-            {% set count = i %}
-            {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
-            {% set ID = "detected-image" ~ count %}
-            <div class="w3-card-4">
-                <img src="{{ image_file_name }}" alt=""
-                     class="w3-image flex_container_main_Pot detected-image" id="{{ ID }}">
-            </div>
+                {% set count = i %}
+                {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
+                {% set ID = "detected-image" ~ count %}
+                <div class="w3-card-4">
+                    <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image" id="{{ ID }}">
+                </div>
             {% endfor %}
+
             <!-- All the plants starting here can be dynamically added through websockets -->
             {% for i in range(images_for_future) %}
-            {% set count = i + numer_of_images %}
-            {% set ID_future = "detected-image" ~ count %}
-            <div class="w3-card-4">
-                <img src="" alt=""
-                     class="w3-image flex_container_main_Pot detected-image" id="{{ ID_future }}">
-            </div>
+                {% set count = i + numer_of_images %}
+                {% set ID_future = "detected-image" ~ count %}
+                <div class="w3-card-4">
+                    <img src="" alt="" class="w3-image flex_container_main_Pot detected-image" id="{{ ID_future }}">
+                </div>
             {% endfor %}
 
         </div>
@@ -204,6 +201,4 @@
     </div>
 </div>
 </body>
-
-
 </html>

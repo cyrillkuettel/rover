@@ -1,0 +1,38 @@
+.progress-bar {
+    position: relative;
+    width: 420px;
+    height: 40px;
+    background-color: #CCC;
+    border-radius: 7px;
+    color: white;
+    overflow: hidden;
+}
+
+.progress__fill {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: .5em;
+    top: .5em;
+    bottom: .5em;
+    width: 0%;
+    min-width: 0;
+    max-width: calc(100% - 1em);
+    background-color: #069;
+    border-radius: 5px;
+    transition: all 4s;
+}
+
+.progress__text__right {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+}
+
+.progress__text__left {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+}
