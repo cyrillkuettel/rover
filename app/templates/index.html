@@ -89,10 +89,10 @@
                 let startTime = data;
                 startTime = startTime.replace('startTime=', '');
                 console.log(startTime)
-                let numberTime = parseInt(startTime, 10); // convert to integer
+                let numberTime = parseInt(startTime, 10);
                 let timeStamp = dayjs(numberTime)
                 console.log("timeStamp = " + timeStamp)
-                if (invalidTimestamp(timeStamp)) {
+                if (isInvalidTimestamp(timeStamp)) {
                     console.error("NAN detected. Invalid timestamp.")
                 } else {
                     startIntervalTimer(timeStamp)
@@ -102,7 +102,7 @@
             ws.onmessage = function (event) {
                 console.log("ws.onmessage");
                 let data = event.data
-                // Binary data: depending on binaryType being set to either arraybuffer or blob
+                // Binary data: depending on binaryType is being set either to Arraybuffer or Blob
                 if (data instanceof Blob) {
                     console.log("blob")
                     const url = URL.createObjectURL(data);
@@ -123,7 +123,7 @@
             };
 
 
-            function invalidTimestamp(time) {
+            function isInvalidTimestamp(time) {
                 return isNaN(time)
             }
 
