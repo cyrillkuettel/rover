@@ -1,11 +1,12 @@
 .progress-bar {
     position: relative;
     width: 420px;
-    height: 40px;
+    height: 30px;
     background-color: #CCC;
     border-radius: 7px;
     color: white;
     overflow: hidden;
+    margin: 20px;
 }
 
 .progress__fill {
@@ -18,7 +19,7 @@
     width: 0%;
     min-width: 0;
     max-width: calc(100% - 1em);
-    background-color: #069;
+    background-color: #41e537;
     border-radius: 5px;
     transition: all 4s;
 }

@@ -1,14 +1,15 @@
 body {
-
     font-family: 'Roboto', sans-serif;
      margin: 40px auto;
-     text-align:center;
      max-width: 850px;
      padding: 0 10px;
 }
 
 h1 {
     font-size: 6vh; 
+}
+h2 {
+    font-size: 3vh;
 }
 
 h2 .flex_time {

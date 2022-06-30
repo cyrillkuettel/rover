@@ -8,14 +8,14 @@
     display: none;
 }
 .mytabs label {
-    padding: 25px;
-    background: #e2e2e2;
-    font-weight: bold;
+    padding: 20px;
+    margin: 20px;
+    background: #41e537;
 }
 
 .mytabs .tab {
     width: 100%;
-    padding: 20px;
+    padding: 10px;
     background: #fff;
     order: 1;
     display: none;
@@ -28,6 +28,10 @@
     display: block;
 }
 
-.mytabs input[type="radio"]:checked + label {
+.mytabs input[type="radio"]:not(:checked) + label {
     background: #fff;
+}
+
+.mytabs input[type="radio"] + label {
+        border:1px solid black;
 }

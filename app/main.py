@@ -156,6 +156,15 @@ async def restart():
         await manager.send_personal_message("restart", pilot)
 
 
+@app.get("/steam/injector/stop/")
+async def restart():
+    logging.info("triggered steam/injector/stop")
+    _id = 777
+    if _id in websocket_map:
+        pilot: WebSocket = websocket_map.get(_id)
+        await manager.send_personal_message("stop", pilot)
+
+
 async def clear_database(db: Session):
     db.query(models.Plant).delete()
     db.query(models.Log).delete()
@@ -190,7 +199,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     logging.info(f"file size on disk: {os.stat('somefile.ext').st_size}")
                     logging.info("Saving the image")
                 except Exception as ex:
-                    logging.debug(f"failed to save the image: {plant_image_absolute_path}")
+                    logging.error(f"failed to save the image: {plant_image_absolute_path}")
                     logging.info(ex)
                 await manager.broadcastBytes(image_data)  # Send the new image to all clients
             else:
@@ -206,7 +215,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                             if not timeAlreadySet(db):
                                 logging.info("sending start Signal to client. The client's browser should handle the "
                                              "rest")
-                                await manager.send_personal_message(f"You wrote: {splitted_command_from_text}", websocket)
+                                await manager.send_personal_message(f"You wrote: {splitted_command_from_text}",
+                                                                    websocket)
                                 await manager.broadcastText(splitted_command_from_text)  # Subtract time on client-side
                                 time = models.Time(time=splitted_command_from_text)
                                 db.add(time)
