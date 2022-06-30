@@ -16,7 +16,7 @@ h2 .flex_time {
     display: inline;
 }
 
-#messages { /*Log Container: I override the w3.css padding */
+#messages { /*Log Container: override the w3.css padding */
     padding-top: 3px !important;
     padding-bottom: 3px !important;
 }
@@ -47,13 +47,8 @@ ul>li { /*Log Container */
 .detected-image {
     max-width: 100%;
     height: auto;
-    /* align-self: flex-start */
 }
 
-
-/* css flex Box (will support custom number of columns, depending no the number of plants at the end)
-
-*/
 .flex_container_pots {
     display: flex;
     background-color: burlywood;
