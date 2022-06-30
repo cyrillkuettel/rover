@@ -76,7 +76,7 @@ ul>li { /*Log Container */
 
 .flex_time>div {
     margin: 3px;
-    padding: 0px;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -87,6 +87,15 @@ img {
     height: 100%;
 }
 
-footer {
-    margin-top: auto;
+#laufzeitlabel {
+    padding-left: 25px;
+}
+
+#tabLogsLabel {
+    font-size: small;
+}
+
+#tabImagesLabel {
+    font-size: small;
+
 }

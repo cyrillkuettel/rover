@@ -35,3 +35,6 @@
 .mytabs input[type="radio"] + label {
         border:1px solid black;
 }
+.label {
+    font-size: 10px;
+}

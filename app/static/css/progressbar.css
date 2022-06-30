@@ -1,10 +1,9 @@
 .progress-bar {
     position: relative;
-    width: 420px;
+    max-width: 420px;
     height: 30px;
     background-color: #CCC;
     border-radius: 7px;
-    color: white;
     overflow: hidden;
     margin: 20px;
 }
@@ -35,5 +34,6 @@
     position: absolute;
     top: 50%;
     left: 15px;
+     font-size: 3vh;
     transform: translateY(-50%);
 }
