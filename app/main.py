@@ -18,10 +18,17 @@ from . import models
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session, Query
 import torch
+from pydantic import BaseSettings
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+
+class Settings(BaseSettings):
+    openapi_url: str = ""  # disable OpenAPI docs
+
+
+settings = Settings()
+app = FastAPI(openapi_url=settings.openapi_url)
 app.mount(
     "/static",
     StaticFiles(directory=Path(__file__).parent.absolute() / "static"),
@@ -66,7 +73,6 @@ paths = Paths()
 websocket_map = {}  # This is used to get websocket object by id
 
 
-
 # Helper function to access the database session
 def get_db():
     db = SessionLocal()
@@ -101,7 +107,6 @@ def getStopTime(db: Session):
     stopTimeDateTime = datetime.fromtimestamp(int(stopTime) / 1000.0)
     diffDateTime = stopTimeDateTime - startTimeDateTime
     return strfdelta(diffDateTime, '%M:%S')
-
 
 
 @app.get("/api/yolo")
