@@ -192,7 +192,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 image_data: bytes = await websocket.receive_bytes()
                 logging.info(f"Received bytes. Length = {len(image_data)}")
                 im: Image = Image.open(io.BytesIO(image_data))
-                im.rotate(180)
+                im = im.rotate(180)
                 try:
                     # save reference to stored image path in db
                     new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
