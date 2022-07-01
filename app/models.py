@@ -1,6 +1,6 @@
-
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Enum
 from .database import Base
+import enum
 
 
 class Log(Base):
@@ -22,10 +22,16 @@ class Plant(Base):
         return self.absolute_path
 
 
+class TimeType(enum.Enum):
+    startTime = 0
+    stopTime = 1
+
+
 class Time(Base):
     __tablename__ = "time"
     id = Column(Integer, primary_key=True, index=True)
     time = Column(String)
+    description = Column(Enum(TimeType))  # time is either startTime or endTime, represented as Enum
 
     def __str__(self):
         return self.time

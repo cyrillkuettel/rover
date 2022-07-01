@@ -36,7 +36,7 @@
 
     <div class=flex-item">
         <h2 id="laufzeitlabel" style="display: inline !important;">Laufzeit: </h2>
-        <h2 id="timer" style="display: inline !important;">0:00</h2>
+        <h2 id="timer" style="display: inline !important;">{{ time }}</h2>
     </div>
 
     <div class="tab-wrapper flex-item">
@@ -53,13 +53,14 @@
                     </ul>
                 </div>
                 <script>
+                    let timerInterval;
 
                     window.onload = updateTime;
 
                     async function updateTime() {
                         let response = await fetch('/api/time');
 
-                        console.log(response.status); // 200
+                        console.log(" await fetch('/api/time')" + response.status); // 200
 
                         if (response.status === 200) {
                             let data = await response.text();
@@ -68,6 +69,9 @@
                                 let time = timeAsJson.time
                                 if (time.includes("startTime=")) {
                                     extractTime(time);
+                                }
+                                if (time.includes("stopTime")) {
+                                stopTimer()
                                 }
                             }
                         }
@@ -107,6 +111,10 @@
                         }
                     }
 
+                    function stopTimer() {
+                        clearInterval(timerInterval)
+                    }
+
                     ws.onmessage = function (event) {
                         console.log("ws.onmessage");
                         let data = event.data
@@ -124,9 +132,12 @@
 
                             if (data.includes("startTime=")) {  // TODO: rounding up and down on millliseconds
                                 extractTime(data);
+                            } else if (data.includes("stopTime")) {
+                                stopTimer()
                             } else { //  append to logbook
                                 appendMessageToLogBook(data)
                             }
+
                         }
                     };
 
@@ -136,17 +147,18 @@
                     }
 
                     function startIntervalTimer(time) {
-                        let timerID = setInterval(function () {
+                         timerInterval = setInterval(function () {
                             let now = dayjs()
                             let diff = now.diff(time);
                             if (fourMinutesHavePassed(diff)) {
-                                clearInterval(timerID);
+                                clearInterval(timerInterval);
                             }
                             let minutes_and_seconds = millisToMinutesAndSeconds(diff);
                             console.log(minutes_and_seconds)
                             document.getElementById("timer").innerHTML = minutes_and_seconds
                         }, 1000);
                     }
+
 
 
                     function appendMessageToLogBook(data) {
