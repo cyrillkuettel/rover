@@ -157,12 +157,15 @@ async def restart():
 
 
 @app.get("/steam/injector/stop/")
-async def restart():
+async def stop():
     logging.info("triggered steam/injector/stop")
     _id = 777
     if _id in websocket_map:
         pilot: WebSocket = websocket_map.get(_id)
-        await manager.send_personal_message("stop", pilot)
+        try:
+            await manager.send_personal_message("stop", pilot)
+        except Exception as ex:
+            logging.info("failed to stop")
 
 
 async def clear_database(db: Session):
@@ -188,7 +191,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 plant_image_absolute_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
                 image_data = await websocket.receive_bytes()
                 im = Image.open(io.BytesIO(image_data))
-                im.rotate(180)
+                # im.rotate(180)
                 logging.info(f"Received bytes. Length = {len(image_data)}")
                 try:
                     im.save(plant_image_absolute_path)  # write to file system
