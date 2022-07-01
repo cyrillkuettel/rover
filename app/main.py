@@ -94,7 +94,7 @@ async def main(db: Session = Depends(get_db)):
     model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
 
     # Images
-    img = 'https://lawncarecoppell.com/wp-content/uploads/potted-herb-garden.jpg'  # or file, Path, PIL,
+    img = 'https://www.gardenia.net/storage/app/public/guides/detail/WfJI7dBgdwFjRzS27I8jcqi4B3sirjFVksrxxJxQ.webp'  # or file, Path, PIL,
     # OpenCV, numpy, list
 
     # Inference
@@ -189,22 +189,31 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
             if client_id == 888:  # 888 is the pre-defined client-id, which represents binary data
                 number_of_plants: int = len(db.query(models.Plant).all())
                 plant_image_absolute_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
-                image_data = await websocket.receive_bytes()
-                im = Image.open(io.BytesIO(image_data))
-                # im.rotate(180)
+                image_data: bytes = await websocket.receive_bytes()
                 logging.info(f"Received bytes. Length = {len(image_data)}")
+                im: Image = Image.open(io.BytesIO(image_data))
+                im.rotate(180)
                 try:
-                    im.save(plant_image_absolute_path)  # write to file system
                     # save reference to stored image path in db
                     new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
                     db.add(new_Plant)
                     db.commit()
-                    logging.info(f"file size on disk: {os.stat('somefile.ext').st_size}")
+                    im.save(plant_image_absolute_path)  # write to file system
+                    # Now read the new file into a byte stream and broadcast that
+                    # https://stackoverflow.com/questions/33101935/convert-pil-image-to-byte-array
+                    rotated_image = Image.open(plant_image_absolute_path, mode='r')
+                    if rotated_image.mode in ("RGBA", "P"):
+                        logging.info("Converting RGBA so it's possible to save as JPG")
+                        rotated_image = rotated_image.convert("RGB")
+                    img_byte_arr = io.BytesIO()
+                    rotated_image.save(img_byte_arr, format='JPEG')
+                    img_byte_arr = img_byte_arr.getvalue()
                     logging.info("Saving the image")
+                    await manager.broadcastBytes(img_byte_arr)  # Send the new image to all clients
                 except Exception as ex:
                     logging.error(f"failed to save the image: {plant_image_absolute_path}")
                     logging.info(ex)
-                await manager.broadcastBytes(image_data)  # Send the new image to all clients
+
             else:
                 textData = await websocket.receive_text()
                 logging.info("received Text:" + textData)
