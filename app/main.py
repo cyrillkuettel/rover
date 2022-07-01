@@ -66,15 +66,6 @@ paths = Paths()
 websocket_map = {}  # This is used to get websocket object by id
 
 
-def get_timestamp(long=False):
-    if not long:
-        time = datetime.now().strftime("%H:%M:%S.%f")
-        return time[:-3]
-    else:
-        now = datetime.now()
-        date_time = now.strftime("%d/%m/%Y, %H:%M:%S.%f")  # dd/mm/YY H:M:S format
-        return date_time[:-3]
-
 
 # Helper function to access the database session
 def get_db():
@@ -275,9 +266,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                                 db.commit()
                             else:
                                 logging.error("Time has already been set, skipping.")
-                        if command == "requestTime":
-                            stamp = get_timestamp(long=True)
-                            await manager.send_personal_message(f"time={stamp}", websocket)
                         if "species" in command:
                             logging.info(command)
                             await manager.broadcastText(command)
