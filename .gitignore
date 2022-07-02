@@ -5,3 +5,4 @@ app/__pycache__/
 run.sh
 app/upload/*.apk
 publish.sh
+app/runs
