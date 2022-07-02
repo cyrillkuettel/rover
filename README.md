@@ -7,7 +7,7 @@ It's a Website to display status information, which continuously receives update
 
 * The APIs are served with [Gunicorn](https://gunicorn.org/) server with multiple [Uvicorn](https://www.uvicorn.org/) workers. Uvicorn is a lightning-fast "ASGI" server. Univorn runs asynchronous Python web code in a single process.
 
-* Reverse-proxying with [Nginx](https:www.nginx.com). Nginx is very good at serving static content. 
+* Reverse-proxying with [Nginx](https://www.nginx.com). Nginx is very good at serving static content. 
 
 * Dockerized using the [uvicorn-gunicorn-fastapi-docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker) Docker image.
 
@@ -46,10 +46,6 @@ Create a virtual environment. This will create a python interpreter for your loc
    conda activate rover
    pip install -r requirements-conda-for-local.txt 
 ```
-
-
-
-
 ### various Notes on Unvicorn
 Remember to exclude the --reload uvicorn option in production. The --reload option consumes much more resources, is more unstable, etc
 Try to read the gunicorn.conf file in docker container. 
