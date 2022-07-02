@@ -133,10 +133,6 @@ async def main(db: Session = Depends(get_db)):
     return "works"
 
 
-
-
-
-
 @app.get("/api/time")
 async def time(db: Session = Depends(get_db)):
     stopTimeColumn: List[str] = db.query(models.Time).filter_by(description=TimeType.stopTime).all()
@@ -175,7 +171,7 @@ async def main(request: Request, db: Session = Depends(get_db)):
 async def serve_File():
     logging.info("Serving a file response")
     return FileResponse(path=APP, filename=paths.get_pilot_apk_name())
-"""
+
 
 
 @app.get("/clear", response_class=HTMLResponse)
@@ -185,7 +181,8 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     logging.info(f"calling script {IMG_REMOVE}")
     subprocess.call(IMG_REMOVE)
     return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
-
+    
+"""
 
 @app.get("/steam/injector/restart/")
 async def restart():
@@ -222,6 +219,11 @@ def timeAlreadySet(db: Session):
 def timeAlreadyStopped(db: Session):
     timeColumn: int = len(db.query(models.Time).all())
     return timeColumn >= 2
+
+
+def isMessageFromApp(client_id: int):
+    # indicates message from app (arbitrary defined range)
+    return len(str(client_id)) <= 9
 
 
 @app.websocket("/ws/{client_id}")
@@ -263,7 +265,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 textData = await websocket.receive_text()
                 logging.info("received Text:" + textData)
 
-                if len(str(client_id)) <= 9:  # It's the pilot
+                if isMessageFromApp(client_id):
                     if "command=" in textData:
                         command = textData[:]
                         command = command.split("command=", 1)[1]
