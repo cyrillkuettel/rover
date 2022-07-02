@@ -21,4 +21,3 @@ def test_read_time():
     response = client.get("/api/time")
     result: bool = "not-initialized" in response.text
     assert result == True
-

@@ -122,25 +122,34 @@ async def main(db: Session = Depends(get_db)):
     # Inference
     results = model(img)
     box_pred: DataFrame = results.pandas().xyxy[0]
-    best_index = box_pred['confidence'].idxmax()
-    best = box_pred.loc[[best_index]]
-    logging.info(best)
-    results.print()
+    best_index = box_pred['confidence'].idxmax()  # idxmax returns the row label of the maximum value.
+    best_df: DataFrame = box_pred.loc[[best_index]]
+    logging.info("printing best")
+    print(best_df)
+    print(f"printing columns: " + best_df.columns)
+    # from 'best' now extract the box: xmin, ymin, xmax, ymax
+    df1 = best_df['xmin']
+    # print(xmin)
+    return "works"
+
+
+
+
 
 
 @app.get("/api/time")
-async def main(db: Session = Depends(get_db)):
+async def time(db: Session = Depends(get_db)):
     stopTimeColumn: List[str] = db.query(models.Time).filter_by(description=TimeType.stopTime).all()
     if len(stopTimeColumn) > 0:
-        time = stopTimeColumn[0]
+        displayTime = stopTimeColumn[0]
     else:
         startTimeColumn: List[str] = db.query(models.Time).filter_by(description=TimeType.startTime).all()
         if len(startTimeColumn) > 0:
-            time = startTimeColumn[0]
+            displayTime = startTimeColumn[0]
         else:
-            time = "not-initialized"
-        logging.info(f"fetched time = %s", time)
-    return time
+            displayTime = "not-initialized"
+        logging.info(f"fetched time = %s", displayTime)
+    return displayTime
 
 
 @app.get("/")
