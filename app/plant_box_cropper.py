@@ -14,11 +14,11 @@ class PlantBoxCropper:
         self.model.iou = 0.45  # NMS IoU threshold
         self.model.agnostic = False  # NMS class-agnostic
         self.model.multi_label = False  # NMS multiple labels per box
-        self.model.classes = [58]  # COCO index for potted plant (object of interest)
-        self.model.max_det = 1  # maximum number of detections per image, for now set it to 1
+        self.model.classes = [58]  # potted plant  (COCO index for class)
+        self.model.max_det = 1  # maximum number of detections per image, for now set it to 1 for simplicity
         self.model.amp = False  # Automatic Mixed Precision (AMP) inference
 
-    def get_Number_Of_plant_vase(self) -> int:
+    def get_Number_of_plant_vase(self) -> int:
         number_of_detection_results = len(self.get_pandas_box_predictions())
         return number_of_detection_results
 
