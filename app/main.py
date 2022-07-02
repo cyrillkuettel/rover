@@ -116,7 +116,7 @@ async def main(db: Session = Depends(get_db)):
     model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
 
     # Images
-    img = 'https://www.gardenia.net/storage/app/public/guides/detail/WfJI7dBgdwFjRzS27I8jcqi4B3sirjFVksrxxJxQ.webp'  # or file, Path, PIL,
+    img = 'https://lawncarecoppell.com/wp-content/uploads/potted-herb-garden.jpg'  # or file, Path, PIL,
     # OpenCV, numpy, list
 
     # Inference
