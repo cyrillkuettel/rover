@@ -6,21 +6,27 @@ from pathlib import Path
 import numpy as np
 import cv2
 
+current_file = Path(__file__)
+current_file_dir = current_file.parent  # /code/app
+static = current_file_dir / "static"
+yolo = static / 'yolov5s.pt'
+
 
 class PlantBoxCropper:
     """ This class can detect the bounding box of an image, cutting out the desired objects """
 
-    def __init__(self, input_image, output: Path):
+    def __init__(self, input_image, output_image: Path):
         self.input_image = input_image
+        self.output_image: Path = output_image
+
         self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
         self.model.conf = 0.25  # NMS confidence threshold
         self.model.iou = 0.45  # NMS IoU threshold
         self.model.agnostic = False  # NMS class-agnostic
         self.model.multi_label = False  # NMS multiple labels per box
         self.model.classes = [58]  # potted plant  (COCO index for it's class)
-        self.model.max_det = 1  # maximum number of detections per image, for now set it to 1 for simplicity
+        self.model.max_det = 100  # maximum number of detections per image, for now set it to 1 for simplicity
         self.model.amp = False  # Automatic Mixed Precision (AMP) inference
-        self.output_image: Path = output  # the path where we save the outputs
 
     def get_num_plant_detection_results(self) -> int:
         number_of_detection_results = len(self.get_pandas_box_predictions())

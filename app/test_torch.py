@@ -7,14 +7,13 @@ from app.plant_box_cropper import PlantBoxCropper
 from pandas import DataFrame
 
 
-
-def get_test_image_path():
-    """ Returns an Operating System agnostic path of the test image. """
+def get_test_image_directory():
+    """ Returns an Operating System agnostic path directory of the test_img. """
     current_file = Path(__file__)
     current_file_dir = current_file.parent
     static = current_file_dir / "static"
-    test_img = static / "test_img"
-    return test_img
+    test_img_directory = static / "test_img"
+    return test_img_directory
 
 
 class TestCaseBase(unittest.TestCase):
@@ -30,7 +29,7 @@ class MyTestCase(TestCaseBase):
         Log = logging.getLogger("Test.torch")
         cropper = PlantBoxCropper(
             "https://www.ikea.com/ch/en/images/products/clusia-potted-plant__0634293_pe697503_s5.jpg?f=s",
-            get_test_image_path())
+            get_test_image_directory())
         # Image with 1 potted plant
         box_pred: DataFrame = cropper.get_pandas_box_predictions()
         plant_vase_rows: DataFrame = cropper.filter_plant_vase(box_pred)
@@ -40,7 +39,7 @@ class MyTestCase(TestCaseBase):
     def test_get_number_of_plant_vase2(self):
         link = "https://post.healthline.com/wp-content/uploads/2020/05/435791-Forget-You-Have-Plants-11-Types-That" \
                "-Will-Forgive-You_Thumnail-732x549.jpg "
-        cropper = PlantBoxCropper(link, get_test_image_path())  # 2 Plants
+        cropper = PlantBoxCropper(link, get_test_image_directory())  # 2 Plants
         box_pred: DataFrame = cropper.get_pandas_box_predictions()
         plant_vase_count = len(cropper.filter_plant_vase(box_pred))
         self.assertGreaterEqual(plant_vase_count, 1)
@@ -48,14 +47,14 @@ class MyTestCase(TestCaseBase):
     def test_get_cropped_image(self):
         cropper = PlantBoxCropper(
             "https://www.ikea.com/ch/en/images/products/clusia-potted-plant__0634293_pe697503_s5.jpg?f=s",
-            get_test_image_path())  # Image
+            get_test_image_directory())  # Image
         # with 1 potted plant
         im = cropper.filter_plant_vase(cropper.get_pandas_box_predictions())
         self.assertIsNotNone(im)
 
     def test_load_local_image(self):
         """ it is a requirement to use local files """
-        root = get_test_image_path()
+        root = get_test_image_directory()
         test_image = root / "potted_plant.jpg"
         cropper = PlantBoxCropper(test_image, root)
         im = cropper.save_and_return_cropped_image()
@@ -66,7 +65,7 @@ class MyTestCase(TestCaseBase):
 
     def test_crop_image_and_save(self):
         """ Tests if we can find the bounding box of test_img, get the result np.ndarray and save that to disk"""
-        root = get_test_image_path()
+        root = get_test_image_directory()
         test_output = root / "cropped_potted_plant.jpg"
         test_input = root / "potted_plant.jpg"
 

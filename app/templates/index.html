@@ -198,7 +198,7 @@
                     {% set count = i %}
                     {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
                     {% set ID = "detected-image" ~ count %}
-                    <div class="w3-card-4">
+                    <div >
                         <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
                              id="{{ ID }}">
                     </div>
@@ -208,7 +208,7 @@
                     {% for i in range(images_for_future) %}
                     {% set count = i + numer_of_images %}
                     {% set ID_future = "detected-image" ~ count %}
-                    <div class="w3-card-4">
+                    <div>
                         <img src="" alt="" class="w3-image flex_container_main_Pot detected-image" id="{{ ID_future }}">
                     </div>
                     {% endfor %}

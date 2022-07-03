@@ -1,5 +1,4 @@
 import subprocess
-
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends
 from typing import List
 from pathlib import Path
@@ -53,8 +52,10 @@ UPLOAD = current_file_dir / "upload"
 APP = UPLOAD / "app-release.apk"
 static = current_file_dir / "static"
 STATIC_IMG = static / "img"
+TEST_IMG = static / "test_img"
 IMG_REMOVE = STATIC_IMG / "remove-images.sh"
 FAVICON = STATIC_IMG / "favicon.ico"
+
 templates = Jinja2Templates(directory=TEMPLATES)
 
 logging.basicConfig(level=logging.INFO,
@@ -212,87 +213,141 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
         while True:
             if client_id == 777:
                 websocket_map[client_id] = websocket
-            if client_id == 888:  # 888 is the pre-defined client-id, which represents binary data
+            if client_id == 888:
                 number_of_plants = await get_num_plants_in_db(db)
                 plant_image_absolute_path: Path = STATIC_IMG / f"original_plant{number_of_plants}.jpg"
+                image_tools = ImageTools(plant_image_absolute_path)
+
                 image_data: bytes = await websocket.receive_bytes()
                 logging.info(f"Received bytes. Length = {len(image_data)}")
-                im: Image = Image.open(io.BytesIO(image_data))
-                im = im.rotate(180)  # App will send images rotated, we have to rotate back
+                rotation_success = await image_tools.rotate_and_save_image(image_data)
+                if not rotation_success:
+                    logging.info("rotation failed")
+                    continue
                 try:
-                    im.save(plant_image_absolute_path)  # write to file system
-                    img_byte_arr = await convert_if_neccesary(plant_image_absolute_path)
+                    img_byte_arr = await image_tools.convert_if_neccesary()
                     img_byte_arr = img_byte_arr.getvalue()
-                    # crop the image
-                    plant_image_output_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
-                    cropper = PlantBoxCropper(plant_image_output_path, plant_image_output_path)
-                    cropper.save_image()
-                    await save_plant_to_db(db, plant_image_output_path)
-                    await manager.broadcastBytes(img_byte_arr)  # Send the new image to all clients
                 except Exception as ex:
-                    logging.error(f"failed to save the image: {plant_image_absolute_path}")
+                    logging.error(
+                        f"Something Failed with image_tools.convert_if_neccesary: {plant_image_absolute_path}")
                     logging.info(ex)
+                    continue
+                try:
+                    plant_image_cropped_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
+                    cropper = PlantBoxCropper(
+                        input_image=plant_image_absolute_path,
+                        output_image=plant_image_cropped_path
+                    )
+                    if cropper.get_num_plant_detection_results() > 0:
+                        logging.info("found > 1 detection result. Cropping image!")
+                        cropper.save_image()  # crop the image
+                        await save_plant_to_db(db, plant_image_cropped_path)
+                    else:  # no detection results, so don't crop it, just save the image
+                        logging.info("no detection results")
+                        await manager.broadcastBytes(img_byte_arr)
+                        await image_tools.save_image_db_and_file_system(img_byte_arr, db, plant_image_cropped_path)
 
+                except Exception as ex:
+                    logging.error(f"Something Failed with PlantCropper: {plant_image_absolute_path}")
+                    logging.info(ex)
             else:
-                textData = await websocket.receive_text()
-                logging.info("received Text:" + textData)
-
-                if isMessageFromApp(client_id):
-                    if "command=" in textData:
-                        command = textData[:]
-                        command = command.split("command=", 1)[1]
-                        logging.info(command)
-                        if "startTime" in command:  # startTime=2020-12-01T...
-                            if not timeAlreadySet(db):
-                                await manager.send_personal_message(f"You wrote: {command}",
-                                                                    websocket)
-                                await manager.broadcastText(command)  # Subtract time on client-side
-                                splitted_without_commmand = command[:]
-                                splitted_without_commmand = splitted_without_commmand.split("startTime=", 1)[1]
-                                time = models.Time(time=splitted_without_commmand, description=TimeType.startTime)
-                                db.add(time)
-                                db.commit()
-                            else:
-                                logging.error("Time has already been set, skipping.")
-                        if "species" in command:
-                            logging.info(command)
-                            await manager.broadcastText(command)
-                        if "stopTime" in command:
-                            await manager.send_personal_message(f"You wrote: {command}",
-                                                                websocket)
-                            await manager.broadcastText(command)
-                            splitted_without_commmand = command[:]
-                            splitted_without_commmand = splitted_without_commmand.split("stopTime=", 1)[1]
-                            logging.info(f"splitted_without_commmand: {splitted_without_commmand}")
-                            time = models.Time(time=splitted_without_commmand, description=TimeType.stopTime)
-                            db.add(time)
-                            db.commit()
-
-                    else:  # Normal Log
-                        new_log = models.Log(content=textData)
-                        db.add(new_log)
-                        db.commit()
-                        await manager.broadcastText(textData)
-                        await manager.send_personal_message(f"You wrote: {textData}", websocket)  # just for debugging
-
-                else:
-                    # The only client that is not a passive receiver of data, is Pilot
-                    logging.info(" FATAL ERROR: Len(client_id) bigger than 9")
+                await handle_text_commands(client_id, db, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
 
-async def convert_if_neccesary(plant_image_absolute_path):
-    logging.info("convert_if_neccesary")
-    # https://stackoverflow.com/questions/33101935/convert-pil-image-to-byte-array
-    rotated_image = Image.open(plant_image_absolute_path, mode='r')
-    if rotated_image.mode in ("RGBA", "P"):  # It's possible that images come in this format, if they
-        # are sent form the storage of device
-        logging.info("Converting RGBA so it's possible to save as JPG")
-        rotated_image = rotated_image.convert("RGB")
-    img_byte_arr = io.BytesIO()
-    rotated_image.save(img_byte_arr, format='JPEG')
-    return img_byte_arr
+class ImageTools:
+    """ Class that is responsible for rotation and conversion of images """
+
+    def __init__(self, plant_image_absolute_path):
+        self.path: Path = plant_image_absolute_path  # does not exist yet
+
+    async def convert_if_neccesary(self):
+        logging.info("convert_if_neccesary")
+        # https://stackoverflow.com/questions/33101935/convert-pil-image-to-byte-array
+        rotated_image = Image.open(self.path, mode='r')
+        rotated_image = await self.needs_format_conversion(rotated_image)
+
+        img_byte_arr = io.BytesIO()
+        rotated_image.save(img_byte_arr, format='JPEG')
+        return img_byte_arr
+
+    async def needs_format_conversion(self, rotated_image):
+        if rotated_image.mode in ("RGBA", "P"):  # It's possible that images come in this format, if they
+            # are sent form the storage of device. We need to convert them to prevent issues.
+            logging.info("Converting RGBA so it's possible to save as JPG")
+            rotated_image = rotated_image.convert("RGB")
+        return rotated_image
+
+    async def rotate_and_save_image(self, image_data) -> bool:
+        try:
+            im: Image = Image.open(io.BytesIO(image_data))
+            im = im.rotate(180)  # App will send images rotated, we have to rotate back
+            im.save(self.path)
+            logging.info(f"Rotating image and save to {self.path}")
+            return True
+        except Exception as ex:
+            logging.error(f"failed to rotate / save the image: {self.path}")
+            logging.info(ex)
+            return False
+
+    async def save_image_db_and_file_system(self, image_data, db, path):
+        try:
+            im: Image = Image.open(io.BytesIO(image_data))
+            im.save(path)
+            new_Plant = models.Plant(absolute_path=str(path))
+            db.add(new_Plant)
+            db.commit()
+            return True
+        except Exception as ex:
+            logging.error(f"failed to save the image: {path}")
+            logging.info(ex)
+            return False
+
+
+async def handle_text_commands(client_id, db, websocket):
+    textData = await websocket.receive_text()
+    logging.info("received Text:" + textData)
+    if isMessageFromApp(client_id):
+        if "command=" in textData:
+            command = textData[:]
+            command = command.split("command=", 1)[1]
+            logging.info(command)
+            if "startTime" in command:  # startTime=2020-12-01T...
+                if not timeAlreadySet(db):
+                    await manager.send_personal_message(f"You wrote: {command}",
+                                                        websocket)
+                    await manager.broadcastText(command)  # Subtract time on client-side
+                    splitted_without_commmand = command[:]
+                    splitted_without_commmand = splitted_without_commmand.split("startTime=", 1)[1]
+                    time = models.Time(time=splitted_without_commmand, description=TimeType.startTime)
+                    db.add(time)
+                    db.commit()
+                else:
+                    logging.error("Time has already been set, skipping.")
+            if "species" in command:
+                logging.info(command)
+                await manager.broadcastText(command)
+            if "stopTime" in command:
+                await manager.send_personal_message(f"You wrote: {command}",
+                                                    websocket)
+                await manager.broadcastText(command)
+                splitted_without_commmand = command[:]
+                splitted_without_commmand = splitted_without_commmand.split("stopTime=", 1)[1]
+                logging.info(f"splitted_without_commmand: {splitted_without_commmand}")
+                time = models.Time(time=splitted_without_commmand, description=TimeType.stopTime)
+                db.add(time)
+                db.commit()
+
+        else:  # Normal Log
+            new_log = models.Log(content=textData)
+            db.add(new_log)
+            db.commit()
+            await manager.broadcastText(textData)
+            await manager.send_personal_message(f"You wrote: {textData}", websocket)  # just for debugging
+    else:
+        # The only client that is not a passive receiver of data, is Pilot
+        logging.info(" FATAL ERROR: Len(client_id) bigger than 9")
 
 
 async def get_num_plants_in_db(db):
