@@ -159,7 +159,7 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     await clear_database(db)
     logging.info("clearing the images")
     logging.info(f"calling script {IMG_REMOVE}")
-    subprocess.call(IMG_REMOVE)  
+    subprocess.call(IMG_REMOVE)
     return "<h2>Cleared Cache. </h2> <p>All Logging and images deleted from server</p>"
 
 
@@ -225,7 +225,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     img_byte_arr = img_byte_arr.getvalue()
                     # crop the image
                     plant_image_output_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
-                    cropper = PlantBoxCropper(plant_image_absolute_path, plant_image_output_path)
+                    cropper = PlantBoxCropper(STATIC_IMG, plant_image_output_path)
                     cropper.save_image(f"plant{number_of_plants}.jpg")
                     await save_plant_to_db(db, plant_image_output_path)
                     await manager.broadcastBytes(img_byte_arr)  # Send the new image to all clients
