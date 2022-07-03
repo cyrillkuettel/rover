@@ -2,7 +2,6 @@ from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends
 from typing import List
 from pathlib import Path
 import logging
-import subprocess
 from string import Template
 from datetime import datetime, timedelta
 from pandas import DataFrame
@@ -13,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import io
 from PIL import Image
 from .models import TimeType, Time
+from .plant_box_cropper import PlantBoxCropper
 from .socket_manager import ConnectionManager
 from . import models
 from .database import SessionLocal, engine
@@ -109,30 +109,6 @@ def getStopTime(db: Session):
     return strfdelta(diffDateTime, '%M:%S')
 
 
-@app.get("/api/yolo")
-async def main(db: Session = Depends(get_db)):
-    # https://github.com/ultralytics/yolov5/issues/7933
-    # Model
-    model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
-
-    # Images
-    img = 'https://lawncarecoppell.com/wp-content/uploads/potted-herb-garden.jpg'  # or file, Path, PIL,
-    # OpenCV, numpy, list
-
-    # Inference
-    results = model(img)
-    box_pred: DataFrame = results.pandas().xyxy[0]
-    best_index = box_pred['confidence'].idxmax()  # idxmax returns the row label of the maximum value.
-    best_df: DataFrame = box_pred.loc[[best_index]]
-    logging.info("printing best")
-    print(best_df)
-    print(f"printing columns: " + best_df.columns)
-    # from 'best' now extract the box: xmin, ymin, xmax, ymax
-    df1 = best_df['xmin']
-    # print(xmin)
-    return "works"
-
-
 @app.get("/api/time")
 async def time(db: Session = Depends(get_db)):
     stopTimeColumn: List[str] = db.query(models.Time).filter_by(description=TimeType.stopTime).all()
@@ -184,6 +160,7 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     
 """
 
+
 @app.get("/steam/injector/restart/")
 async def restart():
     logging.info("triggered steam/injector/restart")
@@ -234,26 +211,21 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
             if client_id == 777:
                 websocket_map[client_id] = websocket
             if client_id == 888:  # 888 is the pre-defined client-id, which represents binary data
-                number_of_plants: int = len(db.query(models.Plant).all())
-                plant_image_absolute_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
+                number_of_plants = await get_num_plants_in_db(db)
+                plant_image_absolute_path: Path = STATIC_IMG / f"original_plant{number_of_plants}.jpg"
                 image_data: bytes = await websocket.receive_bytes()
                 logging.info(f"Received bytes. Length = {len(image_data)}")
                 im: Image = Image.open(io.BytesIO(image_data))
-                im = im.rotate(180)
+                im = im.rotate(180)  # App will send images rotated, we have to rotate back
                 try:
-                    await save_plant_to_db(db, plant_image_absolute_path)
                     im.save(plant_image_absolute_path)  # write to file system
-                    # Now read the new file into a byte stream and broadcast that
-                    # https://stackoverflow.com/questions/33101935/convert-pil-image-to-byte-array
-                    rotated_image = Image.open(plant_image_absolute_path, mode='r')
-                    if rotated_image.mode in ("RGBA", "P"):  # Saved images might be in this format
-                        logging.info("Converting RGBA so it's possible to save as JPG")
-                        rotated_image = rotated_image.convert("RGB")
-                    img_byte_arr = io.BytesIO()
-                    rotated_image.save(img_byte_arr, format='JPEG')
+                    img_byte_arr = await convert_if_neccesary(plant_image_absolute_path)
                     img_byte_arr = img_byte_arr.getvalue()
-                    logging.info("Saving the image")
-                    # now crop the image here
+                    # crop the image
+                    plant_image_output_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
+                    cropper = PlantBoxCropper(plant_image_absolute_path, plant_image_output_path)
+                    cropper.save_image(f"plant{number_of_plants}.jpg")
+                    await save_plant_to_db(db, plant_image_output_path)
                     await manager.broadcastBytes(img_byte_arr)  # Send the new image to all clients
                 except Exception as ex:
                     logging.error(f"failed to save the image: {plant_image_absolute_path}")
@@ -306,6 +278,24 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     logging.info(" FATAL ERROR: Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+
+async def convert_if_neccesary(plant_image_absolute_path):
+    logging.info("convert_if_neccesary")
+    # https://stackoverflow.com/questions/33101935/convert-pil-image-to-byte-array
+    rotated_image = Image.open(plant_image_absolute_path, mode='r')
+    if rotated_image.mode in ("RGBA", "P"):  # It's possible that images come in this format, if they
+        # are sent form the storage of device
+        logging.info("Converting RGBA so it's possible to save as JPG")
+        rotated_image = rotated_image.convert("RGB")
+    img_byte_arr = io.BytesIO()
+    rotated_image.save(img_byte_arr, format='JPEG')
+    return img_byte_arr
+
+
+async def get_num_plants_in_db(db):
+    number_of_plants: int = len(db.query(models.Plant).all())
+    return number_of_plants
 
 
 async def save_plant_to_db(db, plant_image_absolute_path):

@@ -10,8 +10,8 @@ import cv2
 class PlantBoxCropper:
     """ This class can detect the bounding box of an image, cutting out the desired objects """
 
-    def __init__(self, link, image_save_path: Path):
-        self.link = link
+    def __init__(self, input_image, output: Path):
+        self.link = input_image
         self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
         self.model.conf = 0.25  # NMS confidence threshold
         self.model.iou = 0.45  # NMS IoU threshold
@@ -20,7 +20,7 @@ class PlantBoxCropper:
         self.model.classes = [58]  # potted plant  (COCO index for it's class)
         self.model.max_det = 1  # maximum number of detections per image, for now set it to 1 for simplicity
         self.model.amp = False  # Automatic Mixed Precision (AMP) inference
-        self.root: Path = image_save_path  # the path where we save the outputs
+        self.output_image: Path = output  # the path where we save the outputs
 
     def get_num_plant_detection_results(self) -> int:
         number_of_detection_results = len(self.get_pandas_box_predictions())
@@ -49,7 +49,7 @@ class PlantBoxCropper:
         imageRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         from PIL import Image
         img = Image.fromarray(imageRGB)
-        test_image_cropped: Path = self.root / filename
+        test_image_cropped: Path = self.output_image / filename
         img.save(test_image_cropped)
 
     def filter_plant_vase(self, df: DataFrame) -> DataFrame:

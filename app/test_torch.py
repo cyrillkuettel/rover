@@ -3,7 +3,6 @@ import unittest
 import logging
 import numpy as np
 from pathlib import Path
-from PIL.Image import Image
 from app.plant_box_cropper import PlantBoxCropper
 from pandas import DataFrame
 
@@ -30,7 +29,8 @@ class MyTestCase(TestCaseBase):
     def test_get_number_of_plant_vase(self):
         Log = logging.getLogger("Test.torch")
         cropper = PlantBoxCropper(
-            "https://www.ikea.com/ch/en/images/products/clusia-potted-plant__0634293_pe697503_s5.jpg?f=s", get_test_image_path())
+            "https://www.ikea.com/ch/en/images/products/clusia-potted-plant__0634293_pe697503_s5.jpg?f=s",
+            get_test_image_path())
         # Image with 1 potted plant
         box_pred: DataFrame = cropper.get_pandas_box_predictions()
         plant_vase_rows: DataFrame = cropper.filter_plant_vase(box_pred)
@@ -47,7 +47,8 @@ class MyTestCase(TestCaseBase):
 
     def test_get_cropped_image(self):
         cropper = PlantBoxCropper(
-            "https://www.ikea.com/ch/en/images/products/clusia-potted-plant__0634293_pe697503_s5.jpg?f=s", get_test_image_path())  # Image
+            "https://www.ikea.com/ch/en/images/products/clusia-potted-plant__0634293_pe697503_s5.jpg?f=s",
+            get_test_image_path())  # Image
         # with 1 potted plant
         im = cropper.filter_plant_vase(cropper.get_pandas_box_predictions())
         self.assertIsNotNone(im)
