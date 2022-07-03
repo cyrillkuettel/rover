@@ -2,10 +2,11 @@ import torch
 from pandas import DataFrame
 from PIL.Image import Image
 import logging
+import numpy as np
 
 
 class PlantBoxCropper:
-    """ This class can detect the bounding box of an image, cutting out potted_plant / vase objects """
+    """ This class can detect the bounding box of an image, cutting out the desired objects """
 
     def __init__(self, link):
         self.link = link
@@ -28,9 +29,16 @@ class PlantBoxCropper:
 
     def save_cropped_images(self):
         results = self.model(self.link)  # inference
-        results.crop()  # saves the images to the app/runs/detect directory
+        results.crop()  # saves the images to the app/runs/detect/exp{%d} directory
+
+    def save_and_return_cropped_image(self) -> np.ndarray:
+        results = self.model(self.link)  # inference
+        crops = results.crop(save=True)
+        img_array = crops[0].get('im')  # crops is a list of dicts
+        return img_array
 
     def filter_plant_vase(self, df: DataFrame) -> DataFrame:
+        """ method is not used, as we can just restrict search to potted plant in the __init__ config """
         objects_of_interest = {'potted plant', 'vase'}
         filtered_df = df.loc[df['name'].isin(objects_of_interest)]
         return filtered_df

@@ -256,6 +256,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     rotated_image.save(img_byte_arr, format='JPEG')
                     img_byte_arr = img_byte_arr.getvalue()
                     logging.info("Saving the image")
+                    # now crop the image here
                     await manager.broadcastBytes(img_byte_arr)  # Send the new image to all clients
                 except Exception as ex:
                     logging.error(f"failed to save the image: {plant_image_absolute_path}")

@@ -1,7 +1,10 @@
 import sys
 import unittest
 import logging
+import numpy as np
 from pathlib import Path
+
+from PIL.Image import Image
 
 from app.plant_box_cropper import PlantBoxCropper
 from pandas import DataFrame
@@ -42,18 +45,16 @@ class MyTestCase(unittest.TestCase):
         im = cropper.filter_plant_vase(cropper.get_pandas_box_predictions())
         self.assertIsNotNone(im)
 
-    def test_random_image(self):
-        link = "https://raw.githubusercontent.com/ultralytics/yolov5/master/data/images/bus.jpg"
-        cropper = PlantBoxCropper(link)
-        cropper.save_cropped_images()
-        self.assertTrue(True)
-
     def test_load_local_image(self):
         """ it is a requirement to use local files """
         link = get_test_image_path()
         test_image = link / "potted_plant.jpg"
         cropper = PlantBoxCropper(test_image)
-        cropper.save_cropped_images()
+        im = cropper.save_and_return_cropped_image()
+        Log = logging.getLogger("Test.torch")
+        Log.info(type(im))
+        self.assertIsNotNone(im)
+        self.assertIsInstance(im, np.ndarray)
 
 
 if __name__ == '__main__':
