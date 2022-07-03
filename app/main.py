@@ -241,10 +241,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 im: Image = Image.open(io.BytesIO(image_data))
                 im = im.rotate(180)
                 try:
-                    # save reference to stored image path in db
-                    new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
-                    db.add(new_Plant)
-                    db.commit()
+                    await save_plant_to_db(db, plant_image_absolute_path)
                     im.save(plant_image_absolute_path)  # write to file system
                     # Now read the new file into a byte stream and broadcast that
                     # https://stackoverflow.com/questions/33101935/convert-pil-image-to-byte-array
@@ -309,6 +306,13 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     logging.info(" FATAL ERROR: Len(client_id) bigger than 9")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+
+async def save_plant_to_db(db, plant_image_absolute_path):
+    # save reference to stored image path in db
+    new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
+    db.add(new_Plant)
+    db.commit()
 
 
 @app.get("/websocketTest", response_class=HTMLResponse)
