@@ -6,3 +6,4 @@ run.sh
 app/upload/*.apk
 publish.sh
 app/runs
+app/static/img/*.jpg
