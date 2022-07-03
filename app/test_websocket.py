@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import pytest
 from fastapi.testclient import TestClient
 from starlette.websockets import WebSocket
@@ -32,20 +31,14 @@ STATIC_IMG = get_test_image_dir()
 async def websocket(websocket: WebSocket):
     await websocket.accept()
     plant_img_absolute_path = get_test_image_path()
-    actual_bytes: bytes = await image_as_bytes(plant_img_absolute_path)
+    image_tools = ImageTools(plant_img_absolute_path)
+    actual_bytes: bytes = await image_tools.image_as_bytes()
     await websocket.send_bytes(actual_bytes)
     await websocket.close()
 
 
-async def image_as_bytes(path):
-    rotated_image = Image.open(path, mode='r')
-    img_byte_arr = io.BytesIO()
-    rotated_image.save(img_byte_arr, format='JPEG')
-    actual_bytes: bytes = img_byte_arr.getvalue()
-    return actual_bytes
 
 
-@pytest.mark.anyio
 def test_websocket():
     testclient = TestClient(app)
     number_of_plants = 0

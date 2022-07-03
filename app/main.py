@@ -241,6 +241,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     if cropper.get_num_plant_detection_results() > 0:
                         logging.info("found > 1 detection result. Cropping image!")
                         cropper.save_image()  # crop the image
+                        image_tools = ImageTools(plant_image_cropped_path)
+                        actual_bytes = await image_tools.image_as_bytes()
+                        await manager.broadcastBytes(actual_bytes)
                         await save_plant_to_db(db, plant_image_cropped_path)
                     else:  # no detection results, so don't crop it, just save the image
                         logging.info("no detection results")
@@ -303,6 +306,13 @@ class ImageTools:
             logging.error(f"failed to save the image: {path}")
             logging.info(ex)
             return False
+
+    async def image_as_bytes(self):
+        rotated_image = Image.open(self.path, mode='r')
+        img_byte_arr = io.BytesIO()
+        rotated_image.save(img_byte_arr, format='JPEG')
+        actual_bytes: bytes = img_byte_arr.getvalue()
+        return actual_bytes
 
 
 async def handle_text_commands(client_id, db, websocket):
