@@ -17,20 +17,21 @@ h2 .flex_time {
 }
 
 #messages { /*Log Container: override the w3.css padding */
-    padding-top: 3px !important;
-    padding-bottom: 3px !important;
+    /* padding-top: 3px !important;
+    padding-bottom: 3px !important; */
 }
 
 ul>li { /*Log Container */
-    
+/*
     list-style-type: circle;
     list-style-position: inside;
-    font-family: Consolas, monaco, monospace;
+
     font-size: 20px;
     font-style: normal;
     font-variant: normal;
     line-height: 5px;
     text-align:left;
+*/
     padding-top: 10px !important;
     padding-bottom: 10px !important;
     
