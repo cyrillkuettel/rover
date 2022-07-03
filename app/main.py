@@ -225,8 +225,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     img_byte_arr = img_byte_arr.getvalue()
                     # crop the image
                     plant_image_output_path: Path = STATIC_IMG / f"plant{number_of_plants}.jpg"
-                    cropper = PlantBoxCropper(STATIC_IMG, plant_image_output_path)
-                    cropper.save_image(f"plant{number_of_plants}.jpg")
+                    cropper = PlantBoxCropper(plant_image_output_path, plant_image_output_path)
+                    cropper.save_image()
                     await save_plant_to_db(db, plant_image_output_path)
                     await manager.broadcastBytes(img_byte_arr)  # Send the new image to all clients
                 except Exception as ex:

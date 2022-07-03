@@ -67,13 +67,13 @@ class MyTestCase(TestCaseBase):
     def test_crop_image_and_save(self):
         """ Tests if we can find the bounding box of test_img, get the result np.ndarray and save that to disk"""
         root = get_test_image_path()
-        test_image = root / "potted_plant.jpg"
-        cropper = PlantBoxCropper(test_image, root)
-        output = "cropped_potted_plant.jpg"
-        cropper.save_image(output)
+        test_output = root / "cropped_potted_plant.jpg"
+        test_input = root / "potted_plant.jpg"
 
-        cropped_test_image = root / output
-        self.assertIsFile(cropped_test_image)
+        cropper = PlantBoxCropper(test_input, test_output)
+        cropper.save_image()
+        # cropped_test_image = root / output
+        self.assertIsFile(test_input)
 
 
 if __name__ == '__main__':
