@@ -45,7 +45,7 @@
             <input type="radio" id="tablogs" name="mytabs">
             <label for="tablogs" id="tabLogsLabel">Logs</label>
             <div class="tab">
-                <div class="" id="logging-box-wrapper">
+                <div >
                     <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
                         {% for item in Log %}
                         <li>{{ item.content }}</li>
@@ -71,7 +71,7 @@
                                     extractTime(time);
                                 }
                                 if (time.includes("stopTime")) {
-                                stopTimer()
+                                    stopTimer()
                                 }
                             }
                         }
