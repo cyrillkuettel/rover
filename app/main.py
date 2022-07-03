@@ -1,3 +1,5 @@
+import subprocess
+
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends
 from typing import List
 from pathlib import Path
@@ -149,16 +151,16 @@ async def serve_File():
     return FileResponse(path=APP, filename=paths.get_pilot_apk_name())
 
 
+"""
+
 
 @app.get("/clear", response_class=HTMLResponse)
 async def delete_cache(request: Request, db: Session = Depends(get_db)):
     await clear_database(db)
     logging.info("clearing the images")
     logging.info(f"calling script {IMG_REMOVE}")
-    subprocess.call(IMG_REMOVE)
-    return "<h2>Cleared Cache :) </h2> <p>All Logging and images deleted from server</p>"
-    
-"""
+    subprocess.call(IMG_REMOVE)  
+    return "<h2>Cleared Cache. </h2> <p>All Logging and images deleted from server</p>"
 
 
 @app.get("/steam/injector/restart/")
