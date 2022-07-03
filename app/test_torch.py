@@ -71,8 +71,8 @@ class MyTestCase(TestCaseBase):
         output = "cropped_potted_plant.jpg"
         cropper.save_image(output)
 
-        test_image_cropped = root / output
-        self.assertIsFile(test_image_cropped)
+        cropped_test_image = root / output
+        self.assertIsFile(cropped_test_image)
 
 
 if __name__ == '__main__':

@@ -3,9 +3,9 @@ from pandas import DataFrame
 from PIL.Image import Image
 import logging
 from pathlib import Path
-
 import numpy as np
 import cv2
+
 
 class PlantBoxCropper:
     """ This class can detect the bounding box of an image, cutting out the desired objects """
@@ -17,12 +17,12 @@ class PlantBoxCropper:
         self.model.iou = 0.45  # NMS IoU threshold
         self.model.agnostic = False  # NMS class-agnostic
         self.model.multi_label = False  # NMS multiple labels per box
-        self.model.classes = [58]  # potted plant  (COCO index for class)
+        self.model.classes = [58]  # potted plant  (COCO index for it's class)
         self.model.max_det = 1  # maximum number of detections per image, for now set it to 1 for simplicity
         self.model.amp = False  # Automatic Mixed Precision (AMP) inference
         self.root: Path = image_save_path  # the path where we save the outputs
 
-    def get_Number_of_plant_vase(self) -> int:
+    def get_num_plant_detection_results(self) -> int:
         number_of_detection_results = len(self.get_pandas_box_predictions())
         return number_of_detection_results
 
@@ -41,6 +41,10 @@ class PlantBoxCropper:
         return img_array
 
     def save_image(self, filename):
+        """ Note: the results.crop() method already implicitly saves the image to app/runs/detect/exp{%d} The reason
+        we save the image manually, is because this way, we have an in-memory reference to the image data. We don't
+        have to write a funciton to find the corresponding cropped image in the directory. (Which would be an
+        error-prone process ) """
         image = self.save_and_return_cropped_image()
         imageRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         from PIL import Image
