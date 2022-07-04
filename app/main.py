@@ -334,11 +334,9 @@ async def handle_text_commands(client_id, db, websocket):
                     await manager.send_personal_message(f"You wrote: {command}",
                                                         websocket)
                     await manager.broadcastText(command)  # Subtract time on client-side
-                    splitted_without_commmand = command[:]
-                    splitted_without_commmand = splitted_without_commmand.split("startTime=", 1)[1]
-                    time = models.Time(time=splitted_without_commmand, description=TimeType.startTime)
-                    db.add(time)
-                    db.commit()
+                    await write_time_to_db(command, db)
+                    await initialize_yolo()
+
                 else:
                     logging.error("Time has already been set, skipping.")
             if "species" in command:
@@ -355,6 +353,7 @@ async def handle_text_commands(client_id, db, websocket):
                 db.add(time)
                 db.commit()
 
+
         else:  # Normal Log
             new_log = models.Log(content=textData)
             db.add(new_log)
@@ -364,6 +363,28 @@ async def handle_text_commands(client_id, db, websocket):
     else:
         # The only client that is not a passive receiver of data, is Pilot
         logging.info(" FATAL ERROR: Len(client_id) bigger than 9")
+
+
+async def write_time_to_db(command, db):
+    splitted_without_commmand = command[:]
+    splitted_without_commmand = splitted_without_commmand.split("startTime=", 1)[1]
+    time = models.Time(time=splitted_without_commmand, description=TimeType.startTime)
+    db.add(time)
+    db.commit()
+
+
+async def initialize_yolo():
+    """ The first detection with yolo is always slow, because it downloads the weights.
+    So for that reason,  once start signal received, we just test one random plant so that  subsequent detection
+    processses will be faster """
+    try:
+        root = get_test_image_directory()
+        test_output = root / "cropped_potted_plant.jpg"
+        test_input = root / "potted_plant.jpg"
+        cropper = PlantBoxCropper(test_input, test_output)
+        im = cropper.save_and_return_cropped_image()
+    except Exception as ex:
+        pass
 
 
 async def get_num_plants_in_db(db):
@@ -402,3 +423,12 @@ async def delete_cache(request: Request):
 </html>
     """
     return HTMLResponse(content=html_content, status_code=200)
+
+
+def get_test_image_directory():
+    """ Returns an Operating System agnostic path directory of the test_img. """
+    current_file = Path(__file__)
+    current_file_dir = current_file.parent
+    static = current_file_dir / "static"
+    test_img_directory = static / "test_img"
+    return test_img_directory
