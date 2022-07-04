@@ -7,3 +7,4 @@ app/upload/*.apk
 publish.sh
 app/runs
 app/static/img/*.jpg
+app/yolov5l6.pt
