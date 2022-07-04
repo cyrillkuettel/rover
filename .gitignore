@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 app/__pycache__
-
+constants.py
 .idea
 run.sh
 app/upload/*.apk
