@@ -99,27 +99,26 @@
                                 for (let i = plants_on_client; i < max_count; i++) {
 
                                     const imageUrl = `/static/img/plant${i}.jpg/`
-                                    const identificationUrl = `/api/plantnames/${i}`
                                     console.log(`fetching ${imageUrl}`)
                                     fetch(imageUrl)
                                         .then(response => response.blob())
                                         .then(imageBlob => {
                                             document.getElementById(`detected-image${i}`).src = URL.createObjectURL(imageBlob)
                                         });
+                                }
 
-                                    fetch(identificationUrl)
+                                    const identificationUrl = `/api/plantnames/${0}`
+                                        fetch(identificationUrl)
                                         .then(res => res.json())
                                         .then(plantnames => {
 
                                             let common = plantnames["common_name"]
                                             let scientific = plantnames["scientific_name"]
 
-                                            document.getElementById(`common_name_ID${i}`).innerHTML = `Gemeiner Name: ${common}`;
-                                            document.getElementById(`scientific_name_ID${i}`).innerHTML = `Wissenschaftlicher Name: ${scientific}`;
+                                            document.getElementById(`common_name_ID${0}`).innerHTML = `Gemeiner Name: ${common}`;
+                                            document.getElementById(`scientific_name_ID${0}`).innerHTML = `Wissenschaftlicher Name: ${scientific}`;
 
                                         })
-
-                                }
                             }
                         }, 5000);
                     }
@@ -251,8 +250,8 @@
                     <div>
                         <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
                              id="{{ ID }}">
-                        <h3 id="{{ common_name_ID }}"></h3>
-                        <h3 id="{{ scientific_name_ID }}"></h3>
+                        <h3 id="{{ common_name_ID0 }}">{{ common_name_ID0  }}</h3>
+                        <h3 id="{{ scientific_name_ID0 }}">{{ scientific_name_ID0  }}</h3>
 
                     </div>
                     {% endfor %}

@@ -148,8 +148,10 @@ async def common_name(plant_id: int, db: Session = Depends(get_db)):
 
 @app.get("/")
 async def main(request: Request, db: Session = Depends(get_db)):
-    logs: List[Query] = db.query(models.Log).all()
-    # plants: List[Query] = db.query(models.Plant).all()
+    logs: List[Query] = await get_logs_from_db(db)
+
+    common_name_ID0, scientific_name_ID0 = await get_plant_identification_first_plant(db)
+
     number_of_plants: int = await get_num_plants_in_db(db)
 
     logging.info(f"number_of_plants = %s", number_of_plants)
@@ -162,7 +164,25 @@ async def main(request: Request, db: Session = Depends(get_db)):
                        "Log": logs,
                        "numer_of_images": number_of_plants,
                        "time": current_time,
+                       "common_name_ID0": common_name_ID0,
+                       "scientific_name_ID0": scientific_name_ID0,
                        "images_for_future": 12 - number_of_plants})  # expecting never more than 11 plant
+
+
+async def get_plant_identification_first_plant(db):
+    absol_path: Path = STATIC_IMG / f"plant0.jpg"
+    absolute_path_str = str(absol_path.resolve())
+    plant_object: List[models.Plant] = db.query(models.Plant).filter_by(absolute_path=absolute_path_str).all()
+    common_nameID0 = ""
+    scientific_name_ID0 = ""
+    if plant_object:
+        common_nameID0 = f"Gemeiner Name: {plant_object[0].common_name}"
+        scientific_name_ID0 = f"Wissenschaftlicher Name: {plant_object[0].scientific_name}"
+    return common_nameID0, scientific_name_ID0
+
+
+async def get_logs_from_db(db):
+    return db.query(models.Log).all()
 
 
 """
@@ -223,8 +243,8 @@ def timeAlreadySet(db: Session):
 
 
 def timeAlreadyStopped(db: Session):
-    timeColumn: int = len(db.query(models.Time).all())
-    return timeColumn >= 2
+    timeColumn: int = db.query(models.Time).count()
+    return timeColumn >= 2  # if the time has stopped, we have exatly two Time objects in db
 
 
 def isMessageFromApp(client_id: int):
@@ -264,9 +284,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                         input_image=plant_image_absolute_path,
                         output_image=plant_image_cropped_path
                     )
-                    if cropper.get_num_plant_detection_results() > 0:
+                    num_detection_results = await cropper.get_num_plant_detection_results()
+                    if num_detection_results > 0:
                         logging.info("found > 1 detection result. Cropping image!")
-                        cropper.inference_and_save_image()  # crop the image
+                        await cropper.inference_and_save_image()  # crop the image
                     else:  # no detection results, so don't crop it, just save the image
                         logging.error("No detection results. Using the whole image.")
                         await image_tools.save_to_file_system(img_byte_arr, plant_image_cropped_path)
@@ -423,7 +444,7 @@ async def initialize_yolo():
         test_output = root / "cropped_potted_plant.jpg"
         test_input = root / "potted_plant.jpg"
         cropper = PlantBoxCropper(test_input, test_output)
-        im = cropper.save_and_return_cropped_image()
+        im = await cropper.save_and_return_cropped_image()
     except Exception as ex:
         pass
 
@@ -431,7 +452,6 @@ async def initialize_yolo():
 async def get_num_plants_in_db(db):
     number_of_plants: int = db.query(models.Plant).count()
     return number_of_plants
-
 
 
 @app.get("/websocketTest", response_class=HTMLResponse)
