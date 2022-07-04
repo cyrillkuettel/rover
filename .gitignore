@@ -6,5 +6,7 @@ run.sh
 app/upload/*.apk
 publish.sh
 app/runs
+runs/
 app/static/img/*.jpg
 app/yolov5l6.pt
+yolov5*.pt
