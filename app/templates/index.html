@@ -34,7 +34,7 @@
         <span class="progress__text__left">Standby</span>
     </div>
 
-    <div class=flex-item">
+    <div class="flex-item">
         <h2 id="laufzeitlabel" style="display: inline !important;">Laufzeit: </h2>
         <h2 id="timer" style="display: inline !important;">{{ time }}</h2>
     </div>
@@ -200,7 +200,7 @@
                     {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
                     {% set ID = "detected-image" ~ count %}
                     <div >
-                        <img src="{{ image_fitdeltale_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
+                        <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
                              id="{{ ID }}">
                     </div>
                     {% endfor %}
