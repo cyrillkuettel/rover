@@ -7,16 +7,15 @@ import numpy as np
 import cv2
 
 
-
-
 class PlantBoxCropper:
-    """ This class can detect the bounding box of an image, cutting out the desired objects """
+    """ This class uses a yolo object detection model, to cut out the desired objects.  """
 
     def __init__(self, input_image, output_image: Path):
         self.input_image = input_image
         self.output_image: Path = output_image
         # self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  # lightweigt
-        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5l6')  # add force_reload=True parameter if issues arise
+        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5l6')  # add force_reload=True if fails
+
         self.model.conf = 0.25  # NMS confidence threshold
         self.model.iou = 0.45  # NMS IoU threshold
         self.model.agnostic = False  # NMS class-agnostic

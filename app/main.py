@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends, HTTPException
 from typing import List
 from pathlib import Path
 import logging
@@ -130,15 +130,20 @@ async def time(db: Session = Depends(get_db)):
     return displayTime
 
 
-@app.get("/api/common/{id}")
-async def common_name(db: Session = Depends(get_db)):
-    absol_path: Path = STATIC_IMG / f"plant{id}.jpg"
+@app.get("/api/plantnames/{plant_id}")
+async def common_name(plant_id: int, db: Session = Depends(get_db)):
+    _id = str(plant_id)
+    absol_path: Path = STATIC_IMG / f"plant{_id}.jpg"
     absolute_path_str = str(absol_path.resolve())
-    commonNames: List[models.Plant] = db.query(models.Plant).filter_by(absolute_path=absolute_path_str).all()
-    if len(commonNames) > 0:
-        return str(commonNames[0])
-    else:
+    logging.info(f"absolute_path_str = {absolute_path_str}")
+    plant_object: List[models.Plant] = db.query(models.Plant).filter_by(absolute_path=absolute_path_str).all()
+    if not plant_object:
         logging.error("empty list returned")
+        raise HTTPException(status_code=404, detail="Plant by id not found")
+    _common_name = plant_object[0].common_name
+    _scientific_name = plant_object[0].scientific_name
+    return {"common_name": _common_name,
+            "scientific_name": _scientific_name}
 
 
 @app.get("/")

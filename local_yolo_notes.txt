@@ -1,0 +1,15 @@
+        """
+        Local inference would be the preferred way instead of downlaoding 140mb. 
+        Unfortunately, there seem to be some issues with loading locally. might have to install all yolov5 dependencies
+        I'm leaving this up for now. 
+        
+         current_file = Path(__file__)
+        app = current_file.parent  # /code/app
+        yolo_model_local_path = app / 'yolov5l6.pt'
+        y_path = str(yolo_model_local_path.resolve())
+        self.yolo_path = str(app.resolve())
+                self.model = torch.hub.load(repo_or_dir=self.yolo_path,
+                                    model='yolov5l6',
+                                    source='local',
+                                    pretrained=True)
+        """
