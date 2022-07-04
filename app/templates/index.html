@@ -46,7 +46,7 @@
             <label for="tablogs" id="tabLogsLabel">Logs</label>
             <div class="tab">
                 <div >
-                    <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16 " id="messages">
+                    <ul class="w3-ul w3-card-4 w3-margin-bottom w3-margin-top w3-padding-16" id="messages">
                         {% for item in Log %}
                         <li>{{ item.content }}</li>
                         {% endfor %}
@@ -194,12 +194,13 @@
             <div class="tab">
 
                 <div class="flex_container_main_Pot">
+                    <h2 class="first_detected_image"> Erkannte Pflanze </h2>
                     {% for i in range(numer_of_images) %}
                     {% set count = i %}
                     {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
                     {% set ID = "detected-image" ~ count %}
                     <div >
-                        <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
+                        <img src="{{ image_fitdeltale_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
                              id="{{ ID }}">
                     </div>
                     {% endfor %}

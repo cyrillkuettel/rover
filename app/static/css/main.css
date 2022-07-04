@@ -82,3 +82,6 @@ img {
     font-size: small;
 
 }
+.first_detected_image {
+    visibility: hidden;
+}

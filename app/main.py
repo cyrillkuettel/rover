@@ -1,10 +1,10 @@
-import subprocess
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends
 from typing import List
 from pathlib import Path
 import logging
 from string import Template
 from datetime import datetime, timedelta
+import subprocess
 from pandas import DataFrame
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -89,17 +89,6 @@ class DeltaTemplate(Template):
     delimiter = "%"
 
 
-def strfdelta(tdelta: timedelta, fmt):
-    d = {"D": tdelta.days}
-    hours, rem = divmod(tdelta.seconds, 3600)
-    minutes, seconds = divmod(rem, 60)
-    d["H"] = '{:02d}'.format(hours)
-    d["M"] = '{:02d}'.format(minutes)
-    d["S"] = '{:02d}'.format(seconds)
-    t = DeltaTemplate(fmt)
-    return t.substitute(**d)
-
-
 def getStopTime(db: Session):
     """ Returns the Time difference in seconds """
     startTimeColumn: List[Time] = db.query(Time).filter_by(description=TimeType.startTime).all()
@@ -110,6 +99,17 @@ def getStopTime(db: Session):
     stopTimeDateTime = datetime.fromtimestamp(int(stopTime) / 1000.0)
     diffDateTime = stopTimeDateTime - startTimeDateTime
     return strfdelta(diffDateTime, '%M:%S')
+
+
+def strfdelta(delta: timedelta, fmt):
+    d = {"D": delta.days}
+    hours, rem = divmod(delta.seconds, 3600)
+    minutes, seconds = divmod(rem, 60)
+    d["H"] = '{:02d}'.format(hours)
+    d["M"] = '{:02d}'.format(minutes)
+    d["S"] = '{:02d}'.format(seconds)
+    t = DeltaTemplate(fmt)
+    return t.substitute(**d)
 
 
 @app.get("/api/time")
@@ -226,11 +226,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     logging.info("rotation failed")
                     continue
                 try:
-                    img_byte_arr = await image_tools.convert_if_neccesary()
+                    img_byte_arr = await image_tools.convert_if_necessary()
                     img_byte_arr = img_byte_arr.getvalue()
                 except Exception as ex:
                     logging.error(
-                        f"Something Failed with image_tools.convert_if_neccesary: {plant_image_absolute_path}")
+                        f"Something Failed with image_tools.convert_if_necessary: {plant_image_absolute_path}")
                     logging.info(ex)
                     continue
                 try:
@@ -266,8 +266,8 @@ class ImageTools:
     def __init__(self, plant_image_absolute_path):
         self.path: Path = plant_image_absolute_path  # does not exist yet
 
-    async def convert_if_neccesary(self):
-        logging.info("convert_if_neccesary")
+    async def convert_if_necessary(self):
+        logging.info("convert_if_necessary")
         # https://stackoverflow.com/questions/33101935/convert-pil-image-to-byte-array
         rotated_image = Image.open(self.path, mode='r')
         rotated_image = await self.needs_format_conversion(rotated_image)
