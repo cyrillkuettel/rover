@@ -17,6 +17,12 @@ def test_read_main():
     assert response.status_code == 200
 
 
+def test_number_of_images():
+    response = client.get("/number_of_images")
+    assert response.json() == {"number_of_images": 0}
+    assert response.status_code == 200
+
+
 def test_read_time():
     response = client.get("/api/time")
     result: bool = "not-initialized" in response.text

@@ -1,4 +1,5 @@
 #!/bin/bash
+sudo rm -f app/static/img/*.jpg
 
 docker stop $(docker ps -a -q)
 docker rm $(docker ps --filter status=exited -q)

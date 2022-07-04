@@ -154,6 +154,11 @@ async def serve_File():
 
 """
 
+@app.get("/number_of_images")
+async def delete_cache(request: Request, db: Session = Depends(get_db)):
+    num = await get_num_plants_in_db(db)
+    return {"num": num}
+
 
 @app.get("/clear", response_class=HTMLResponse)
 async def delete_cache(request: Request, db: Session = Depends(get_db)):
@@ -244,11 +249,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                         cropper.save_image()  # crop the image
                         image_tools = ImageTools(plant_image_cropped_path)
                         actual_bytes = await image_tools.image_as_bytes()
-                        await manager.broadcastBytes(actual_bytes)
+                        # await manager.broadcastBytes(actual_bytes)
                         await save_plant_to_db(db, plant_image_cropped_path)
                     else:  # no detection results, so don't crop it, just save the image
                         logging.info("no detection results")
-                        await manager.broadcastBytes(img_byte_arr)
+                        # await manager.broadcastBytes(img_byte_arr)
                         await image_tools.save_image_db_and_file_system(img_byte_arr, db, plant_image_cropped_path)
 
                 except Exception as ex:
@@ -362,7 +367,7 @@ async def handle_text_commands(client_id, db, websocket):
 
 
 async def get_num_plants_in_db(db):
-    number_of_plants: int = len(db.query(models.Plant).all())
+    number_of_plants: int = db.query(models.Plant).count()
     return number_of_plants
 
 

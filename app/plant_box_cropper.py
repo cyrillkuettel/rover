@@ -6,10 +6,7 @@ from pathlib import Path
 import numpy as np
 import cv2
 
-current_file = Path(__file__)
-current_file_dir = current_file.parent  # /code/app
-static = current_file_dir / "static"
-yolo = static / 'yolov5s.pt'
+
 
 
 class PlantBoxCropper:

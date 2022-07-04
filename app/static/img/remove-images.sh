@@ -1,2 +1,3 @@
 #!/bin/bash
-sudo rm *.jpg
+find . -name "plant*.jpg" -type f -delete
+find . -name "original*." -type f -delete
