@@ -1,10 +1,11 @@
+import logging
 from pathlib import Path
 
 import pytest
 from requests import Response
 
 from .plant_api import PlantApiWrapper
-
+Log = logging.getLogger(__name__)
 
 def get_test_image_directory():
     """ Returns an Operating System agnostic path directory of the test_img. """
@@ -33,11 +34,23 @@ def test_api_class_request_does_not_fail():
 def test_species():
     root = get_test_image_directory()
     test_image = root / "mint.jpg"
-    plant_api = PlantApiWrapper(test_image)
-    response: Response = plant_api.get_response()
-    json_result: dict = plant_api.species(response)
+    plantApiWrapper = PlantApiWrapper(test_image)
+    response: Response = plantApiWrapper.get_response()
+    json_result: dict = plantApiWrapper.json_response(response)
     count = 0
     for k, i in json_result.items():
         if "mint" in str(i):
             count = count + 1
     assert count > 0
+
+def test_max_score_is_correct():
+    root = get_test_image_directory()
+    test_image = root / "mint.jpg"
+    plantApiWrapper = PlantApiWrapper(test_image)
+    response: Response = plantApiWrapper.get_response()
+    json_result: dict = plantApiWrapper.json_response(response)
+    maximum_score = plantApiWrapper.get_max_score(json_result)
+    expected: float = 0.12117
+    assert expected == maximum_score
+
+

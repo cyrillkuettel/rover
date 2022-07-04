@@ -2,16 +2,26 @@ import json
 import logging
 from pathlib import Path
 import requests
-from app import constants
 
+from requests import Response
+
+from . import constants
 
 class PlantApiWrapper:
     def __init__(self, image):
         self.plantIDkey = constants.Constants().api_key
         self.image: Path = image
-        self.api_endpoint = f"https://my-api.plantnet.org/v2/identify/all?api-key={self.plantIDkey}"
+        #  f"https://my-api.plantnet.org/v2/identify/weurope?include-related-images=false&no-reject=false&lang=de&api-key={self.plantIDkey}"
+        self.api_endpoint = f"https://my-api.plantnet.org/v2/identify/weurope?api-key={self.plantIDkey}"
 
-    def species(self, response):
+
+    def get_max_score(self, json_result):
+        maximum = max(json_result['results'], key=lambda ev: ev['score'])
+        return maximum['score']
+
+
+
+    def json_response(self, response: Response):
         json_result = json.loads(response.text)
         return json_result
 
@@ -31,5 +41,6 @@ class PlantApiWrapper:
         s = requests.Session()
         response = s.send(prepared)
         return response
+
 
 
