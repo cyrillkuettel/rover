@@ -1,8 +1,10 @@
 from pathlib import Path
 
 import pytest
+from requests import Response
 
 from .plant_api import PlantApiWrapper
+
 
 def get_test_image_directory():
     """ Returns an Operating System agnostic path directory of the test_img. """
@@ -26,3 +28,16 @@ def test_api_class_request_does_not_fail():
     plant_api = PlantApiWrapper(test_image)
     res = plant_api.get_response()
     assert res.status_code == 200
+
+
+def test_species():
+    root = get_test_image_directory()
+    test_image = root / "mint.jpg"
+    plant_api = PlantApiWrapper(test_image)
+    response: Response = plant_api.get_response()
+    json_result: dict = plant_api.species(response)
+    count = 0
+    for k, i in json_result.items():
+        if "mint" in str(i):
+            count = count + 1
+    assert count > 0

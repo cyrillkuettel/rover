@@ -13,8 +13,7 @@ class PlantApiWrapper:
 
     def species(self, response):
         json_result = json.loads(response.text)
-        data = json_result.json()
-        return data
+        return json_result
 
     def get_response(self):
         image_path = str(self.image.resolve())
