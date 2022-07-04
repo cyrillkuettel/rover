@@ -267,7 +267,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     if cropper.get_num_plant_detection_results() > 0:
                         logging.info("found > 1 detection result. Cropping image!")
                         cropper.inference_and_save_image()  # crop the image
-                        # await save_plant_to_db(db, plant_image_cropped_path)
                     else:  # no detection results, so don't crop it, just save the image
                         logging.error("No detection results. Using the whole image.")
                         await image_tools.save_to_file_system(img_byte_arr, plant_image_cropped_path)
@@ -433,12 +432,6 @@ async def get_num_plants_in_db(db):
     number_of_plants: int = db.query(models.Plant).count()
     return number_of_plants
 
-
-async def save_plant_to_db(db, plant_image_absolute_path):
-    # save reference to stored image path in db
-    new_Plant = models.Plant(absolute_path=str(plant_image_absolute_path))
-    db.add(new_Plant)
-    db.commit()
 
 
 @app.get("/websocketTest", response_class=HTMLResponse)

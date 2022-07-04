@@ -87,25 +87,40 @@
                             // if the number of images displayed in html is less than the number of images in db
                             // => update
                             function isUpdateAvailable(count) {
-                                let plants_on_client = getNextPlantID();
+                                let plants_on_client = getNextPlantID()
                                 if (count > plants_on_client) {
-                                    updateImages(plants_on_client, count);
+                                    updateImages(plants_on_client, count)
                                 } else {
                                 }
                             }
 
+                            // could be async / more optimal
                             function updateImages(plants_on_client, max_count) {
-                                    for (let i = plants_on_client; i < max_count; i++) {
+                                for (let i = plants_on_client; i < max_count; i++) {
 
-                                        const imageUrl = `/static/img/plant${i}.jpg/`
-                                        console.log(`fetching ${imageUrl}`)
-
-                                        fetch(imageUrl).then(response => response.blob())
+                                    const imageUrl = `/static/img/plant${i}.jpg/`
+                                    const identificationUrl = `/api/plantnames/${i}`
+                                    console.log(`fetching ${imageUrl}`)
+                                    fetch(imageUrl)
+                                        .then(response => response.blob())
                                         .then(imageBlob => {
-                                            document.getElementById(`detected-image${i}`).src = URL.createObjectURL(imageBlob);
+                                            document.getElementById(`detected-image${i}`).src = URL.createObjectURL(imageBlob)
                                         });
-                                    }
+
+                                    fetch(identificationUrl)
+                                        .then(res => res.json())
+                                        .then(plantnames => {
+
+                                            let common = plantnames["common_name"]
+                                            let scientific = plantnames["scientific_name"]
+
+                                            document.getElementById(`common_name_ID${i}`).innerHTML = `Gemeiner Name: ${common}`;
+                                            document.getElementById(`scientific_name_ID${i}`).innerHTML = `Wissenschaftlicher Name: ${scientific}`;
+
+                                        })
+
                                 }
+                            }
                         }, 5000);
                     }
 
@@ -225,7 +240,7 @@
             <div class="tab">
 
                 <div class="flex_container_main_Pot">
-                    <h2 > Erkannte Pflanze </h2>
+                    <h2> Erkannte Pflanze </h2>
                     {% for i in range(numer_of_images) %}
                     {% set count = i %}
                     {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
@@ -236,8 +251,8 @@
                     <div>
                         <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
                              id="{{ ID }}">
-                        <h3 id="{{ common_name_ID }}"> </h3>
-                        <h3 id="{{ scientific_name_ID }}"> </h3>
+                        <h3 id="{{ common_name_ID }}"></h3>
+                        <h3 id="{{ scientific_name_ID }}"></h3>
 
                     </div>
                     {% endfor %}
@@ -250,8 +265,8 @@
                     {% set scientific_name_ID_future = "scientific_name_ID" ~ count %}
                     <div>
                         <img src="" alt="" class="w3-image flex_container_main_Pot detected-image" id="{{ ID_future }}">
-                        <h3 id="{{ common_name_ID_future }}"> </h3>
-                        <h3 id="{{ scientific_name_ID_future }}"> </h3>
+                        <h3 id="{{ common_name_ID_future }}"></h3>
+                        <h3 id="{{ scientific_name_ID_future }}"></h3>
                     </div>
                     {% endfor %}
 

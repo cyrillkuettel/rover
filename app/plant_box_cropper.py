@@ -11,11 +11,12 @@ class PlantBoxCropper:
     """ This class uses a yolo object detection model, to cut out the desired objects.  """
 
     def __init__(self, input_image, output_image: Path):
+        self.results = None
         self.input_image = input_image
         self.output_image: Path = output_image
-        # self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  # lightweigt
-        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5l6')  # add force_reload=True if fails
-
+        # self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
+        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', trust_repo=True, skip_validation=True, force_reload=True)
+        # self.model = torch.hub.load('ultralytics/yolov5', 'yolov5l6', trust_repo=True, skip_validation=True, force_reload=True)  # add force_reload=True if fails
         self.model.conf = 0.25  # NMS confidence threshold
         self.model.iou = 0.45  # NMS IoU threshold
         self.model.agnostic = False  # NMS class-agnostic
@@ -29,16 +30,18 @@ class PlantBoxCropper:
         return number_of_detection_results
 
     def get_pandas_box_predictions(self) -> DataFrame:
-        results = self.model(self.input_image)  # inference
-        return results.pandas().xyxy[0]  # im predictions (pandas)
+        self.results = self.model(self.input_image)  # inference
+        return self.results.pandas().xyxy[0]  # im predictions (pandas)
 
     def save_cropped_images(self):
         results = self.model(self.input_image)  # inference
         results.crop()  # saves the images to the app/runs/detect/exp{%d} directory
 
     def save_and_return_cropped_image(self) -> np.ndarray:
-        results = self.model(self.input_image)  # inference
-        crops = results.crop(save=True)
+        if not self.results:
+            self.results = self.model(self.input_image)  # inference
+
+        crops = self.results.crop(save=True)
         img_array = crops[0].get('im')  # crops is a list of dicts
         return img_array
 
