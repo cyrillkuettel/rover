@@ -30,12 +30,23 @@ The number of Worker threads is variable. Generally speaking, it can scale with 
 - [ ] Show Progress bar
 
 # Start Local dev Environment: Linux
-Quick startup with Docker:
+## API Key
+The app expects a constants.py in the `app` directory. This class contains the api-key which is needed for plant identification.
+Get a key for [plantnet](https://my.plantnet.org/usage).
+Create a file constants.py which contains a class `Constants` and replace the `<your-api-key>` with the api key you got from plantnet.
+```python
+class Constants:
+    def __init__(self):
+        self.api_key = "<your-api-key>"
+
+```
+After that, startup quickly with Docker:
 Open the `build_and_run_locally.sh` file.
 Adjust the absolute path, it should point to the directory where you cloned the repository.
  ```bash
  ./build_and_run_locally.sh
 ```
+
 
 # Configure Autocomplete
 If you develop in a IDE, it's much easier with autocompletion.
