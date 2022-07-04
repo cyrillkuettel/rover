@@ -65,7 +65,6 @@ def test_get_best_result():
     json_result: dict = plantApiWrapper.json_response(response)
     best_result = plantApiWrapper.get_result_with_max_score(json_result)
     species = best_result["species"]
-
     commonName: list = species["commonNames"]
     assert species["scientificNameWithoutAuthor"] == "Mentha x verticillata"
     assert "Whorled Mint" in commonName

@@ -9,7 +9,7 @@ from . import constants
 
 
 class PlantApiWrapper:
-    def __init__(self, image):
+    def __init__(self, image: Path):
         self.plantIDkey = constants.Constants().api_key
         self.image: Path = image
         #  f"https://my-api.plantnet.org/v2/identify/weurope?include-related-images=false&no-reject=false&lang=de&api-key={self.plantIDkey}"

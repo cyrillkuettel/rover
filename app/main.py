@@ -12,7 +12,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import io
 from PIL import Image
+from requests import Response
+
 from .models import TimeType, Time
+from .plant_api import PlantApiWrapper
 from .plant_box_cropper import PlantBoxCropper
 from .socket_manager import ConnectionManager
 from . import models
@@ -127,21 +130,33 @@ async def time(db: Session = Depends(get_db)):
     return displayTime
 
 
+@app.get("/api/common/{id}")
+async def common_name(db: Session = Depends(get_db)):
+    absol_path: Path = STATIC_IMG / f"plant{id}.jpg"
+    absolute_path_str = str(absol_path.resolve())
+    commonNames: List[models.Plant] = db.query(models.Plant).filter_by(absolute_path=absolute_path_str).all()
+    if len(commonNames) > 0:
+        return str(commonNames[0])
+    else:
+        logging.error("empty list returned")
+
+
 @app.get("/")
 async def main(request: Request, db: Session = Depends(get_db)):
     logs: List[Query] = db.query(models.Log).all()
-    number_of_plants: int = len(db.query(models.Plant).all())
+    # plants: List[Query] = db.query(models.Plant).all()
+    number_of_plants: int = await get_num_plants_in_db(db)
 
     logging.info(f"number_of_plants = %s", number_of_plants)
-    time = "0:00"
+    current_time = "0:00"
     if timeAlreadyStopped(db):  # display the stopped time if it exists
-        time = getStopTime(db)
+        current_time = getStopTime(db)
 
     return templates.TemplateResponse(
         "index.html", {"request": request,
                        "Log": logs,
                        "numer_of_images": number_of_plants,
-                       "time": time,
+                       "time": current_time,
                        "images_for_future": 12 - number_of_plants})  # expecting never more than 11 plant
 
 
@@ -153,6 +168,7 @@ async def serve_File():
 
 
 """
+
 
 @app.get("/number_of_images")
 async def delete_cache(request: Request, db: Session = Depends(get_db)):
@@ -220,7 +236,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 websocket_map[client_id] = websocket
             if client_id == 888:
                 number_of_plants = await get_num_plants_in_db(db)
-
                 logging.info(f"number_of_plants in db: {number_of_plants}")
                 plant_image_absolute_path: Path = STATIC_IMG / f"original_plant{number_of_plants}.jpg"
                 image_tools = ImageTools(plant_image_absolute_path)
@@ -246,21 +261,42 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     )
                     if cropper.get_num_plant_detection_results() > 0:
                         logging.info("found > 1 detection result. Cropping image!")
-                        cropper.save_image()  # crop the image
-                        await save_plant_to_db(db, plant_image_cropped_path)
+                        cropper.inference_and_save_image()  # crop the image
+                        # await save_plant_to_db(db, plant_image_cropped_path)
                     else:  # no detection results, so don't crop it, just save the image
-                        logging.info("no detection results")
-                        # await manager.broadcastBytes(img_byte_arr)
-                        await image_tools.save_image_db_and_file_system(img_byte_arr, db, plant_image_cropped_path)
+                        logging.error("No detection results. Using the whole image.")
+                        await image_tools.save_to_file_system(img_byte_arr, plant_image_cropped_path)
+
+                    common_name, scientific_name = await identify_plant(plant_image_cropped_path)
+
+                    logging.info(f"common_name {common_name}")
+                    logging.info(f"scientific_name {scientific_name}")
+                    new_Plant = models.Plant(absolute_path=str(plant_image_cropped_path),
+                                             common_name=common_name,
+                                             scientific_name=scientific_name)
+                    db.add(new_Plant)
+                    db.commit()
+
                 except Exception as ex:
                     logging.error(f"Something Failed with PlantCropper: {plant_image_absolute_path}")
                     logging.info(ex)
-                # now, identify the plant species.
-
+                    continue
             else:
                 await handle_text_commands(client_id, db, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+
+async def identify_plant(image: Path):
+    logging.info("starting api request")
+    plantApiWrapper = PlantApiWrapper(image)
+    response: Response = plantApiWrapper.do_request()
+    json_result: dict = plantApiWrapper.json_response(response)
+    best_result = plantApiWrapper.get_result_with_max_score(json_result)
+    species = best_result["species"]
+    commonName: list = species["commonNames"]
+    scientificName = species["scientificNameWithoutAuthor"]
+    return commonName[0], scientificName  # just pick the first one
 
 
 class ImageTools:
@@ -300,8 +336,7 @@ class ImageTools:
 
     async def save_image_db_and_file_system(self, image_data, db, path):
         try:
-            im: Image = Image.open(io.BytesIO(image_data))
-            im.save(path)
+            await self.save_to_file_system(image_data, path)
             new_Plant = models.Plant(absolute_path=str(path))
             db.add(new_Plant)
             db.commit()
@@ -310,6 +345,10 @@ class ImageTools:
             logging.error(f"failed to save the image: {path}")
             logging.info(ex)
             return False
+
+    async def save_to_file_system(self, image_data, path):
+        im: Image = Image.open(io.BytesIO(image_data))
+        im.save(path)
 
     async def image_as_bytes(self):
         rotated_image = Image.open(self.path, mode='r')

@@ -43,7 +43,7 @@ class PlantBoxCropper:
         img_array = crops[0].get('im')  # crops is a list of dicts
         return img_array
 
-    def save_image(self):
+    def inference_and_save_image(self):
         """ Note: the results.crop() method already implicitly saves the image to app/runs/detect/exp{%d} The reason
         we save the image manually, is because this way, we have an in-memory reference to the image data. We don't
         have to write a funciton to find the corresponding cropped image in the directory. (Which would be an

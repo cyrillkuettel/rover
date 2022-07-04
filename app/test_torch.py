@@ -70,7 +70,7 @@ class MyTestCase(TestCaseBase):
         test_input = root / "potted_plant.jpg"
 
         cropper = PlantBoxCropper(test_input, test_output)
-        cropper.save_image()
+        cropper.inference_and_save_image()
         # cropped_test_image = root / output
         self.assertIsFile(test_input)
 
