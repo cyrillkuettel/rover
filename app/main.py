@@ -215,6 +215,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 websocket_map[client_id] = websocket
             if client_id == 888:
                 number_of_plants = await get_num_plants_in_db(db)
+                logging.info(f"number_of_plants in db: {number_of_plants}")
                 plant_image_absolute_path: Path = STATIC_IMG / f"original_plant{number_of_plants}.jpg"
                 image_tools = ImageTools(plant_image_absolute_path)
 
