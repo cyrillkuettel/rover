@@ -19,7 +19,7 @@ def test_read_main():
 
 def test_number_of_images():
     response = client.get("/number_of_images")
-    assert response.json() == {"number_of_images": 0}
+    assert response.json() == {"num": 0}
     assert response.status_code == 200
 
 

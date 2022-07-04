@@ -19,7 +19,7 @@ def main():
     root = get_test_image_directory()
     test_image = root / "mint.jpg"
     plantApiWrapper = PlantApiWrapper(test_image)
-    response: Response = plantApiWrapper.get_response()
+    response: Response = plantApiWrapper.do_request()
     json_result: dict = plantApiWrapper.json_response(response)
     result_list = json_result['results']
     for item in result_list:

@@ -5,7 +5,9 @@ import pytest
 from requests import Response
 
 from .plant_api import PlantApiWrapper
+
 Log = logging.getLogger(__name__)
+
 
 def get_test_image_directory():
     """ Returns an Operating System agnostic path directory of the test_img. """
@@ -27,15 +29,15 @@ def test_api_class_request_does_not_fail():
     root = get_test_image_directory()
     test_image = root / "mint.jpg"
     plant_api = PlantApiWrapper(test_image)
-    res = plant_api.get_response()
+    res = plant_api.do_request()
     assert res.status_code == 200
 
 
-def test_species():
+def test_species_contains_mint_somewhere():
     root = get_test_image_directory()
     test_image = root / "mint.jpg"
     plantApiWrapper = PlantApiWrapper(test_image)
-    response: Response = plantApiWrapper.get_response()
+    response: Response = plantApiWrapper.do_request()
     json_result: dict = plantApiWrapper.json_response(response)
     count = 0
     for k, i in json_result.items():
@@ -43,14 +45,28 @@ def test_species():
             count = count + 1
     assert count > 0
 
+
 def test_max_score_is_correct():
     root = get_test_image_directory()
     test_image = root / "mint.jpg"
     plantApiWrapper = PlantApiWrapper(test_image)
-    response: Response = plantApiWrapper.get_response()
+    response: Response = plantApiWrapper.do_request()
     json_result: dict = plantApiWrapper.json_response(response)
     maximum_score = plantApiWrapper.get_max_score(json_result)
     expected: float = 0.12117
     assert expected == maximum_score
 
+
+def test_get_best_result():
+    root = get_test_image_directory()
+    test_image = root / "mint.jpg"
+    plantApiWrapper = PlantApiWrapper(test_image)
+    response: Response = plantApiWrapper.do_request()
+    json_result: dict = plantApiWrapper.json_response(response)
+    best_result = plantApiWrapper.get_result_with_max_score(json_result)
+    species = best_result["species"]
+
+    commonName: list = species["commonNames"]
+    assert species["scientificNameWithoutAuthor"] == "Mentha x verticillata"
+    assert "Whorled Mint" in commonName
 

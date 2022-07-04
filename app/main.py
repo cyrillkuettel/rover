@@ -220,15 +220,15 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                 websocket_map[client_id] = websocket
             if client_id == 888:
                 number_of_plants = await get_num_plants_in_db(db)
+
                 logging.info(f"number_of_plants in db: {number_of_plants}")
                 plant_image_absolute_path: Path = STATIC_IMG / f"original_plant{number_of_plants}.jpg"
                 image_tools = ImageTools(plant_image_absolute_path)
-
                 image_data: bytes = await websocket.receive_bytes()
                 logging.info(f"Received bytes. Length = {len(image_data)}")
                 rotation_success = await image_tools.rotate_and_save_image(image_data)
                 if not rotation_success:
-                    logging.info("rotation failed")
+                    logging.error("rotation failed")
                     continue
                 try:
                     img_byte_arr = await image_tools.convert_if_necessary()
@@ -247,18 +247,16 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                     if cropper.get_num_plant_detection_results() > 0:
                         logging.info("found > 1 detection result. Cropping image!")
                         cropper.save_image()  # crop the image
-                        image_tools = ImageTools(plant_image_cropped_path)
-                        actual_bytes = await image_tools.image_as_bytes()
-                        # await manager.broadcastBytes(actual_bytes)
                         await save_plant_to_db(db, plant_image_cropped_path)
                     else:  # no detection results, so don't crop it, just save the image
                         logging.info("no detection results")
                         # await manager.broadcastBytes(img_byte_arr)
                         await image_tools.save_image_db_and_file_system(img_byte_arr, db, plant_image_cropped_path)
-
                 except Exception as ex:
                     logging.error(f"Something Failed with PlantCropper: {plant_image_absolute_path}")
                     logging.info(ex)
+                # now, identify the plant species.
+
             else:
                 await handle_text_commands(client_id, db, websocket)
     except WebSocketDisconnect:
