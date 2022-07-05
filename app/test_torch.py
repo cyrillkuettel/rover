@@ -68,13 +68,31 @@ class MyTestCase(TestCaseBase):
     async def test_crop_image_and_save(self):
         """ Tests if we can find the bounding box of test_img, get the result np.ndarray and save that to disk"""
         root = get_test_image_directory()
-        test_output = root / "cropped_potted_plant.jpg"
         test_input = root / "potted_plant.jpg"
+        test_output = root / "cropped_potted_plant.jpg"
 
         cropper = PlantBoxCropper(test_input, test_output)
         await cropper.inference_and_save_image()
         # cropped_test_image = root / output
         self.assertIsFile(test_input)
+
+    async def test_two_potted_plant(self):
+        """ Tests if we can find the bounding box of test_img, get the result np.ndarray and save that to disk"""
+        root = get_test_image_directory()
+        test_input = root / "two_potted_plant.jpg"
+        test_output = root / "cropped_two_potted_plant.jpg"
+        cropper = PlantBoxCropper(test_input, test_output)
+        # contain at least two potted_plant, one is bigger than the other
+        df: DataFrame = await cropper.get_pandas_box_predictions()
+        objects_of_interest = {'potted plant'}
+        number_of_potted_plants = len(df.loc[df['name'].isin(objects_of_interest)])
+        self.assertEqual(2, number_of_potted_plants)
+        Log = logging.getLogger("Test.torch")
+        Log.info(df.loc[[0]])
+        # the image has a bigger potted plant to the left in the picture. test this
+        bounding_boxes_dict = await cropper.compute_bounding_box_areas(df)
+        self.assertEqual(2, len(bounding_boxes_dict))
+        Log.info(bounding_boxes_dict)
 
 
 if __name__ == '__main__':

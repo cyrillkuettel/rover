@@ -1,6 +1,7 @@
 import torch
 from pandas import DataFrame
 from PIL.Image import Image
+from typing import Dict
 import logging
 from pathlib import Path
 import numpy as np
@@ -46,6 +47,8 @@ class PlantBoxCropper:
         img_array = crops[0].get('im')  # crops is a list of dicts
         return img_array
 
+
+
     async def inference_and_save_image(self):
         """ Note: the results.crop() method already implicitly saves the image to app/runs/detect/exp{%d} The reason
         we save the image manually, is because this way, we have an in-memory reference to the image data. We don't
@@ -63,3 +66,24 @@ class PlantBoxCropper:
         objects_of_interest = {'potted plant', 'vase'}
         filtered_df = df.loc[df['name'].isin(objects_of_interest)]
         return filtered_df
+
+    async def compute_bounding_box_areas(self, df: DataFrame):
+        my_dict = {}
+        for index, row in df.iterrows():
+            xmin = row['xmin']
+            xmax = row['xmax']
+            ymax = row['ymax']
+            ymin = row['ymin']
+            width = xmax - xmin
+            height = ymax - ymin
+            if not width < 0 or height < 0:
+                area: float = width*height
+                my_dict[index] = area
+            else:
+                logging.error("AREA IS NEGATIVE")
+        return my_dict
+
+    # async def get_right_one(self, bounding_box_areas: list[int], df: DataFrame):
+        # the right one is the one where the xmax has the hightest value
+
+
