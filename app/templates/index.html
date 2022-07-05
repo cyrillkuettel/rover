@@ -107,18 +107,20 @@
                                         });
                                 }
 
-                                    const identificationUrl = `/api/plantnames/${0}`
-                                        fetch(identificationUrl)
-                                        .then(res => res.json())
-                                        .then(plantnames => {
+                                const identificationUrl = `/api/plantnames/${0}`
+                                    fetch(identificationUrl)
+                                    .then(res => res.json())
+                                    .then(plantnames => {
 
-                                            let common = plantnames["common_name"]
-                                            let scientific = plantnames["scientific_name"]
+                                        let common = plantnames["common_name"]
+                                        let scientific = plantnames["scientific_name"]
 
-                                            document.getElementById(`common_name_ID${0}`).innerHTML = `Gemeiner Name: ${common}`;
-                                            document.getElementById(`scientific_name_ID${0}`).innerHTML = `Wissenschaftlicher Name: ${scientific}`;
+                                        document.getElementById(`common_name_ID${0}`).innerHTML =
+                                            `Gemeiner Name: ${common}`;
+                                        document.getElementById(`scientific_name_ID${0}`).innerHTML =
+                                            `Wissenschaftlicher Name: ${scientific}`;
 
-                                        })
+                                    })
                             }
                         }, 5000);
                     }

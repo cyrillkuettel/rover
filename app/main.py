@@ -139,7 +139,9 @@ async def common_name(plant_id: int, db: Session = Depends(get_db)):
     plant_object: List[models.Plant] = db.query(models.Plant).filter_by(absolute_path=absolute_path_str).all()
     if not plant_object:
         logging.error("empty list returned")
-        raise HTTPException(status_code=404, detail="Plant by id not found")
+        #raise HTTPException(status_code=404, detail="Plant by id not found")
+        return {"common_name": "",
+                "scientific_name": ""}
     _common_name = plant_object[0].common_name
     _scientific_name = plant_object[0].scientific_name
     return {"common_name": _common_name,
@@ -227,8 +229,9 @@ async def stop():
         pilot: WebSocket = websocket_map.get(_id)
         try:
             await manager.send_personal_message("stop", pilot)
-        except Exception:
-            logging.info("failed to stop")
+        except Exception as ex:
+            logging.error(ex)
+            logging.info("FAILED TO STOP")
 
 
 async def clear_database(db: Session):
