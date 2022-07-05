@@ -96,12 +96,15 @@ def getStopTime(db: Session):
     """ Returns the Time difference in seconds """
     startTimeColumn: List[Time] = db.query(Time).filter_by(description=TimeType.startTime).all()
     stopTimeColumn: List[Time] = db.query(Time).filter_by(description=TimeType.stopTime).all()
-    startTime = startTimeColumn[0].time
-    stopTime = stopTimeColumn[0].time
-    startTimeDateTime = datetime.fromtimestamp(int(startTime) / 1000.0)
-    stopTimeDateTime = datetime.fromtimestamp(int(stopTime) / 1000.0)
-    diffDateTime = stopTimeDateTime - startTimeDateTime
-    return strfdelta(diffDateTime, '%M:%S')
+
+    if len(stopTimeColumn) > 0 and len(startTimeColumn) > 0:
+        startTime = startTimeColumn[0].time
+        stopTime = stopTimeColumn[0].time
+        startTimeDateTime = datetime.fromtimestamp(int(startTime) / 1000.0)
+        stopTimeDateTime = datetime.fromtimestamp(int(stopTime) / 1000.0)
+        diffDateTime = stopTimeDateTime - startTimeDateTime
+        return strfdelta(diffDateTime, '%M:%S')
+
 
 
 def strfdelta(delta: timedelta, fmt):
@@ -230,7 +233,7 @@ async def stop():
         try:
             await manager.send_personal_message("stop", pilot)
         except Exception as ex:
-            logging.error(ex)
+            logging.info(ex)
             logging.info("FAILED TO STOP")
 
 
