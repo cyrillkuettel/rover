@@ -34,7 +34,6 @@ ul>li { /*Log Container */
 
 .detected-image {
     width: 100%;
-    max-width: 350px;
     margin: 10px;
     height: auto;
 }
@@ -47,7 +46,7 @@ ul>li { /*Log Container */
 .flex_container_pots>div {
     background-color: #f1f1f1;
     margin: 3px;
-    padding: 0px;
+    padding: 0;
 }
 
 .flex_container_arrow {
@@ -82,9 +81,7 @@ img {
     font-size: small;
 
 }
-.first_detected_image {
-    visibility: hidden;
-}
+
 .plant_card {
     margin-bottom: 60px;
 }
