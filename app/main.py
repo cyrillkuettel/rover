@@ -155,8 +155,6 @@ async def main(request: Request, db: Session = Depends(get_db)):
     logs: List[Query] = await get_logs_from_db(db)
     maxLen = 11
 
-    ## common_name_ID0, scientific_name_ID0 = await get_first_plant_identification_result(db)
-
     number_of_plants: int = await get_num_plants_in_db(db)
 
     common_names, scientific_names = await get_all_plant_identification_results(db)
@@ -168,45 +166,45 @@ async def main(request: Request, db: Session = Depends(get_db)):
     current_time = "0:00"
     if timeAlreadyStopped(db):  # display the stopped time if it exists
         current_time = getStopTime(db)
-
     return templates.TemplateResponse(
         "index.html", {"request": request,
                        "Log": logs,
                        "numer_of_images": number_of_plants,
                        "time": current_time,
 
-                       "common_name_ID0": common_names[0],
-                       "scientific_name_ID0": scientific_names[0],
+                       # Das ist definitiv nicht der Gipfelpunkt der Eleganz, aber allemal funktioniert es:
+                       "common_name0": common_names[0],
+                       "scientific_name0": scientific_names[0],
 
-                       "common_name_ID1": common_names[0],
-                       "scientific_name_ID1": scientific_names,
+                       "common_name1": common_names[1],
+                       "scientific_name1": scientific_names[1],
 
-                       "common_name_ID2": common_names[0],
-                       "scientific_name_ID2": scientific_names,
+                       "common_name2": common_names[2],
+                       "scientific_name2": scientific_names[2],
 
-                       "common_name_ID3": common_names[0],
-                       "scientific_name_ID3": scientific_names,
+                       "common_name3": common_names[3],
+                       "scientific_name3": scientific_names[3],
 
-                       "common_name_ID4": common_names[0],
-                       "scientific_name_ID4": scientific_names,
+                       "common_name4": common_names[4],
+                       "scientific_name4": scientific_names[4],
 
-                       "common_name_ID5": common_names[0],
-                       "scientific_name_ID5": scientific_names,
+                       "common_name5": common_names[5],
+                       "scientific_name5": scientific_names[5],
 
-                       "common_name_ID6": common_names[0],
-                       "scientific_name_ID6": scientific_names,
+                       "common_name6": common_names[6],
+                       "scientific_name6": scientific_names[6],
 
-                       "common_name_ID7": common_names[0],
-                       "scientific_name_ID7": scientific_names,
+                       "common_name7": common_names[7],
+                       "scientific_name7": scientific_names[7],
 
-                       "common_name_ID8": common_names[0],
-                       "scientific_name_ID8": scientific_names,
+                       "common_name8": common_names[8],
+                       "scientific_name8": scientific_names[8],
 
-                       "common_name_ID9": common_names[0],
-                       "scientific_name_ID9": scientific_names,
+                       "common_name9": common_names[9],
+                       "scientific_name9": scientific_names[9],
 
-                       "common_name_ID10": common_names[0],
-                       "scientific_name_ID10": scientific_names,
+                       "common_name10": common_names[10],
+                       "scientific_name10": scientific_names[10],
 
                        "images_for_future": 12 - number_of_plants})  # expecting never more than 11 plant
 
@@ -257,7 +255,6 @@ async def serve_File():
     logging.info("Serving a file response")
     return FileResponse(path=APP, filename=paths.get_pilot_apk_name())
 
-
 """
 
 
@@ -266,7 +263,7 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     num = await get_num_plants_in_db(db)
     return {"num": num}
 
-
+"""
 @app.get("/clear", response_class=HTMLResponse)
 async def delete_cache(request: Request, db: Session = Depends(get_db)):
     await clear_database(db)
@@ -274,6 +271,8 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     logging.info(f"calling script {IMG_REMOVE}")
     subprocess.call(IMG_REMOVE)
     return "<h2>Cleared Cache. </h2> <p>All Logging and images deleted from server</p>"
+"""
+
 
 
 @app.get("/steam/injector/restart/")
