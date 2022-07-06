@@ -60,7 +60,7 @@
                     async function updateTime() {
                         let response = await fetch('/api/time');
 
-                         console.log(" await fetch('/api/time')" + response.status);
+                         console.log("await fetch('/api/time')" + response.status);
 
                         if (response.status === 200) {
                             let data = await response.text();
@@ -68,9 +68,11 @@
                                 let timeAsJson = JSON.parse(data)
                                 let time = timeAsJson.time
                                 if (time.includes("startTime=")) {
+                                    console.log("startTime")
                                     extractTime(time);
                                 }
                                 if (time.includes("stopTime")) {
+                                     console.log("stopTime")
                                     stopTimer()
                                 }
                             }
@@ -152,6 +154,7 @@
 
 
                     function extractTime(data) {
+                        logging.info("extractTime")
                         let startTime = data;
                         startTime = startTime.replace('startTime=', '');
                         console.log(startTime)

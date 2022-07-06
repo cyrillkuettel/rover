@@ -132,6 +132,7 @@ async def time(db: Session = Depends(get_db)):
     return displayTime
 
 
+
 @app.get("/api/plantnames/{plant_id}")
 async def common_name(plant_id: int, db: Session = Depends(get_db)):
     _id = str(plant_id)
@@ -238,8 +239,8 @@ async def clear_database(db: Session):
 
 def timeAlreadySet(db: Session):
     timeColumn: int = len(db.query(models.Time).all())
-    logging.info(f"Time already set.There is {timeColumn} Columnds in the Time. Printing Time")
-    logging.info(models.Time)
+    logging.info(f"There are {timeColumn} columns in the Time. Printing Time")
+    logging.info(str(models.Time.time))
     if timeColumn > 0:
         return True
     else:
@@ -393,7 +394,6 @@ class ImageTools:
 
 async def handle_text_commands(client_id, db, websocket):
     textData = await websocket.receive_text()
-    logging.info("received Text:" + textData)
     if isMessageFromApp(client_id):
         if "command=" in textData:
             command = textData[:]
@@ -401,12 +401,13 @@ async def handle_text_commands(client_id, db, websocket):
             logging.info(command)
             if "startTime" in command:  # startTime=2020-12-01T...
                 if not timeAlreadySet(db):
-                    # await manager.broadcastText("Initialisiere Modell der Objekterkennung: YOLOv5l6 mit 76.8 Millionen Parameter")
+                    await manager.broadcastText("Initialisiere Modell der Objekterkennung: YOLOv5l6 mit 76.8 Millionen Parameter")
+                    await manager.send_personal_message(f"You wrote: {command}",
+                                                        websocket)
 
                     await manager.broadcastText(command)  # Subtract time on client-side
                     await write_time_to_db(command, db)
-                    #  this was maybe the issue with sending time
-                    # await initialize_yolo()
+                    await initialize_yolo()
 
                 else:
                     logging.error("Time has already been set, skipping.")
