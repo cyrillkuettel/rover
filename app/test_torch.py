@@ -4,7 +4,6 @@ import logging
 import numpy as np
 from pathlib import Path
 from app import models
-from app.main import fill_up_free_space
 from app.plant_box_cropper import PlantBoxCropper
 from pandas import DataFrame
 from unittest import IsolatedAsyncioTestCase
@@ -99,29 +98,6 @@ class MyTestCase(TestCaseBase):
 
         """ testing the string operations when getting species """
 
-    async def test_string_operations(self):
-        maxLen = 11
-        plant1 = models.Plant(common_name="Pfefferminze", scientific_name="Mentha × piperita")
-        common_names = [plant1.common_name]
-        scientific_names = [plant1.scientific_name]
-        modified_common_names, modified_scientific_names = await fill_up_free_space(common_names, maxLen,
-                                                                                    scientific_names)
-        self.assertEqual(11, len(modified_common_names))
-        self.assertEqual(11, len(modified_scientific_names))
-        self.assertEqual("", modified_scientific_names[10])
-        self.assertEqual("", modified_common_names[10])
-        self.assertEqual("", modified_common_names[1])
-
-    async def test_query_plants(self):
-        plant1 = models.Plant(absolute_path="foo1", common_name="Pfefferminze", scientific_name="Mentha × piperita")
-        plant2 = models.Plant(absolute_path="foo2")
-        plant3 = models.Plant(absolute_path="foo3", common_name="Pfefferminze2", scientific_name="Mentha × piperita2")
-        plants = [plant1, plant2, plant3]
-
-        common_names: list[str] = [plant.common_name if plant.common_name else "" for plant in plants]
-        scientific_names: list[str] = [plant.scientific_name if plant.common_name else "" for plant in plants]
-        self.assertEqual(["Pfefferminze", "", "Pfefferminze2"], common_names)
-        self.assertEqual(["Mentha × piperita", "", "Mentha × piperita2"], scientific_names)
 
 
 

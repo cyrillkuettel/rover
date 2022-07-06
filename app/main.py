@@ -181,30 +181,6 @@ async def get_first_plant_identification_result(db):
     return common_nameID0, scientific_name_ID0
 
 
-async def get_all_plant_identification_results(db) -> tuple[list[str], list[str]]:
-    """ returns all detected species in the database per plant. Fills up to max length (11),
-    just fills up with empty strings"""
-    plants: List[models.Plant] = db.query(models.Plant).all()
-    maxLen = 11
-    if not plants:
-        _common_name = [''] * maxLen
-        _common_name = [''] * maxLen
-        return _common_name, _common_name
-    common_names: list[str] = [plant.common_name if plant.common_name else "" for plant in plants]
-    scientific_names: list[str] = [plant.scientific_name if plant.common_name else "" for plant in plants]
-    return await fill_up_free_space(common_names, maxLen, scientific_names)
-
-
-async def fill_up_free_space(common_names: list[str], maxLen: int, scientific_names: list[str]) -> tuple[
-    list[str], list[str]]:
-    if len(common_names) < maxLen:
-        fill_up_space: list[str] = [''] * (maxLen - len(common_names))
-        common_names = common_names + fill_up_space  # fill up the remaining slots with empty
-        # strings
-    if len(scientific_names) < maxLen:
-        scientific_names = scientific_names + [''] * (maxLen - len(scientific_names))
-    return common_names, scientific_names
-
 
 async def get_logs_from_db(db):
     return db.query(models.Log).all()
@@ -214,30 +190,12 @@ async def get_plants_from_db(db):
     return db.query(models.Plant).all()
 
 
-"""
-@app.get("/apk", )
-async def serve_File():
-    logging.info("Serving a file response")
-    return FileResponse(path=APP, filename=paths.get_pilot_apk_name())
-
-"""
-
 
 @app.get("/number_of_images")
 async def delete_cache(request: Request, db: Session = Depends(get_db)):
     num = await get_num_plants_in_db(db)
     return {"num": num}
 
-
-"""
-@app.get("/clear", response_class=HTMLResponse)
-async def delete_cache(request: Request, db: Session = Depends(get_db)):
-    await clear_database(db)
-    logging.info("clearing the images")
-    logging.info(f"calling script {IMG_REMOVE}")
-    subprocess.call(IMG_REMOVE)
-    return "<h2>Cleared Cache. </h2> <p>All Logging and images deleted from server</p>"
-"""
 
 
 @app.get("/steam/injector/restart/")
