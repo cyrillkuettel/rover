@@ -37,8 +37,6 @@ async def websocket(websocket: WebSocket):
     await websocket.close()
 
 
-
-
 def test_websocket():
     testclient = TestClient(app)
     number_of_plants = 0
@@ -50,8 +48,4 @@ def test_websocket():
         else:
             bool = True
         assert bool == True
-
-        # image_tools = ImageTools(plant_image_absolute_path)
-        # rotation_success = await image_tools.rotate_and_save_image(image_data)
-        # assert rotation_success == True
 

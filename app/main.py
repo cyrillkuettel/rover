@@ -1,5 +1,5 @@
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Depends, HTTPException
-from typing import List
+from typing import List, Union, Tuple, Any
 from pathlib import Path
 import logging
 from string import Template
@@ -106,7 +106,6 @@ def getStopTime(db: Session):
         return strfdelta(diffDateTime, '%M:%S')
 
 
-
 def strfdelta(delta: timedelta, fmt):
     d = {"D": delta.days}
     hours, rem = divmod(delta.seconds, 3600)
@@ -142,7 +141,7 @@ async def common_name(plant_id: int, db: Session = Depends(get_db)):
     plant_object: List[models.Plant] = db.query(models.Plant).filter_by(absolute_path=absolute_path_str).all()
     if not plant_object:
         logging.error("empty list returned")
-        #raise HTTPException(status_code=404, detail="Plant by id not found")
+        # raise HTTPException(status_code=404, detail="Plant by id not found")
         return {"common_name": "",
                 "scientific_name": ""}
     _common_name = plant_object[0].common_name
@@ -154,12 +153,18 @@ async def common_name(plant_id: int, db: Session = Depends(get_db)):
 @app.get("/")
 async def main(request: Request, db: Session = Depends(get_db)):
     logs: List[Query] = await get_logs_from_db(db)
+    maxLen = 11
 
-    common_name_ID0, scientific_name_ID0 = await get_plant_identification_first_plant(db)
+    ## common_name_ID0, scientific_name_ID0 = await get_first_plant_identification_result(db)
 
     number_of_plants: int = await get_num_plants_in_db(db)
 
-    logging.info(f"number_of_plants = %s", number_of_plants)
+    common_names, scientific_names = await get_all_plant_identification_results(db)
+    if not len(common_names) == maxLen:
+        logging.error("len(common_names) is maxLen as expected")
+    if not len(scientific_names) == maxLen:
+        logging.error("len(scientific_names) is maxLen as expected")
+
     current_time = "0:00"
     if timeAlreadyStopped(db):  # display the stopped time if it exists
         current_time = getStopTime(db)
@@ -169,12 +174,44 @@ async def main(request: Request, db: Session = Depends(get_db)):
                        "Log": logs,
                        "numer_of_images": number_of_plants,
                        "time": current_time,
-                       "common_name_ID0": common_name_ID0,
-                       "scientific_name_ID0": scientific_name_ID0,
+
+                       "common_name_ID0": common_names[0],
+                       "scientific_name_ID0": scientific_names[0],
+
+                       "common_name_ID1": common_names[0],
+                       "scientific_name_ID1": scientific_names,
+
+                       "common_name_ID2": common_names[0],
+                       "scientific_name_ID2": scientific_names,
+
+                       "common_name_ID3": common_names[0],
+                       "scientific_name_ID3": scientific_names,
+
+                       "common_name_ID4": common_names[0],
+                       "scientific_name_ID4": scientific_names,
+
+                       "common_name_ID5": common_names[0],
+                       "scientific_name_ID5": scientific_names,
+
+                       "common_name_ID6": common_names[0],
+                       "scientific_name_ID6": scientific_names,
+
+                       "common_name_ID7": common_names[0],
+                       "scientific_name_ID7": scientific_names,
+
+                       "common_name_ID8": common_names[0],
+                       "scientific_name_ID8": scientific_names,
+
+                       "common_name_ID9": common_names[0],
+                       "scientific_name_ID9": scientific_names,
+
+                       "common_name_ID10": common_names[0],
+                       "scientific_name_ID10": scientific_names,
+
                        "images_for_future": 12 - number_of_plants})  # expecting never more than 11 plant
 
 
-async def get_plant_identification_first_plant(db):
+async def get_first_plant_identification_result(db):
     absol_path: Path = STATIC_IMG / f"plant0.jpg"
     absolute_path_str = str(absol_path.resolve())
     plant_object: List[models.Plant] = db.query(models.Plant).filter_by(absolute_path=absolute_path_str).all()
@@ -184,6 +221,30 @@ async def get_plant_identification_first_plant(db):
         common_nameID0 = f"Gemeiner Name: {plant_object[0].common_name}"
         scientific_name_ID0 = f"Wissenschaftlicher Name: {plant_object[0].scientific_name}"
     return common_nameID0, scientific_name_ID0
+
+
+async def get_all_plant_identification_results(db) -> tuple[list[str], list[str]]:
+    """ returns all detected species in the database per plant. Fills up to max length (11),
+    just fills up with empty strings"""
+    plants: List[models.Plant] = db.query(models.Plant).all()
+    maxLen = 11
+    if not plants:
+        _common_name = [''] * maxLen
+        _common_name = [''] * maxLen
+        return _common_name, _common_name
+    common_names: list[str] = [plant.common_name if plant.common_name else "" for plant in plants]
+    scientific_names: list[str] = [plant.scientific_name if plant.common_name else "" for plant in plants]
+    return await fill_up_free_space(common_names, maxLen, scientific_names)
+
+
+async def fill_up_free_space(common_names: list[str], maxLen: int, scientific_names: list[str]) -> tuple[list[str], list[str]]:
+    if len(common_names) < maxLen:
+        fill_up_space: list[str] = [''] * (maxLen - len(common_names))
+        common_names = common_names + fill_up_space  # fill up the remaining slots with empty
+        # strings
+    if len(scientific_names) < maxLen:
+        scientific_names = scientific_names + [''] * (maxLen - len(scientific_names))
+    return common_names, scientific_names
 
 
 async def get_logs_from_db(db):
