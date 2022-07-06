@@ -237,7 +237,7 @@ async def clear_database(db: Session):
     logging.info("cleared database")
 
 
-async def timeAlreadySet(db: Session = Depends(get_db)):
+async def timeAlreadySet(db):
     timeColumn: int = len(db.query(models.Time).all())
     logging.info(f"There are {timeColumn} columns in the Time. Printing Time")
     logging.info(str(models.Time.time))
@@ -402,7 +402,7 @@ async def handle_text_commands(client_id, db, websocket):
             command = command.split("command=", 1)[1]
             logging.info(command)
             if "startTime" in command:  # startTime=2020-12-01T...
-                time_set = await timeAlreadySet()
+                time_set = await timeAlreadySet(db)
                 if not time_set:
                     await manager.broadcastText("Initialisiere Modell der Objekterkennung: YOLOv5l6 mit 76.8 Millionen Parameter")
                     #await manager.send_personal_message(f"You wrote: {command}",
