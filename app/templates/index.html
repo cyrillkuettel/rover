@@ -105,22 +105,24 @@
                                         .then(imageBlob => {
                                             document.getElementById(`detected-image${i}`).src = URL.createObjectURL(imageBlob)
                                         });
+
+                                    const identificationUrl = `/api/plantnames/${i}`
+                                    fetch(identificationUrl)
+                                        .then(res => res.json())
+                                        .then(plantnames => {
+
+                                            let common = plantnames["common_name"]
+                                            let scientific = plantnames["scientific_name"]
+
+                                            document.getElementById(`common_name_ID${i}`).innerHTML =
+                                                `Gemeiner Name: ${common}`;
+                                            document.getElementById(`scientific_name_ID${i}`).innerHTML =
+                                                `Wissenschaftlicher Name: ${scientific}`;
+
+                                        })
                                 }
 
-                                const identificationUrl = `/api/plantnames/${0}`
-                                    fetch(identificationUrl)
-                                    .then(res => res.json())
-                                    .then(plantnames => {
 
-                                        let common = plantnames["common_name"]
-                                        let scientific = plantnames["scientific_name"]
-
-                                        document.getElementById(`common_name_ID${0}`).innerHTML =
-                                            `Gemeiner Name: ${common}`;
-                                        document.getElementById(`scientific_name_ID${0}`).innerHTML =
-                                            `Wissenschaftlicher Name: ${scientific}`;
-
-                                    })
                             }
                         }, 5000);
                     }
@@ -240,25 +242,24 @@
             <label for="tabimages" id="tabImagesLabel">Bilder</label>
             <div class="tab">
 
-                <div class="flex_container_main_Pot">
+                <div>
                     <h2> Erkannte Pflanze </h2>
-                    {% for i in range(numer_of_images) %}
-                    {% set count = i %}
-                    {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
-                    {% set ID = "detected-image" ~ count %}
+                      <!-- Loops over the plants are stored in db -->
+                    {% for plant in plants if plant.absolute_path%}
+                        {% set count = loop.index0 %}
+                        {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
+                        {% set ID = "detected-image" ~ count %}
 
-                    {% set common_name_ID = "common_name_ID" ~ count %}
-                    {% set scientific_name_ID = "scientific_name_ID" ~ count %}
-                    {% set common_name = "common_name" ~ count %}
-                    {% set scientific_name = "scientific_name" ~ count %}
+                        {% set common_name_ID = "common_name_ID" ~ count %}
+                        {% set scientific_name_ID = "scientific_name_ID" ~ count %}
 
-                    <div>
-                        <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
-                             id="{{ ID }}">
-                        <h3 id="{{ common_name_ID }}">{{ common_name  }}</h3>
-                        <h3 id="{{ scientific_name_ID }}">{{  scientific_name }}</h3>
+                        <div>
+                            <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
+                                 id="{{ ID }}">
+                            <h3 id="{{ common_name_ID }}">{{ plant.common_name}}</h3>
+                            <h3 id="{{ scientific_name_ID }}">{{ plant.scientific_name }}</h3>
 
-                    </div>
+                        </div>
                     {% endfor %}
                     <h2> Weitere erkannte Pflanzen </h2>
 

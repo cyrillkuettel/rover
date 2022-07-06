@@ -141,7 +141,6 @@ async def common_name(plant_id: int, db: Session = Depends(get_db)):
     plant_object: List[models.Plant] = db.query(models.Plant).filter_by(absolute_path=absolute_path_str).all()
     if not plant_object:
         logging.error("empty list returned")
-        # raise HTTPException(status_code=404, detail="Plant by id not found")
         return {"common_name": "",
                 "scientific_name": ""}
     _common_name = plant_object[0].common_name
@@ -152,16 +151,11 @@ async def common_name(plant_id: int, db: Session = Depends(get_db)):
 
 @app.get("/")
 async def main(request: Request, db: Session = Depends(get_db)):
+    plants: List[Query] = await get_plants_from_db(db)
+
     logs: List[Query] = await get_logs_from_db(db)
-    maxLen = 11
 
-    number_of_plants: int = await get_num_plants_in_db(db)
-
-    common_names, scientific_names = await get_all_plant_identification_results(db)
-    if not len(common_names) == maxLen:
-        logging.error("len(common_names) is maxLen as expected")
-    if not len(scientific_names) == maxLen:
-        logging.error("len(scientific_names) is maxLen as expected")
+    number_of_plants: int = len(plants)
 
     current_time = "0:00"
     if timeAlreadyStopped(db):  # display the stopped time if it exists
@@ -171,41 +165,7 @@ async def main(request: Request, db: Session = Depends(get_db)):
                        "Log": logs,
                        "numer_of_images": number_of_plants,
                        "time": current_time,
-
-                       # Das ist definitiv nicht der Gipfelpunkt der Eleganz, aber allemal funktioniert es:
-                       "common_name0": common_names[0],
-                       "scientific_name0": scientific_names[0],
-
-                       "common_name1": common_names[1],
-                       "scientific_name1": scientific_names[1],
-
-                       "common_name2": common_names[2],
-                       "scientific_name2": scientific_names[2],
-
-                       "common_name3": common_names[3],
-                       "scientific_name3": scientific_names[3],
-
-                       "common_name4": common_names[4],
-                       "scientific_name4": scientific_names[4],
-
-                       "common_name5": common_names[5],
-                       "scientific_name5": scientific_names[5],
-
-                       "common_name6": common_names[6],
-                       "scientific_name6": scientific_names[6],
-
-                       "common_name7": common_names[7],
-                       "scientific_name7": scientific_names[7],
-
-                       "common_name8": common_names[8],
-                       "scientific_name8": scientific_names[8],
-
-                       "common_name9": common_names[9],
-                       "scientific_name9": scientific_names[9],
-
-                       "common_name10": common_names[10],
-                       "scientific_name10": scientific_names[10],
-
+                       "plants": plants,
                        "images_for_future": 12 - number_of_plants})  # expecting never more than 11 plant
 
 
@@ -235,7 +195,8 @@ async def get_all_plant_identification_results(db) -> tuple[list[str], list[str]
     return await fill_up_free_space(common_names, maxLen, scientific_names)
 
 
-async def fill_up_free_space(common_names: list[str], maxLen: int, scientific_names: list[str]) -> tuple[list[str], list[str]]:
+async def fill_up_free_space(common_names: list[str], maxLen: int, scientific_names: list[str]) -> tuple[
+    list[str], list[str]]:
     if len(common_names) < maxLen:
         fill_up_space: list[str] = [''] * (maxLen - len(common_names))
         common_names = common_names + fill_up_space  # fill up the remaining slots with empty
@@ -247,6 +208,10 @@ async def fill_up_free_space(common_names: list[str], maxLen: int, scientific_na
 
 async def get_logs_from_db(db):
     return db.query(models.Log).all()
+
+
+async def get_plants_from_db(db):
+    return db.query(models.Plant).all()
 
 
 """
@@ -263,6 +228,7 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     num = await get_num_plants_in_db(db)
     return {"num": num}
 
+
 """
 @app.get("/clear", response_class=HTMLResponse)
 async def delete_cache(request: Request, db: Session = Depends(get_db)):
@@ -272,7 +238,6 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     subprocess.call(IMG_REMOVE)
     return "<h2>Cleared Cache. </h2> <p>All Logging and images deleted from server</p>"
 """
-
 
 
 @app.get("/steam/injector/restart/")
