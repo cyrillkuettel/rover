@@ -427,6 +427,7 @@ async def handle_text_commands(client_id, db, websocket):
             logging.info(command)
             if "startTime" in command:  # startTime=2020-12-01T...
                 if not timeAlreadySet(db):
+                    await manager.broadcastText("Initialisiere Modell der Objekterkennung: YOLOv5l6 mit 76.8 Millionen Parameter")
                     await manager.send_personal_message(f"You wrote: {command}",
                                                         websocket)
                     await manager.broadcastText(command)  # Subtract time on client-side
@@ -435,9 +436,6 @@ async def handle_text_commands(client_id, db, websocket):
 
                 else:
                     logging.error("Time has already been set, skipping.")
-            if "species" in command:
-                logging.info(command)
-                await manager.broadcastText(command)
             if "stopTime" in command:
                 await manager.send_personal_message(f"You wrote: {command}",
                                                     websocket)
