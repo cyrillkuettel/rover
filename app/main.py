@@ -198,6 +198,15 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     return {"num": num}
 
 
+@app.get("/clear", response_class=HTMLResponse)
+async def delete_cache(request: Request, db: Session = Depends(get_db)):
+    await clear_database(db)
+    logging.info("clearing the images")
+    logging.info(f"calling script {IMG_REMOVE}")
+    subprocess.call(IMG_REMOVE)
+    return "<h2>Cleared Cache. </h2> <p>All Logging and images deleted from server</p>"
+
+
 
 @app.get("/steam/injector/restart/")
 async def restart():
@@ -229,8 +238,12 @@ async def clear_database(db: Session):
 
 def timeAlreadySet(db: Session):
     timeColumn: int = len(db.query(models.Time).all())
-    logging.info("Time already set")
-    return timeColumn > 0
+    logging.info(f"Time already set.There is {timeColumn} Columnds in the Time. Printing Time")
+    logging.info(models.Time)
+    if timeColumn > 0:
+        return True
+    else:
+        return False
 
 
 def timeAlreadyStopped(db: Session):
