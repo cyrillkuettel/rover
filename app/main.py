@@ -344,15 +344,18 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
 
 
 async def identify_plant(image: Path):
-    logging.info("starting api request")
-    plantApiWrapper = PlantApiWrapper(image)
-    response: Response = plantApiWrapper.do_request()
-    json_result: dict = plantApiWrapper.json_response(response)
-    best_result = plantApiWrapper.get_result_with_max_score(json_result)
-    species = best_result["species"]
-    commonName: list = species["commonNames"]
-    scientificName = species["scientificNameWithoutAuthor"]
-    return commonName[0], scientificName  # just pick the first one
+    try:
+        logging.info("starting api request")
+        plantApiWrapper = PlantApiWrapper(image)
+        response: Response = plantApiWrapper.do_request()
+        json_result: dict = plantApiWrapper.json_response(response)
+        best_result = plantApiWrapper.get_result_with_max_score(json_result)
+        species = best_result["species"]
+        commonName: list = species["commonNames"]
+        scientificName = species["scientificNameWithoutAuthor"]
+        return commonName[0], scientificName  # just pick the first one
+    except Exception:
+        return "", ""
 
 
 class ImageTools:

@@ -85,3 +85,6 @@ img {
 .first_detected_image {
     visibility: hidden;
 }
+.plant_card {
+    margin-bottom: 60px;
+}

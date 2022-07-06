@@ -60,7 +60,6 @@
                     async function updateTime() {
                         let response = await fetch('/api/time');
 
-                        console.log(" await fetch('/api/time')" + response.status); // 200
 
                         if (response.status === 200) {
                             let data = await response.text();
@@ -99,7 +98,6 @@
                                 for (let i = plants_on_client; i < max_count; i++) {
 
                                     const imageUrl = `/static/img/plant${i}.jpg/`
-                                    console.log(`fetching ${imageUrl}`)
                                     fetch(imageUrl)
                                         .then(response => response.blob())
                                         .then(imageBlob => {
@@ -111,13 +109,23 @@
                                         .then(res => res.json())
                                         .then(plantnames => {
 
-                                            let common = plantnames["common_name"]
-                                            let scientific = plantnames["scientific_name"]
+                                            let common = plantnames["common_name"];
+                                            let scientific = plantnames["scientific_name"];
+                                            let display_common_name = `Gemeiner Name: ${common}`;
+                                            let display_scientific_name = `Wissenschaftlicher Name: ${scientific}`;
 
-                                            document.getElementById(`common_name_ID${i}`).innerHTML =
-                                                `Gemeiner Name: ${common}`;
-                                            document.getElementById(`scientific_name_ID${i}`).innerHTML =
-                                                `Wissenschaftlicher Name: ${scientific}`;
+                                            if (common.length === 0) {
+                                                display_common_name = ""
+                                            }
+                                          if (scientific.length === 0) {
+                                                display_common_name = ""
+                                            }
+
+
+                                            document.getElementById(`common_name_ID${i}`).innerHTML = display_common_name;
+
+                                            document.getElementById(`scientific_name_ID${i}`).innerHTML = display_scientific_name
+                                                ;
 
                                         })
                                 }
@@ -139,21 +147,16 @@
 
                     if (!Boolean(location.hostname === "pren.garteroboter.li")) {
                         ws = new WebSocket(uri_for_local_testing);
-                        console.log("using local hostname");
                     } else {
                         ws = new WebSocket(uri);
-                        console.log(`using ${location.hostname} for hostname`);
-                        console.log(location.hostname)
                     }
 
 
                     function extractTime(data) {
                         let startTime = data;
                         startTime = startTime.replace('startTime=', '');
-                        console.log(startTime)
                         let numberTime = parseInt(startTime, 10);
                         let timeStamp = dayjs(numberTime)
-                        console.log("timeStamp = " + timeStamp)
                         if (isInvalidTimestamp(timeStamp)) {
                             console.error("NAN detected. Invalid timestamp.")
                         } else {
@@ -166,20 +169,13 @@
                     }
 
                     ws.onmessage = function (event) {
-                        console.log("ws.onmessage");
                         let data = event.data
                         // Binary data: depending on binaryType is being set either to Arraybuffer or Blob
                         if (data instanceof Blob) {
-                            console.log("blob")
                             const url = URL.createObjectURL(data);
                             document.getElementById(`detected-image${getNextPlantID() + numberOfImagesCount}`).src = url;
                             numberOfImagesCount += 1;
-                            console.log("Next plant ID = " + getNextPlantID() + numberOfImagesCount);
                         } else if (typeof data === "string") {
-                            if (data.includes("species")) {
-                                console.log(data)
-                            }
-
                             if (data.includes("startTime=")) {
                                 extractTime(data);
                             } else if (data.includes("stopTime")) {
@@ -204,7 +200,6 @@
                                 clearInterval(timerInterval);
                             }
                             let minutes_and_seconds = millisToMinutesAndSeconds(diff);
-                            console.log(minutes_and_seconds)
                             document.getElementById("timer").innerHTML = minutes_and_seconds
                         }, 1000);
                     }
@@ -249,27 +244,40 @@
                         {% set count = loop.index0 %}
                         {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
                         {% set ID = "detected-image" ~ count %}
-
                         {% set common_name_ID = "common_name_ID" ~ count %}
                         {% set scientific_name_ID = "scientific_name_ID" ~ count %}
 
-                        <div>
+                        {% if "" == plant.common_name %}
+                            {% set common_n = plant.common_name   %}
+                            {% else %}
+                            {% set common_n = "Gemeiner Name: " ~ plant.common_name  %}
+                        {% endif %}
+
+                        {% if "" == plant.scientific_name %}
+                            {% set scientific_n = plant.scientific_name   %}
+                            {% else %}
+                            {% set scientific_n =  "Wissenschaftlicher Name: " ~ plant.scientific_name %}
+                        {% endif %}
+
+
+
+                        <div class="plant_card" >
                             <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
                                  id="{{ ID }}">
-                            <h3 id="{{ common_name_ID }}">{{ plant.common_name}}</h3>
-                            <h3 id="{{ scientific_name_ID }}">{{ plant.scientific_name }}</h3>
+                            <h3 id="{{ common_name_ID }}">{{ common_n }}</h3>
+                            <h3 id="{{ scientific_name_ID }}">{{ scientific_n }}</h3>
 
                         </div>
                     {% endfor %}
-                    <h2> Weitere erkannte Pflanzen </h2>
 
-                    <!-- All the plants starting here can be dynamically added by vanilla javascript -->
+
+                    <!-- All the plants starting here weill be dynamically added by vanilla javascript -->
                     {% for i in range(images_for_future) %}
                     {% set count = i + numer_of_images %}
                     {% set ID_future = "detected-image" ~ count %}
                     {% set common_name_ID_future = "common_name_ID" ~ count %}
                     {% set scientific_name_ID_future = "scientific_name_ID" ~ count %}
-                    <div>
+                    <div class="plant_card" >
                         <img src="" alt="" class="w3-image flex_container_main_Pot detected-image" id="{{ ID_future }}">
                         <h3 id="{{ common_name_ID_future }}"></h3>
                         <h3 id="{{ scientific_name_ID_future }}"></h3>
