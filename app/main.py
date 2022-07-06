@@ -228,6 +228,7 @@ async def clear_database(db: Session):
 
 def timeAlreadySet(db: Session):
     timeColumn: int = len(db.query(models.Time).all())
+    logging.info("Time already set")
     return timeColumn > 0
 
 
@@ -290,6 +291,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                                              scientific_name=scientific_name)
                     db.add(new_Plant)
                     db.commit()
+                    # update progressbar
 
                 except Exception as ex:
                     logging.error(f"Something Failed with PlantCropper: {plant_image_absolute_path}")
@@ -385,12 +387,12 @@ async def handle_text_commands(client_id, db, websocket):
             logging.info(command)
             if "startTime" in command:  # startTime=2020-12-01T...
                 if not timeAlreadySet(db):
-                    await manager.broadcastText("Initialisiere Modell der Objekterkennung: YOLOv5l6 mit 76.8 Millionen Parameter")
-                    await manager.send_personal_message(f"You wrote: {command}",
-                                                        websocket)
+                    # await manager.broadcastText("Initialisiere Modell der Objekterkennung: YOLOv5l6 mit 76.8 Millionen Parameter")
+
                     await manager.broadcastText(command)  # Subtract time on client-side
                     await write_time_to_db(command, db)
-                    await initialize_yolo()
+                    #  this was maybe the issue with sending time
+                    # await initialize_yolo()
 
                 else:
                     logging.error("Time has already been set, skipping.")

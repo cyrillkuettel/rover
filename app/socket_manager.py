@@ -26,7 +26,4 @@ class ConnectionManager:
     # The browser does not have to ask ever X seconds: "Is there a new image?"
     async def broadcastBytes(self, message: bytes):
         for connection in self.active_connections:
-            # TODO:
-            # maybe skip the Pilot client id in the list
-            # It's not necessary and worse: adds unnecessary complexity
             await connection.send_bytes(message)
