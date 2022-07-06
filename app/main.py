@@ -395,7 +395,7 @@ class ImageTools:
 async def handle_text_commands(client_id, db, websocket):
     textData = await websocket.receive_text()
     logging.info(textData)
-    is_app = await isMessageFromApp()
+    is_app = await isMessageFromApp(client_id)
     if is_app:
         if "command=" in textData:
             command = textData[:]
