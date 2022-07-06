@@ -123,9 +123,7 @@
                                                 display_scientific_name = ""
                                             }
 
-
                                             document.getElementById(`common_name_ID${i}`).innerHTML = display_common_name;
-
                                             document.getElementById(`scientific_name_ID${i}`).innerHTML = display_scientific_name;
 
                                         })
@@ -154,7 +152,6 @@
 
 
                     function extractTime(data) {
-                        logging.info("extractTime")
                         let startTime = data;
                         startTime = startTime.replace('startTime=', '');
                         console.log(startTime)

@@ -225,7 +225,7 @@ async def stop():
     if _id in websocket_map:
         pilot: WebSocket = websocket_map.get(_id)
         try:
-            await manager.send_personal_message("stop", pilot)
+            await manager.send_personal_message("jetzt_stop", pilot)
         except Exception as ex:
             logging.info(ex)
             logging.info("FAILED TO STOP")
@@ -237,7 +237,7 @@ async def clear_database(db: Session):
     logging.info("cleared database")
 
 
-def timeAlreadySet(db: Session):
+async def timeAlreadySet(db: Session = Depends(get_db)):
     timeColumn: int = len(db.query(models.Time).all())
     logging.info(f"There are {timeColumn} columns in the Time. Printing Time")
     logging.info(str(models.Time.time))
@@ -252,7 +252,7 @@ def timeAlreadyStopped(db: Session):
     return timeColumn >= 2  # if the time has stopped, we have exatly two Time objects in db
 
 
-def isMessageFromApp(client_id: int):
+async def isMessageFromApp(client_id: int):
     # indicates message from app (arbitrary defined range)
     return len(str(client_id)) <= 9
 
@@ -394,16 +394,19 @@ class ImageTools:
 
 async def handle_text_commands(client_id, db, websocket):
     textData = await websocket.receive_text()
-    if isMessageFromApp(client_id):
+    logging.info(textData)
+    is_app = await isMessageFromApp()
+    if is_app:
         if "command=" in textData:
             command = textData[:]
             command = command.split("command=", 1)[1]
             logging.info(command)
             if "startTime" in command:  # startTime=2020-12-01T...
-                if not timeAlreadySet(db):
+                time_set = await timeAlreadySet()
+                if not time_set:
                     await manager.broadcastText("Initialisiere Modell der Objekterkennung: YOLOv5l6 mit 76.8 Millionen Parameter")
-                    await manager.send_personal_message(f"You wrote: {command}",
-                                                        websocket)
+                    #await manager.send_personal_message(f"You wrote: {command}",
+                                                        #websocket)
 
                     await manager.broadcastText(command)  # Subtract time on client-side
                     await write_time_to_db(command, db)
