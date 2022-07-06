@@ -60,6 +60,7 @@
                     async function updateTime() {
                         let response = await fetch('/api/time');
 
+                         console.log(" await fetch('/api/time')" + response.status);
 
                         if (response.status === 200) {
                             let data = await response.text();
@@ -153,8 +154,10 @@
                     function extractTime(data) {
                         let startTime = data;
                         startTime = startTime.replace('startTime=', '');
+                        console.log(startTime)
                         let numberTime = parseInt(startTime, 10);
                         let timeStamp = dayjs(numberTime)
+                        console.log("timeStamp = " + timeStamp)
                         if (isInvalidTimestamp(timeStamp)) {
                             console.error("NAN detected. Invalid timestamp.")
                         } else {
@@ -167,6 +170,7 @@
                     }
 
                     ws.onmessage = function (event) {
+                      console.log("ws.onmessage");
                         let data = event.data
                         // Binary data: depending on binaryType is being set either to Arraybuffer or Blob
                         if (data instanceof Blob) {
@@ -198,6 +202,7 @@
                                 clearInterval(timerInterval);
                             }
                             let minutes_and_seconds = millisToMinutesAndSeconds(diff);
+                              console.log(minutes_and_seconds)
                             document.getElementById("timer").innerHTML = minutes_and_seconds
                         }, 1000);
                     }

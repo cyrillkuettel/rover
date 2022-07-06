@@ -160,6 +160,7 @@ async def main(request: Request, db: Session = Depends(get_db)):
     current_time = "0:00"
     if timeAlreadyStopped(db):  # display the stopped time if it exists
         current_time = getStopTime(db)
+
     return templates.TemplateResponse(
         "index.html", {"request": request,
                        "Log": logs,
@@ -438,7 +439,7 @@ async def initialize_yolo():
         cropper = PlantBoxCropper(test_input, test_output)
         im = await cropper.save_and_return_cropped_image()
     except Exception as ex:
-        pass
+        logging.error("Exception in initialize_yolo")
 
 
 async def get_num_plants_in_db(db):
