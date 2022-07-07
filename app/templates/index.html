@@ -31,7 +31,7 @@
     <div id="bar" class="progress-bar flex-item">
         <div class="progress__fill"></div>
         <span class="progress__text__right">0%</span>
-        <span class="progress__text__left">Standby</span>
+        <span class="progress__text__left"></span>
     </div>
 
     <div class="flex-item">
@@ -67,6 +67,7 @@
 
                             if (response.status === 200) {
                                 let data = await response.text();
+                                console.log(data)
                                 if (!data.includes("not-initialized")) {
                                     let timeAsJson = JSON.parse(data)
                                     let time = timeAsJson.time
@@ -198,6 +199,7 @@
                     function stopTimer() {
                         document.getElementById("laufzeitlabel").innerText = "Laufzeit Insgesamt:"
                         clearInterval(timerInterval)
+                        updateProgressBar(100)
                     }
 
                     ws.onmessage = function (event) {
@@ -231,7 +233,11 @@
                             let diff = now.diff(time);
                             if (fourMinutesHavePassed(diff)) {
                                 clearInterval(timerInterval);
+                                updateProgressBar(100);
                             }
+                            let only_seconds = now.diff(time, 'second');
+                            console.log(only_seconds)
+                            sync_progress_bar_with_timer(only_seconds)
                             let minutes_and_seconds = millisToMinutesAndSeconds(diff);
                             document.getElementById("timer").innerHTML = minutes_and_seconds
                         }, 1000);
@@ -262,6 +268,28 @@
                             return el.src.includes("plant");
                         })
                         return static_plants.length;
+                    }
+
+                    // value is 1 to 100
+                    function updateProgressBar(value) {
+                         let progressBar = document.getElementsByClassName("progress-bar")[0]
+                        value = Math.round(value)
+                        progressBar.querySelector(".progress__fill").style.width = `${value}%`
+                        progressBar.querySelector(".progress__text__right").textContent = `${value}%`
+                    }
+
+                    // do a  linear transform
+                    function map(number, inMin, inMax, outMin, outMax) {
+                        return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+                    }
+
+                    function sync_progress_bar_with_timer(value_in_seconds) {
+                       // console.log(`value_in_seconds = ${value_in_seconds}`)
+                        let actualValue = map(value_in_seconds, 0, 76, 0, 90);
+                       if (actualValue > 90) {
+                           actualValue = 90;
+                       }
+                        updateProgressBar(actualValue)
                     }
                 </script>
             </div>
@@ -326,7 +354,6 @@
             </div>
         </div>
     </div>
-
 </div>
 </body>
 </html>

@@ -80,6 +80,6 @@ img {
     margin-bottom: 60px;
 }
 #bar {
-    visibility: hidden;
+    /* visibility: hidden; */
 
 }

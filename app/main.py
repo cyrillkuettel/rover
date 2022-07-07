@@ -132,6 +132,7 @@ async def time(db: Session = Depends(get_db)):
         logging.info(f"fetched time = %s", displayTime)
     return displayTime
 
+
 @app.get("/time")
 async def time(db: Session = Depends(get_db)):
     t = db.query(models.Time).all()
