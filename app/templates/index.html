@@ -70,6 +70,7 @@
                                 console.log(data)
                                 if (!data.includes("not-initialized")) {
                                     let timeAsJson = JSON.parse(data)
+                                    let description = timeAsJson.description
                                     let time = timeAsJson.time
                                     if (time.includes("startTime=")) {
                                        // console.log("startTime")
@@ -285,7 +286,7 @@
 
                     function sync_progress_bar_with_timer(value_in_seconds) {
                        // console.log(`value_in_seconds = ${value_in_seconds}`)
-                        let actualValue = map(value_in_seconds, 0, 76, 0, 90);
+                        let actualValue = map(value_in_seconds, 0, 85, 0, 90);
                        if (actualValue > 90) {
                            actualValue = 90;
                        }

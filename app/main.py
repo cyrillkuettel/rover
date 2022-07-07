@@ -93,7 +93,7 @@ class DeltaTemplate(Template):
     delimiter = "%"
 
 
-def getStopTime(db: Session):
+async def getStopTime(db: Session):
     """ Returns the Time difference in seconds """
     startTimeColumn: List[Time] = db.query(Time).filter_by(description=TimeType.startTime).all()
     stopTimeColumn: List[Time] = db.query(Time).filter_by(description=TimeType.stopTime).all()
@@ -105,6 +105,8 @@ def getStopTime(db: Session):
         stopTimeDateTime = datetime.fromtimestamp(int(stopTime) / 1000.0)
         diffDateTime = stopTimeDateTime - startTimeDateTime
         return strfdelta(diffDateTime, '%M:%S')
+    else:
+        logging.error("error stopTimeColumn or startTimeColumn is not correct")
 
 
 def strfdelta(delta: timedelta, fmt):
@@ -168,7 +170,7 @@ async def main(request: Request, db: Session = Depends(get_db)):
 
     current_time = "0:00"
     if timeAlreadyStopped(db):  # display the stopped time if it exists
-        current_time = getStopTime(db)
+        current_time = await getStopTime(db)
 
     return templates.TemplateResponse(
         "index.html", {"request": request,
@@ -204,7 +206,7 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     num = await get_num_plants_in_db(db)
     return {"num": num}
 
-
+"""
 @app.get("/clear", response_class=HTMLResponse)
 async def delete_cache(request: Request, db: Session = Depends(get_db)):
     await clear_database(db)
@@ -212,6 +214,8 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     logging.info(f"calling script {IMG_REMOVE}")
     subprocess.call(IMG_REMOVE)
     return "<h2>Cleared Cache. </h2>"
+"""
+
 
 
 @app.get("/steam/injector/restart/")
@@ -540,7 +544,7 @@ async def get_num_plants_in_db(db):
 
 
 @app.get("/websocketTest", response_class=HTMLResponse)
-async def delete_cache(request: Request):
+async def number_of_images(request: Request):
     html_content = """
     <!DOCTYPE html>
 <html lang="en">
