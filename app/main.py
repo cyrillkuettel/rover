@@ -218,8 +218,16 @@ async def restart():
     logging.info("triggered steam/injector/restart")
     _id = 777
     if _id in websocket_map:
-        pilot: WebSocket = websocket_map.get(_id)
-        await manager.send_personal_message("restart", pilot)
+        try:
+            pilot: WebSocket = websocket_map.get(_id)
+            await manager.send_personal_message("restart", pilot)
+        except Exception:
+            logging.info("FAILED TO STOP")
+            try:
+                pilot: WebSocket = websocket_map.get(_id)
+                await manager.send_personal_message("restart", pilot)
+            except Exception:
+                logging.info("FAILED TO STOP")
 
 
 @app.get("/steam/injector/stop/")
