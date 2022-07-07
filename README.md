@@ -1,5 +1,5 @@
 # Rover Front- and Backend
-It's a Web-App to display dynamic status information, there is a continuous stream of incoming updates. To have the images and text dynamically appear, websockets are being used. WebSockets allow for a higher amount of efficiency compared to REST because they do not require the HTTP request/response overhead for each message sent and received.
+It's a Web-App to display dynamic status information, there is a continuous stream of incoming updates. To have the images and text dynamically appear, WebSockets are being used. WebSockets allow for a higher amount of efficiency compared to REST because they do not require the HTTP request/response overhead for each message sent and received.
 
 # Features and Credits 
 
@@ -23,7 +23,7 @@ The System consists of two docker containers: Gunicorn and Nginx. How can they c
 The number of Worker threads is variable. Generally speaking, they scale with the number of CPU cores. This configuration can be overridden in the [varia/gunicorn.conf](gunicorn.conf) file. 
 
 # Milestones
-- [x] Websocket endpoint for low-latency bidirectional coummunication
+- [x] Websocket endpoint for low-latency bidirectional communication
 - [x] Dynamically display status information
 - [X] Display pictures, updated by ![App](https://github.com/cyrillkuettel/ecstatic-pilot)
 - [x] Timer, fetch Timestamp from device
@@ -32,13 +32,13 @@ The number of Worker threads is variable. Generally speaking, they scale with th
 - [x] Specify species and similarity of plants.
 - [x] species -> API
 - [x] Show Progress bar
-- [ ] image processing: image comparision algorithm
+- [ ] image processing: image comparison algorithm
 
 # Start Local dev Environment: Linux
 ## API Key
 The app expects a constants.py in the `app` directory. This class contains the api-key which is needed for plant identification.
 Get a key for [plantnet](https://my.plantnet.org/usage).
-Create a file constants.py which contains a class `Constants` and replace the `<your-api-key>` with the api key you got from plantnet.
+Create a file constants.py which contains a class `Constants` and replace the `<your-api-key>` with the api key you got from plant net.
 ```python
 class Constants:
     def __init__(self):
@@ -54,7 +54,7 @@ Adjust the absolute path, it should point to the directory where you cloned the 
 
 
 # Configure Autocomplete
-If you develop in a IDE, it's much easier with autocompletion.
+If you develop in a IDE, it's much easier with auto completion.
 Create a virtual environment. This will create a python interpreter for your local development environment. 
 
 ```bash
