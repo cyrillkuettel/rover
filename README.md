@@ -3,7 +3,7 @@ It's a Web-App to display dynamic status information, there is a continuous ster
 
 # Features and Credits 
 
-* Using [a 73 Million parameter object detection model](https://github.com/ultralytics/yolov5#pretrained-checkpoints) to detect potted plant from incoming image and cut out one bounding box. 
+* Using [a 73 Million parameter object detection model](https://github.com/ultralytics/yolov5#pretrained-checkpoints) to detect objects from images and cut out one bounding box per image.
 
 * Implemented asynchronous api calls to the [Pl@ntNet identify API](https://identify.plantnet.org/) to determine plant species. 
 * It uses [FastAPI](https://fastapi.tiangolo.com/) framework for API development. FastAPI is a modern, highly performant, web framework for building APIs with Python.
