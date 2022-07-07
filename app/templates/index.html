@@ -290,7 +290,10 @@
                             {% set scientific_n =  "Wissenschaftlicher Name: " ~ plant.scientific_name %}
                         {% endif %}
 
+                         {% if count == 1 %}
+                            <h2> Weitere Pflanzen </h2>
 
+                        {% endif %}
 
                         <div class="plant_card" >
                             <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
