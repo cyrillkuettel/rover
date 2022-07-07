@@ -37,7 +37,7 @@
     <div class="flex-item">
         <h2 id="laufzeitlabel" style="display: inline !important;">Laufzeit: </h2>
         <h2 id="timer" style="display: inline !important;">{{ time }}</h2>
-      <h2 id="position_zielbereich"> </h2>
+        <h2 id="position_zielbereich"></h2>
 
     </div>
 
@@ -60,25 +60,29 @@
                     window.onload = updateTime;
 
                     async function updateTime() {
-                        let response = await fetch('/api/time');
 
-                        console.log("await fetch('/api/time')" + response.status);
+                        async function time_check() {
+                            let response = await fetch('/api/time');
 
-                        if (response.status === 200) {
-                            let data = await response.text();
-                            if (!data.includes("not-initialized")) {
-                                let timeAsJson = JSON.parse(data)
-                                let time = timeAsJson.time
-                                if (time.includes("startTime=")) {
-                                    console.log("startTime")
-                                    extractTime(time);
-                                }
-                                if (time.includes("stopTime")) {
-                                    console.log("stopTime")
-                                    stopTimer()
+                            console.log("await fetch('/api/time')" + response.status);
+
+                            if (response.status === 200) {
+                                let data = await response.text();
+                                if (!data.includes("not-initialized")) {
+                                    let timeAsJson = JSON.parse(data)
+                                    let time = timeAsJson.time
+                                    if (time.includes("startTime=")) {
+                                        console.log("startTime")
+                                        extractTime(time);
+                                    }
+                                    if (time.includes("stopTime")) {
+                                        console.log("stopTime")
+                                        stopTimer()
+                                    }
                                 }
                             }
                         }
+
                         const check_for_new_images = setInterval(function () {
                             // first fetch number of imags in db
                             const url = '/number_of_images'
@@ -137,6 +141,7 @@
 
 
                         const check_plant_in_row = window.setInterval(checkPosition, 5000)
+                        const check_time = window.setInterval(time_check, 1000);
 
                         async function checkPosition() {
                             let response = await fetch('/position');
@@ -145,15 +150,15 @@
                             if (response.status === 200) {
                                 let data = await response.text();
                                 if (!data.includes("_")) {
-                                       console.log(data);
-                                let posAsJson = JSON.parse(data)
+                                    console.log(data);
+                                    let posAsJson = JSON.parse(data)
 
                                     let pos = posAsJson.position
                                     console.log(pos);
                                     if (!isNaN(pos)) {
-                                     document.getElementById("position_zielbereich").innerText = `Die erkannte Pflanze befindet sich im Zielbereich an der ${pos}. Stelle`;
+                                        document.getElementById("position_zielbereich").innerText = `Die erkannte Pflanze befindet sich im Zielbereich an der ${pos}. Stelle`;
                                     } else {
-                                      console.error("not a number");
+                                        console.error("not a number");
                                     }
                                 }
                             }
@@ -197,7 +202,7 @@
                     }
 
                     ws.onmessage = function (event) {
-                      console.log("ws.onmessage");
+                        console.log("ws.onmessage");
                         let data = event.data
                         // Binary data: depending on binaryType is being set either to Arraybuffer or Blob
                         if (data instanceof Blob) {
@@ -229,7 +234,7 @@
                                 clearInterval(timerInterval);
                             }
                             let minutes_and_seconds = millisToMinutesAndSeconds(diff);
-                              console.log(minutes_and_seconds)
+                            console.log(minutes_and_seconds)
                             document.getElementById("timer").innerHTML = minutes_and_seconds
                         }, 1000);
                     }
@@ -270,38 +275,38 @@
                 <div>
 
                     <h2> Erkannte Pflanze </h2>
-                      <!-- Loops over the plants are stored in db -->
+                    <!-- Loops over the plants are stored in db -->
                     {% for plant in plants if plant.absolute_path%}
-                        {% set count = loop.index0 %}
-                        {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
-                        {% set ID = "detected-image" ~ count %}
-                        {% set common_name_ID = "common_name_ID" ~ count %}
-                        {% set scientific_name_ID = "scientific_name_ID" ~ count %}
+                    {% set count = loop.index0 %}
+                    {% set image_file_name = "../static/img/plant" ~ count ~ ".jpg" %}
+                    {% set ID = "detected-image" ~ count %}
+                    {% set common_name_ID = "common_name_ID" ~ count %}
+                    {% set scientific_name_ID = "scientific_name_ID" ~ count %}
 
-                        {% if "" == plant.common_name %}
-                            {% set common_n = plant.common_name   %}
-                            {% else %}
-                            {% set common_n = "Gemeiner Name: " ~ plant.common_name  %}
-                        {% endif %}
+                    {% if "" == plant.common_name %}
+                    {% set common_n = plant.common_name %}
+                    {% else %}
+                    {% set common_n = "Gemeiner Name: " ~ plant.common_name %}
+                    {% endif %}
 
-                        {% if "" == plant.scientific_name %}
-                            {% set scientific_n = plant.scientific_name   %}
-                            {% else %}
-                            {% set scientific_n =  "Wissenschaftlicher Name: " ~ plant.scientific_name %}
-                        {% endif %}
+                    {% if "" == plant.scientific_name %}
+                    {% set scientific_n = plant.scientific_name %}
+                    {% else %}
+                    {% set scientific_n = "Wissenschaftlicher Name: " ~ plant.scientific_name %}
+                    {% endif %}
 
-                         {% if count == 1 %}
-                            <h2> Weitere Pflanzen </h2>
+                    {% if count == 1 %}
+                    <h2> Weitere Pflanzen </h2>
 
-                        {% endif %}
+                    {% endif %}
 
-                        <div class="plant_card" >
-                            <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
-                                 id="{{ ID }}">
-                            <h3 id="{{ common_name_ID }}">{{ common_n }}</h3>
-                            <h3 id="{{ scientific_name_ID }}">{{ scientific_n }}</h3>
+                    <div class="plant_card">
+                        <img src="{{ image_file_name }}" alt="" class="w3-image flex_container_main_Pot detected-image"
+                             id="{{ ID }}">
+                        <h3 id="{{ common_name_ID }}">{{ common_n }}</h3>
+                        <h3 id="{{ scientific_name_ID }}">{{ scientific_n }}</h3>
 
-                        </div>
+                    </div>
                     {% endfor %}
 
 
@@ -311,7 +316,7 @@
                     {% set ID_future = "detected-image" ~ count %}
                     {% set common_name_ID_future = "common_name_ID" ~ count %}
                     {% set scientific_name_ID_future = "scientific_name_ID" ~ count %}
-                    <div class="plant_card" >
+                    <div class="plant_card">
                         <img src="" alt="" class="w3-image flex_container_main_Pot detected-image" id="{{ ID_future }}">
                         <h3 id="{{ common_name_ID_future }}"></h3>
                         <h3 id="{{ scientific_name_ID_future }}"></h3>
