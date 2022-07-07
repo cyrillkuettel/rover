@@ -13,8 +13,9 @@ It's a Website to display status information, which continuously receives update
 
 # System Architecture Overview
 ![](https://github.com/cyrillkuettel/rover/blob/main/doc/diagram/w.png)
-
-The number of Worker threads is variable. Generally speaking, it can scale with the number of CPU cores.
+There are two Docker Containers: Gunicorn and Nginx. Most requests are not served by nginx directly, but passed to the FastAPI app which sits behind nginx. That concerns dynamic calls, rather than static content. This is implemented by setting a proxy_pass in the nginx.conf.
+## Worker Threads
+The number of Worker threads is variable. Generally speaking, they scale with the number of CPU cores. This configuration can be overridden in the [varia/gunicorn.conf](gunicorn.conf) file.
 
 # Milestones
 - [x] Websocket endpoint for low-latency bidirectional coummunication
@@ -23,11 +24,10 @@ The number of Worker threads is variable. Generally speaking, it can scale with 
 - [x] Timer, fetch Timestamp from device
 - [X] Switch between tabs
 - [x] nginx running in docker
-- [ ] Specify species and similarity of plants.
-- [ ] species -> API
-- [ ] Show Error messages, color code it
+- [x] Specify species and similarity of plants.
+- [x] species -> API
+- [x] Show Progress bar
 - [ ] image processing: image comparision algorithm
-- [ ] Show Progress bar
 
 # Start Local dev Environment: Linux
 ## API Key
@@ -57,8 +57,10 @@ Create a virtual environment. This will create a python interpreter for your loc
    conda activate rover
    pip install -r requirements-conda-for-local.txt 
 ```
-### various Notes on Unvicorn
-Remember to exclude the --reload uvicorn option in production. The --reload option consumes much more resources, is more unstable, etc
-Try to read the gunicorn.conf file in docker container. 
+# Deploying
+## SSL
+This application expects a valid certificate at `~/cert/rover`. You can edit this path in the `docker-compose` file. To get a certificate, I followed this [https://help.zerossl.com/hc/en-us/articles/360058295894-Installing-SSL-Certificate-on-NGINX](tutorial). 
+The certificate itself is is mounted as a volume in the nginx container. 
+If you don't want SSL, you'd need to make some adjustments in the [nginx/nginx.conf](nginx.conf) file. 
 
 
