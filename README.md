@@ -1,8 +1,11 @@
-# Rover Front-and Backend
-It's a Website to display status information, which continuously receives updates. To have the images and text dynamically appear, websockets are being used. 
+# Rover Front- and Backend
+It's a Web-App to display dynamic status information, there is a continuous steram of incoming updates. To have the images and text dynamically appear, websockets are being used. WebSockets allow for a higher amount of efficiency compared to REST because they do not require the HTTP request/response overhead for each message sent and received.
 
+# Features and Credits 
 
-# Features
+* Using [a 73 Million parameter object detection model](https://github.com/ultralytics/yolov5#pretrained-checkpoints) to detect potted plant from incoming image and cut out one bounding box. 
+
+* Implemented asynchronous api calls to the [Pl@ntNet identify API](https://identify.plantnet.org/) to determine plant species. 
 * It uses [FastAPI](https://fastapi.tiangolo.com/) framework for API development. FastAPI is a modern, highly performant, web framework for building APIs with Python.
 
 * The APIs are served with [Gunicorn](https://gunicorn.org/) server with multiple [Uvicorn](https://www.uvicorn.org/) workers. Uvicorn is a lightning-fast "ASGI" server. Univorn runs asynchronous Python web code in a single process.
@@ -11,11 +14,13 @@ It's a Website to display status information, which continuously receives update
 
 * Dockerized using the [uvicorn-gunicorn-fastapi-docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker) Docker image.
 
+
 # System Architecture Overview
 ![](https://github.com/cyrillkuettel/rover/blob/main/doc/diagram/w.png)
-There are two Docker Containers: Gunicorn and Nginx. Most requests are not served by nginx directly, but passed to the FastAPI app which sits behind nginx. That concerns dynamic calls, rather than static content. This is implemented by setting a proxy_pass in the nginx.conf.
+The System consists of two docker containers: Gunicorn and Nginx. How can they communicate? Well, they use a shared volume, it's that simple. Most requests are not served by nginx directly, but passed back to the Gunicorn / FastAPI app which sits behind nginx. These are dynamic calls, rather than static content. This can be implemented by setting a proxy_pass in the nginx.conf.
+
 ## Worker Threads
-The number of Worker threads is variable. Generally speaking, they scale with the number of CPU cores. This configuration can be overridden in the [varia/gunicorn.conf](gunicorn.conf) file.
+The number of Worker threads is variable. Generally speaking, they scale with the number of CPU cores. This configuration can be overridden in the [varia/gunicorn.conf](gunicorn.conf) file. 
 
 # Milestones
 - [x] Websocket endpoint for low-latency bidirectional coummunication
