@@ -64,7 +64,6 @@
                         async function time_check() {
                             let response = await fetch('/api/time');
 
-                            console.log("await fetch('/api/time')" + response.status);
 
                             if (response.status === 200) {
                                 let data = await response.text();
@@ -72,11 +71,11 @@
                                     let timeAsJson = JSON.parse(data)
                                     let time = timeAsJson.time
                                     if (time.includes("startTime=")) {
-                                        console.log("startTime")
+                                       // console.log("startTime")
                                         extractTime(time);
                                     }
                                     if (time.includes("stopTime")) {
-                                        console.log("stopTime")
+                                       // console.log("stopTime")
                                         stopTimer()
                                     }
                                 }
@@ -145,20 +144,19 @@
 
                         async function checkPosition() {
                             let response = await fetch('/position');
-                            console.log("await fetch('/position')" + response.status);
+                            // console.log("await fetch('/position')" + response.status);
 
                             if (response.status === 200) {
                                 let data = await response.text();
                                 if (!data.includes("_")) {
-                                    console.log(data);
                                     let posAsJson = JSON.parse(data)
 
                                     let pos = posAsJson.position
-                                    console.log(pos);
+                                    // console.log(pos);
                                     if (!isNaN(pos)) {
                                         document.getElementById("position_zielbereich").innerText = `Die erkannte Pflanze befindet sich im Zielbereich an der ${pos}. Stelle`;
                                     } else {
-                                        console.error("not a number");
+                                       // console.error("not a number");
                                     }
                                 }
                             }
@@ -186,12 +184,12 @@
                     function extractTime(data) {
                         let startTime = data;
                         startTime = startTime.replace('startTime=', '');
-                        console.log(startTime)
+                       // console.log(startTime)
                         let numberTime = parseInt(startTime, 10);
                         let timeStamp = dayjs(numberTime)
-                        console.log("timeStamp = " + timeStamp)
+                        // console.log("timeStamp = " + timeStamp)
                         if (isInvalidTimestamp(timeStamp)) {
-                            console.error("NAN detected. Invalid timestamp.")
+                            // console.error("NAN detected. Invalid timestamp.")
                         } else {
                             startIntervalTimer(timeStamp)
                         }
@@ -203,7 +201,7 @@
                     }
 
                     ws.onmessage = function (event) {
-                        console.log("ws.onmessage");
+                        // console.log("ws.onmessage");
                         let data = event.data
                         // Binary data: depending on binaryType is being set either to Arraybuffer or Blob
                         if (data instanceof Blob) {
@@ -235,7 +233,6 @@
                                 clearInterval(timerInterval);
                             }
                             let minutes_and_seconds = millisToMinutesAndSeconds(diff);
-                            console.log(minutes_and_seconds)
                             document.getElementById("timer").innerHTML = minutes_and_seconds
                         }, 1000);
                     }
