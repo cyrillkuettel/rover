@@ -228,20 +228,17 @@ async def stop(db: Session = Depends(get_db)):
     _id = 777
     if _id in websocket_map:
         pilot: WebSocket = websocket_map.get(_id)
-        success = False
-        while not success:
-            try:
-                await manager.send_personal_message("jetzt_stop", pilot)
-                success = True
-            except Exception as ex:
-                success = False
-                logging.info(ex)
-                logging.info("FAILED TO STOP")
+        try:
+            await manager.send_personal_message("jetzt_stop", pilot)
+        except Exception as ex:
+            logging.info(ex)
+            logging.info("FAILED TO STOP")
+
+
     import asyncio
-    await asyncio.sleep(5)  # wait for the results to load in the background
+    # await asyncio.sleep(5)  # wait for the results to load in the background
     # find if some plants are the same species
     plant_objects: List[models.Plant] = db.query(models.Plant).all()
-    number_of_plants = await get_num_plants_in_db(db)
     candidates_list = await determine_similar_Plant(plant_objects)
     if not candidates_list:
         import random
@@ -373,7 +370,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                                                  common_name=common_name,
                                                  scientific_name=scientific_name,
                                                  is_first=False)
-                    db.update(user_table).where(user_table.c.name == 'patrick').values(fullname='Patrick the Star')
+                    # db.update(models.Progressbar).where(position.).values(fullname='Patrick the Star')
                     db.add(new_Plant)
                     db.commit()
                     # update progressbar
