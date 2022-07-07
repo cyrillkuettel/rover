@@ -79,3 +79,7 @@ img {
 .plant_card {
     margin-bottom: 60px;
 }
+#bar {
+    visibility: hidden;
+
+}

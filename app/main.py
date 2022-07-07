@@ -233,20 +233,22 @@ async def stop(db: Session = Depends(get_db)):
     candidates_list = await determine_similar_Plant(plant_objects)
     if not candidates_list:
         import random
-        plant_in_row = random.randint(1, number_of_plants - 1)
+        logging.info("gamble")
+        plant_in_row = random.randint(1, 5)
     else:
-        plant_in_row = candidates_list[0].id + 1
+        plant_in_row = candidates_list[0].id - 1
+    logging.info(f"Die gleiche Pflanze ist an {plant_in_row}. Stelle im Zielbereich")
     plantinrow = models.PlantInRow(position=plant_in_row)
     db.add(plantinrow)
     db.commit()
 
 @app.get("/position")
 async def position(db: Session = Depends(get_db)):
-    plant_position: List[models.Plant] = db.query(models.PlantInRow).all()
+    plant_position: List[models.PlantInRow] = db.query(models.PlantInRow).all()
     if plant_position:
-        return plant_position
+        return plant_position[0]
     else:
-        return ""
+        return "_"
 
 
 
@@ -257,6 +259,7 @@ async def p(db: Session = Depends(get_db)):
 
 
 async def determine_similar_Plant(plant_objects: List[models.Plant]) -> List[models.Plant]:
+    logging.info("determin similar plant")
     from collections import Counter
     common_names = [p.common_name for p in plant_objects]
     # get duplicates.
