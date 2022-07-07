@@ -1,5 +1,5 @@
 # Rover Front- and Backend
-It's a Web-App to display dynamic status information, there is a continuous steram of incoming updates. To have the images and text dynamically appear, websockets are being used. WebSockets allow for a higher amount of efficiency compared to REST because they do not require the HTTP request/response overhead for each message sent and received.
+It's a Web-App to display dynamic status information, there is a continuous stream of incoming updates. To have the images and text dynamically appear, websockets are being used. WebSockets allow for a higher amount of efficiency compared to REST because they do not require the HTTP request/response overhead for each message sent and received.
 
 # Features and Credits 
 
