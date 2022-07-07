@@ -228,11 +228,15 @@ async def stop(db: Session = Depends(get_db)):
     _id = 777
     if _id in websocket_map:
         pilot: WebSocket = websocket_map.get(_id)
-        try:
-            await manager.send_personal_message("jetzt_stop", pilot)
-        except Exception as ex:
-            logging.info(ex)
-            logging.info("FAILED TO STOP")
+        success = False
+        while not success:
+            try:
+                await manager.send_personal_message("jetzt_stop", pilot)
+                success = True
+            except Exception as ex:
+                success = False
+                logging.info(ex)
+                logging.info("FAILED TO STOP")
     import asyncio
     await asyncio.sleep(5)  # wait for the results to load in the background
     # find if some plants are the same species
