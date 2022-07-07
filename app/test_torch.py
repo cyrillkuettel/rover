@@ -4,6 +4,7 @@ import logging
 import numpy as np
 from pathlib import Path
 from app import models
+from app.main import determine_similar_Plant
 from app.plant_box_cropper import PlantBoxCropper
 from pandas import DataFrame
 from unittest import IsolatedAsyncioTestCase
@@ -96,11 +97,49 @@ class MyTestCase(TestCaseBase):
         self.assertEqual(2, len(bounding_boxes_dict))
         Log.info(bounding_boxes_dict)
 
-        """ testing the string operations when getting species """
+        """ testing duplicates filtering methods """
+
+    async def test_find_matching_plant_with_duplicate_attribute(self):
+        plant1 = models.Plant(absolute_path="foo1", common_name="Pfefferminze", scientific_name="foo", is_first=False)
+        plant2 = models.Plant(absolute_path="foo1", common_name="Pfefferminze", scientific_name="bar", is_first=True)
+        plant3 = models.Plant(absolute_path="foo1", common_name="Something", scientific_name="foobar", is_first=False)
+        plants = [plant1, plant2, plant3]
+        candidates_list = await determine_similar_Plant(plants)
+        result: models.Plant = candidates_list[0]
+        Log = logging.getLogger("Test.torch")
+        self.assertEqual(plant2.common_name, result.common_name)
+
+    async def test_duplicates_if_no_match_just_get_random(self):
+        plant1 = models.Plant(absolute_path="foo1", common_name="Pfefferminze", scientific_name="foo", is_first=False)
+        plant2 = models.Plant(absolute_path="foo1", common_name="Trauben", scientific_name="bar", is_first=True)
+        plant3 = models.Plant(absolute_path="foo1", common_name="Basilikum", scientific_name="foobar", is_first=False)
+        plants = [plant1, plant2, plant3]
+        candidates_list = await determine_similar_Plant(plants)
+        self.assertEquals(len(candidates_list), 0)
+
+        """ If multiple available, pick the one which does no come immediatly after"""
+
+    async def test_if_multiple_possible_candidates_get_oldest(self):
+        plant0 = models.Plant(id=1, absolute_path="plant0", common_name="Pfefferminze", scientific_name="foo",
+                              is_first=True)
+        plant1 = models.Plant(id=2, absolute_path="plant1", common_name="Pfefferminze", scientific_name="bar",
+                              is_first=False)
+        plant2 = models.Plant(id=3, absolute_path="plant2", common_name="Something", scientific_name="foobar",
+                              is_first=False)
+        plant3 = models.Plant(id=4, absolute_path="plant3", common_name="SomethingOther", scientific_name="foobar",
+                              is_first=False)
+        plant4 = models.Plant(id=5, absolute_path="plant4", common_name="Pfefferminze", scientific_name="foobar",
+                              is_first=False)
+
+        plants = [plant0, plant1, plant2, plant3, plant4]
+
+        candidates_list = await determine_similar_Plant(plants)
+        result = candidates_list[0]
+        self.assertEqual("plant4", result.absolute_path)
+        self.assertEqual(plant4.common_name, result.common_name)
 
 
-
-
+""" same as before but empty """
 
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stderr)

@@ -17,7 +17,8 @@ class PlantBoxCropper:
         self.output_image: Path = output_image
         # self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
         # self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', skip_validation=True, force_reload=True)
-        self.model = torch.hub.load(repo_or_dir='ultralytics/yolov5', model='yolov5l6', skip_validation=True)  # add force_reload=True if fails
+        self.model = torch.hub.load(repo_or_dir='ultralytics/yolov5', model='yolov5l6', skip_validation=True,
+                                    force_reload=True)  # add force_reload=True if fails
         self.model.conf = 0.25  # NMS confidence threshold
         self.model.iou = 0.45  # NMS IoU threshold
         self.model.agnostic = False  # NMS class-agnostic

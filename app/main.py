@@ -132,7 +132,6 @@ async def time(db: Session = Depends(get_db)):
     return displayTime
 
 
-
 @app.get("/api/plantnames/{plant_id}")
 async def common_name(plant_id: int, db: Session = Depends(get_db)):
     _id = str(plant_id)
@@ -183,14 +182,12 @@ async def get_first_plant_identification_result(db):
     return common_nameID0, scientific_name_ID0
 
 
-
 async def get_logs_from_db(db):
     return db.query(models.Log).all()
 
 
 async def get_plants_from_db(db):
     return db.query(models.Plant).all()
-
 
 
 @app.get("/number_of_images")
@@ -205,8 +202,7 @@ async def delete_cache(request: Request, db: Session = Depends(get_db)):
     logging.info("clearing the images")
     logging.info(f"calling script {IMG_REMOVE}")
     subprocess.call(IMG_REMOVE)
-    return "<h2>Cleared Cache. </h2> <p>All Logging and images deleted from server</p>"
-
+    return "<h2>Cleared Cache. </h2>"
 
 
 @app.get("/steam/injector/restart/")
@@ -219,7 +215,7 @@ async def restart():
 
 
 @app.get("/steam/injector/stop/")
-async def stop():
+async def stop(db: Session = Depends(get_db)):
     logging.info("triggered steam/injector/stop")
     _id = 777
     if _id in websocket_map:
@@ -229,22 +225,72 @@ async def stop():
         except Exception as ex:
             logging.info(ex)
             logging.info("FAILED TO STOP")
+    import asyncio
+    await asyncio.sleep(5)  # wait for the results to load in the background
+    # find if some plants are the same species
+    plant_objects: List[models.Plant] = db.query(models.Plant).all()
+    number_of_plants = await get_num_plants_in_db(db)
+    candidates_list = await determine_similar_Plant(plant_objects)
+    if not candidates_list:
+        import random
+        plant_in_row = random.randint(1, number_of_plants - 1)
+    else:
+        plant_in_row = candidates_list[0].id + 1
+    plantinrow = models.PlantInRow(position=plant_in_row)
+    db.add(plantinrow)
+    db.commit()
+
+@app.get("/position")
+async def position(db: Session = Depends(get_db)):
+    plant_position: List[models.Plant] = db.query(models.PlantInRow).all()
+    if plant_position:
+        return plant_position
+    else:
+        return ""
+
+
+
+@app.get("/plants")
+async def p(db: Session = Depends(get_db)):
+    plant_objects: List[models.Plant] = db.query(models.Plant).all()
+    return plant_objects
+
+
+async def determine_similar_Plant(plant_objects: List[models.Plant]) -> List[models.Plant]:
+    from collections import Counter
+    common_names = [p.common_name for p in plant_objects]
+    # get duplicates.
+    dups = [k for k, v in Counter(common_names).items() if v > 1]
+    scientifc_names = [p.scientific_name for p in plant_objects]
+    scientifc_names_duplicates = [k for k, v in Counter(scientifc_names).items() if v > 1]
+    if not dups:
+        return list()  # return empty list if not duplicates have been found
+    candidates = [p for p in plant_objects if p.common_name in dups]
+    if len(candidates) == 1:  # this case is easy, only one possibility
+        return candidates
+    else:  # get the one with the highest index
+        try:
+            current_id = -1
+            max_obj = None
+            for plant in candidates:
+                if plant.id > current_id:
+                    current_id = plant.id
+                    max_obj = plant
+            return [max_obj]
+        except Exception:
+            return candidates[0]
 
 
 async def clear_database(db: Session):
     db.query(models.Plant).delete()
+    db.query(models.Time).delete()
     db.query(models.Log).delete()
     logging.info("cleared database")
 
 
-async def timeAlreadySet(db):
+def timeAlreadySet(db):
     timeColumn: int = len(db.query(models.Time).all())
-    logging.info(f"There are {timeColumn} columns in the Time. Printing Time")
-    logging.info(str(models.Time.time))
-    if timeColumn > 0:
-        return True
-    else:
-        return False
+    return timeColumn > 0
 
 
 def timeAlreadyStopped(db: Session):
@@ -301,9 +347,17 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
 
                     logging.info(f"common_name {common_name}")
                     logging.info(f"scientific_name {scientific_name}")
-                    new_Plant = models.Plant(absolute_path=str(plant_image_cropped_path),
-                                             common_name=common_name,
-                                             scientific_name=scientific_name)
+
+                    if number_of_plants == 0:  # first plant
+                        new_Plant = models.Plant(absolute_path=str(plant_image_cropped_path),
+                                                 common_name=common_name,
+                                                 scientific_name=scientific_name,
+                                                 is_first=True)
+                    else:
+                        new_Plant = models.Plant(absolute_path=str(plant_image_cropped_path),
+                                                 common_name=common_name,
+                                                 scientific_name=scientific_name,
+                                                 is_first=False)
                     db.add(new_Plant)
                     db.commit()
                     # update progressbar
@@ -393,7 +447,7 @@ class ImageTools:
 
 
 async def handle_text_commands(client_id, db, websocket):
-    textData = await websocket.receive_text()
+    textData: str = await websocket.receive_text()
     logging.info(textData)
     is_app = await isMessageFromApp(client_id)
     if is_app:
@@ -402,16 +456,15 @@ async def handle_text_commands(client_id, db, websocket):
             command = command.split("command=", 1)[1]
             logging.info(command)
             if "startTime" in command:  # startTime=2020-12-01T...
-                time_set = await timeAlreadySet(db)
-                if not time_set:
-                    await manager.broadcastText("Initialisiere Modell der Objekterkennung: YOLOv5l6 mit 76.8 Millionen Parameter")
-                    #await manager.send_personal_message(f"You wrote: {command}",
-                                                        #websocket)
+                if not timeAlreadySet(db):
+                    await manager.broadcastText(
+                        "Initialisiere Objekterkennungsmodell: YOLOv5l6 mit 76.8 Millionen Parameter")
+                    await manager.send_personal_message(f"You wrote: {command}",
+                                                        websocket)
 
                     await manager.broadcastText(command)  # Subtract time on client-side
-                    await write_time_to_db(command, db)
+                    await write_starttime_to_db(command, db)
                     await initialize_yolo()
-
                 else:
                     logging.error("Time has already been set, skipping.")
             if "stopTime" in command:
@@ -437,7 +490,7 @@ async def handle_text_commands(client_id, db, websocket):
         logging.info(" FATAL ERROR: Len(client_id) bigger than 9")
 
 
-async def write_time_to_db(command, db):
+async def write_starttime_to_db(command, db):
     splitted_without_commmand = command[:]
     splitted_without_commmand = splitted_without_commmand.split("startTime=", 1)[1]
     time = models.Time(time=splitted_without_commmand, description=TimeType.startTime)

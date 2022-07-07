@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum, Boolean
 from .database import Base
 import enum
 
@@ -15,6 +15,7 @@ class Log(Base):
 class Plant(Base):
     __tablename__ = "plants"
     id = Column(Integer, primary_key=True, index=True)
+    is_first = Column(Boolean)  # first or not
     absolute_path = Column(String)
     scientific_name = Column(String)
     common_name = Column(String)
@@ -36,3 +37,9 @@ class Time(Base):
 
     def __str__(self):
         return self.time
+
+
+class PlantInRow(Base):
+    __tablename__ = "plantinrow"
+    id = Column(Integer, primary_key=True, index=True)
+    position = Column(String)
