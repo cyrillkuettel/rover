@@ -9,7 +9,7 @@ const updateProgressBarEverySecond = (n)=>{
       }
   }
 
-
+// value is 1 to 100
 function updateProgressBar(progressBar, value) {
     value = Math.round(value)
     

@@ -23,6 +23,7 @@ from .database import SessionLocal, engine
 from sqlalchemy.orm import Session, Query
 import torch
 from pydantic import BaseSettings
+from sqlalchemy import update
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -130,6 +131,13 @@ async def time(db: Session = Depends(get_db)):
             displayTime = "not-initialized"
         logging.info(f"fetched time = %s", displayTime)
     return displayTime
+
+@app.get("/time")
+async def time(db: Session = Depends(get_db)):
+    t = db.query(models.Time).all()
+    return t
+
+
 
 
 @app.get("/api/plantnames/{plant_id}")
@@ -361,6 +369,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int, db: Session =
                                                  common_name=common_name,
                                                  scientific_name=scientific_name,
                                                  is_first=False)
+                    db.update(user_table).where(user_table.c.name == 'patrick').values(fullname='Patrick the Star')
                     db.add(new_Plant)
                     db.commit()
                     # update progressbar

@@ -43,3 +43,8 @@ class PlantInRow(Base):
     __tablename__ = "plantinrow"
     id = Column(Integer, primary_key=True, index=True)
     position = Column(String)
+
+class Progressbar(Base):
+    __tablename__ = "progressbar"
+    id = Column(Integer, primary_key=True, index=True)
+    position = Column(String)  # 10 to 100
